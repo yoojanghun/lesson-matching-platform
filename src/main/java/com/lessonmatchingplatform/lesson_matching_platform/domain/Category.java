@@ -8,7 +8,9 @@ import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
-@EntityListeners(AuditingFields.class)
+@Table(indexes = {
+        @Index(columnList = "name")
+})
 @Entity
 public class Category extends AuditingFields {
 

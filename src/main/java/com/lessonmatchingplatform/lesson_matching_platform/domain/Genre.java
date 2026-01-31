@@ -4,9 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @ToString(callSuper = true)
 @Getter
@@ -14,38 +12,40 @@ import java.util.Set;
         @Index(columnList = "name")
 })
 @Entity
-public class Category extends AuditingFields {
+public class Genre extends AuditingFields {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long categoryId;
+    private Long genreId;
 
     @Column(length = 50, nullable = false, unique = true)
     private String name;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private final Set<Subject> subjects = new LinkedHashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 
-    protected Category() {}
+    protected Genre() {}
 
-    private Category(String name) {
+    private Genre(String name, Subject subject) {
         this.name = name;
+        this.subject = subject;
     }
 
-    public static Category of(String name) {
-        return new Category(name);
+    public static Genre of(String name, Subject subject) {
+        return new Genre(name, subject);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Category category)) return false;
-        return this.categoryId != null && Objects.equals(this.categoryId, category.categoryId);
+        if (!(o instanceof Genre genre)) return false;
+        return this.genreId != null && Objects.equals(this.genreId, genre.genreId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(categoryId);
+        return Objects.hashCode(genreId);
     }
 }

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @ToString(callSuper = true)
 @Getter
@@ -20,6 +22,10 @@ public class Category extends AuditingFields {
 
     @Column(length = 50, nullable = false, unique = true)
     private String name;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    private final Set<Subject> subjects = new LinkedHashSet<>();
 
     protected Category() {}
 

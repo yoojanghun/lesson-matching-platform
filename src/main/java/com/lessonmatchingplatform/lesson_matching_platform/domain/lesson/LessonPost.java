@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @ToString(callSuper = true)
 @Getter
@@ -31,6 +33,10 @@ public class LessonPost extends AuditingFields {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "lessonPost", cascade = CascadeType.ALL)
+    private final Set<Matching> matchingSet = new LinkedHashSet<>();
 
     protected LessonPost() {}
 

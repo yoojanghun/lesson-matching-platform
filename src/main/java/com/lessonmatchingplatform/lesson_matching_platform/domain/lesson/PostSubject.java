@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.domain.lesson;
 
-import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Genre;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Subject;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -10,7 +10,7 @@ import java.util.Objects;
 @ToString
 @Getter
 @Entity
-public class PostGenre {
+public class PostSubject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,29 +18,29 @@ public class PostGenre {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "genre_id")
-    private Genre genre;
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private LessonPost lessonPost;
 
-    protected PostGenre() {}
+    protected PostSubject() {}
 
-    private PostGenre(Genre genre, LessonPost lessonPost) {
-        this.genre = genre;
+    private PostSubject(Subject subject, LessonPost lessonPost) {
+        this.subject = subject;
         this.lessonPost = lessonPost;
     }
 
-    public static PostGenre of(Genre genre, LessonPost lessonPost) {
-        return new PostGenre(genre, lessonPost);
+    public static PostSubject of(Subject subject, LessonPost lessonPost) {
+        return new PostSubject(subject, lessonPost);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PostGenre that)) return false;
+        if (!(o instanceof PostSubject that)) return false;
         return this.id != null && Objects.equals(this.id, that.id);
     }
 

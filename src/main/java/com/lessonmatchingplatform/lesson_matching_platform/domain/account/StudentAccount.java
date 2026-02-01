@@ -1,8 +1,11 @@
-package com.lessonmatchingplatform.lesson_matching_platform.domain;
+package com.lessonmatchingplatform.lesson_matching_platform.domain.account;
 
+import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
@@ -35,5 +38,17 @@ public class StudentAccount extends AuditingFields {
 
     public StudentAccount of(UserAccount userAccount, String introduction, String location) {
         return new StudentAccount(userAccount, introduction, location);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StudentAccount that)) return false;
+        return this.studentId != null && Objects.equals(this.studentId, that.studentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(studentId);
     }
 }

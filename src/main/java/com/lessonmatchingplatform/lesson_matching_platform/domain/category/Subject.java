@@ -29,10 +29,6 @@ public class Subject extends AuditingFields {
     @Column(length = 50, nullable = false, unique = true)
     private String name;
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-    private final Set<Genre> genres = new LinkedHashSet<>();
-
     protected Subject() {}
 
     private Subject(Category category, String name) {

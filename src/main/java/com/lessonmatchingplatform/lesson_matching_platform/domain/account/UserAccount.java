@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.domain.account;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.type.GenderType;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.type.RoleType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,6 +33,10 @@ public class UserAccount extends AuditingFields {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private RoleType role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private GenderType gender;
 
     @Column(nullable = false)
     private LocalDate birthDate;

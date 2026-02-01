@@ -24,7 +24,7 @@ public class Matching extends AuditingFields {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "post_id", nullable = false)
     private LessonPost lessonPost;
 
     @Column(length = 500, nullable = false)
@@ -32,6 +32,9 @@ public class Matching extends AuditingFields {
 
     @Column(length = 20, nullable = false)
     private String status;
+
+    @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL)
+    private LessonReview lessonReview;
 
     protected Matching() {}
 

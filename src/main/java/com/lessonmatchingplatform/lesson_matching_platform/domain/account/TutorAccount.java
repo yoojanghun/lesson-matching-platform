@@ -1,11 +1,14 @@
 package com.lessonmatchingplatform.lesson_matching_platform.domain.account;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.LessonPost;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @ToString(callSuper = true)
 @Getter
@@ -28,6 +31,10 @@ public class TutorAccount extends AuditingFields {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String career;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    private final Set<LessonPost> lessonPosts = new LinkedHashSet<>();
 
     protected TutorAccount() {}
 

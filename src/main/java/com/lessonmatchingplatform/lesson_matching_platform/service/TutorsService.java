@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.domain.service;
+package com.lessonmatchingplatform.lesson_matching_platform.service;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;

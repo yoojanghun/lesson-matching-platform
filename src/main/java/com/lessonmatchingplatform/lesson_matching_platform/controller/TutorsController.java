@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.domain.service.TutorsService;
+import com.lessonmatchingplatform.lesson_matching_platform.service.TutorsService;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.type.SearchType;

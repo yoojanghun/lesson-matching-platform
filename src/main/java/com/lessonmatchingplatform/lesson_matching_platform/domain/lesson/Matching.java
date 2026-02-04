@@ -2,6 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.domain.lesson;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.StudentAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -24,8 +25,8 @@ public class Matching extends AuditingFields {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private LessonPost lessonPost;
+    @JoinColumn(name = "tutor_id", nullable = false)
+    private TutorAccount tutorAccount;
 
     @Column(length = 500, nullable = false)
     private String requestMsg;
@@ -38,15 +39,15 @@ public class Matching extends AuditingFields {
 
     protected Matching() {}
 
-    private Matching(StudentAccount studentAccount, LessonPost lessonPost, String requestMsg, String status) {
+    private Matching(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, String status) {
         this.studentAccount = studentAccount;
-        this.lessonPost = lessonPost;
+        this.tutorAccount = tutorAccount;
         this.requestMsg = requestMsg;
         this.status = status;
     }
 
-    public static Matching of(StudentAccount studentAccount, LessonPost lessonPost, String requestMsg, String status) {
-        return new Matching(studentAccount, lessonPost, requestMsg, status);
+    public static Matching of(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, String status) {
+        return new Matching(studentAccount, tutorAccount, requestMsg, status);
     }
 
     @Override

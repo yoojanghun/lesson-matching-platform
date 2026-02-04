@@ -1,7 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.domain.account;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
-import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.LessonPost;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.category.CategoryTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.category.SubjectTutor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -32,20 +33,33 @@ public class TutorAccount extends AuditingFields {
     @Column(columnDefinition = "TEXT")
     private String career;
 
+    @Column(length = 100)
+    private String title;
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
-    private final Set<LessonPost> lessonPosts = new LinkedHashSet<>();
+    private final Set<CategoryTutor> categoryTutorSet = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    private final Set<SubjectTutor> subjectTutorSet = new LinkedHashSet<>();
 
     protected TutorAccount() {}
 
-    private TutorAccount(UserAccount userAccount, String introduction, String career) {
+    private TutorAccount(UserAccount userAccount, String introduction, String career, String title, String content) {
         this.userAccount = userAccount;
         this.introduction = introduction;
         this.career = career;
+        this.title = title;
+        this.content = content;
     }
 
-    public static TutorAccount of(UserAccount userAccount, String introduction, String career) {
-        return new TutorAccount(userAccount, introduction, career);
+    public static TutorAccount of(UserAccount userAccount, String introduction, String career, String title, String content) {
+        return new TutorAccount(userAccount, introduction, career, title, content);
     }
 
     @Override

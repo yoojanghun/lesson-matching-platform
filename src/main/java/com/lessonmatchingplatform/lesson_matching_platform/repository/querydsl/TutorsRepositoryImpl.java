@@ -11,6 +11,7 @@ import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -19,8 +20,10 @@ import static com.lessonmatchingplatform.lesson_matching_platform.domain.account
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QCategory.category;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QCategoryTutor.categoryTutor;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QSubject.subject;
+import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QSubjectTutor.subjectTutor;
 
 @Getter
+@Repository
 public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -38,10 +41,11 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
                 .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
                 .leftJoin(categoryTutor.category, category)
-                .leftJoin(category.subjects, subject)
+                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
+                .leftJoin(subjectTutor.subject, subject)
                 .where(
-                        categoryEq(condition.categoryType()),
-                        subjectEq(condition.subjectType())
+                        categoryEq(condition.category()),
+                        subjectEq(condition.subject())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -54,10 +58,11 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 .from(tutorAccount)
                 .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
                 .leftJoin(categoryTutor.category, category)
-                .leftJoin(category.subjects, subject)
+                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
+                .leftJoin(subjectTutor.subject, subject)
                 .where(
-                        categoryEq(condition.categoryType()),
-                        subjectEq(condition.subjectType())
+                        categoryEq(condition.category()),
+                        subjectEq(condition.subject())
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);

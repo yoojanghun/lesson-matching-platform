@@ -38,3 +38,4 @@ out/
 
 ### Query Dsl ###
 /src/main/generated/
+/build/generated/

@@ -48,6 +48,10 @@ public class TutorAccount extends AuditingFields {
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
     private final Set<SubjectTutor> subjectTutorSet = new LinkedHashSet<>();
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
+
     protected TutorAccount() {}
 
     private TutorAccount(UserAccount userAccount, String introduction, String career, String title, String content) {

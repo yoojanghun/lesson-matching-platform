@@ -14,6 +14,7 @@ import java.util.Objects;
 @Getter
 @Table(indexes = {
         @Index(columnList = "userId"),
+        @Index(columnList = "name"),
         @Index(columnList = "phoneNumber"),
         @Index(columnList = "email")
 })

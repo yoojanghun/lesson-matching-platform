@@ -1,24 +1,25 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.domain.service.TutorsService;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
+import com.lessonmatchingplatform.lesson_matching_platform.service.TutorsService;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
-import com.lessonmatchingplatform.lesson_matching_platform.type.SearchType;
-import com.lessonmatchingplatform.lesson_matching_platform.type.SubjectType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RequestMapping("/api/tutors")
+@RequiredArgsConstructor
 @RestController
 public class TutorsController {
 
+    private final TutorsService tutorsService;
+
     @GetMapping
-    public List<TutorsResponse> getTutorsList(
-            @RequestParam CategoryType category,
-            @RequestParam SubjectType subject,
-            @RequestParam SearchType searchType
+    public Page<TutorsResponse> getTutorsList(
+            TutorSearchCondition tutorSearchCondition,
+            Pageable pageable
     ) {
-        return TutorsService.getTutorsList(category, subject, searchType);
+        return tutorsService.getTutorsList(tutorSearchCondition, pageable);
     }
 }

@@ -1,21 +1,26 @@
 INSERT INTO category (name, created_at, created_by, modified_at, modified_by)
 VALUES
-('피아노', NOW(), 'admin', NULL, NULL),
-('기타', NOW(), 'admin', NULL, NULL),
-('현악기', NOW(), 'admin', NULL, NULL),
-('드럼', NOW(), 'system', NULL, NULL),
-('보컬', NOW(), 'system', '2026-02-01 23:30:00', 'admin');
+('PIANO', NOW(), 'system', NULL, NULL),
+('GUITAR', NOW(), 'system', NULL, NULL),
+('VIOLIN', NOW(), 'system', NULL, NULL),
+('DRUM', NOW(), 'system', NULL, NULL),
+('VOCAL', NOW(), 'system', '2026-02-01 23:30:00', 'system');
 
 INSERT INTO subject (category_id, name, created_at, created_by, modified_at, modified_by)
 VALUES
-(1, '클래식', NOW(), 'admin', NULL, NULL),
-(1, '재즈', NOW(), 'admin', NULL, NULL),
-(3, '바이올린', NOW(), 'admin', NULL, NULL),
-(3, '첼로', NOW(), 'system', NULL, NULL),
-(2, '통기타 취미반', NOW(), 'admin', NULL, NULL),
-(2, '베이스 기타 입시반', NOW(), 'manager', NULL, NULL),
-(4, '드럼 세트 기초', NOW(), 'system', NULL, NULL),
-(5, '동요', NOW(), 'admin', NULL, NULL);
+(1, 'PIANO_CLASSICAL', NOW(), 'admin', NULL, NULL),
+(1, 'PIANO_JAZZ', NOW(), 'admin', NULL, NULL),
+(1, 'PIANO_NEWAGE', NOW(), 'admin', NULL, NULL),
+(3, 'VIOLIN_CLASSICAL', NOW(), 'admin', NULL, NULL),
+(3, 'VIOLIN_JAZZ', NOW(), 'system', NULL, NULL),
+(2, 'GUITAR_CLASSICAL', NOW(), 'admin', NULL, NULL),
+(2, 'GUITAR_ACOUSTIC', NOW(), 'manager', NULL, NULL),
+(2, 'GUITAR_BASS', NOW(), 'manager', NULL, NULL),
+(4, 'DRUM_POP', NOW(), 'system', NULL, NULL),
+(5, 'VOCAL_CLASSICAL', NOW(), 'admin', NULL, NULL),
+(5, 'VOCAL_POP', NOW(), 'admin', NULL, NULL),
+(6, 'COMPOSITION_MIDI', NOW(), 'admin', NULL, NULL),
+(6, 'COMPOSITION_CLASSICAL', NOW(), 'admin', NULL, NULL);
 
 INSERT INTO user_account (user_id, user_password, role, gender, birth_date, phone_number, email, created_at, created_by, modified_at, modified_by)
 VALUES

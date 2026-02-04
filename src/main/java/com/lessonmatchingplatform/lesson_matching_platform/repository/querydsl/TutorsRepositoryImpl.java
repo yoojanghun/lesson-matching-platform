@@ -14,6 +14,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QTutorAccount.tutorAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QUserAccount.userAccount;
@@ -39,7 +40,7 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
         List<TutorAccount> content = queryFactory
                 .selectFrom(tutorAccount).distinct()
                 .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
-                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
+                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)         // 여기서 leftJoin은 필터링 용(데이터 가져오기 X)
                 .leftJoin(categoryTutor.category, category)
                 .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
                 .leftJoin(subjectTutor.subject, subject)
@@ -66,6 +67,18 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Optional<TutorAccount> searchTutor(Long tutorId) {
+        TutorAccount content = queryFactory
+                .selectFrom(tutorAccount)
+                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                .where(
+                        tutorAccount.tutorId.eq(tutorId)
+                ).fetchOne();
+
+        return Optional.ofNullable(content);
     }
 
     // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것

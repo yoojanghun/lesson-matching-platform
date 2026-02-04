@@ -12,6 +12,7 @@ public record TutorsResponse(
 ){
     public static TutorsResponse from(TutorAccount entity) {
 
+        // batch_fetch_size=100 설정으로 tutors들의 categories들을 한두번의 쿼리로 빠르게 채워줌
         Set<String> categories = entity.getCategoryTutorSet().stream()
                 .map(categoryTutor ->
                         categoryTutor.getCategory().getName())
@@ -23,7 +24,7 @@ public record TutorsResponse(
                 .collect(Collectors.toUnmodifiableSet());
 
         return new TutorsResponse(
-                entity.getUserAccount().getName(),
+                entity.getUserAccount().getName(),              // fetchJoin 사용으로 추가 쿼리 안 나감.
                 entity.getTitle(),
                 categories,
                 subjects

@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.service.TutorsService;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,12 @@ public class TutorsController {
             Pageable pageable
     ) {
         return tutorsService.getTutorsList(tutorSearchCondition, pageable);
+    }
+
+    @GetMapping("/{tutorId}")
+    public TutorResponse getTutor(
+            @PathVariable Long tutorId
+    ) {
+        return tutorsService.getTutor(tutorId);
     }
 }

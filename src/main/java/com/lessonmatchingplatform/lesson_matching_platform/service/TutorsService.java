@@ -1,8 +1,11 @@
 package com.lessonmatchingplatform.lesson_matching_platform.service;
 
+import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.TutorsRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,5 +23,13 @@ public class TutorsService {
     public Page<TutorsResponse> getTutorsList(TutorSearchCondition tutorSearchCondition, Pageable pageable) {
         return tutorsRepository.searchTutors(tutorSearchCondition, pageable)
                 .map(TutorsResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public TutorResponse getTutor(Long tutorId) {
+        TutorAccount tutorAccount = tutorsRepository.searchTutor(tutorId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        return TutorResponse.from(tutorAccount);
     }
 }

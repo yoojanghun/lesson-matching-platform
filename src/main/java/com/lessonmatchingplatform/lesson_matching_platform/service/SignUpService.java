@@ -1,14 +1,13 @@
 package com.lessonmatchingplatform.lesson_matching_platform.service;
 
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.Location;
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.LocationTutor;
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.UserAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.account.*;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Category;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.CategoryTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Subject;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.SubjectTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSignupRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSignUpRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.StudentMyResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.*;
 import com.lessonmatchingplatform.lesson_matching_platform.type.RoleType;
@@ -33,6 +32,7 @@ public class SignUpService {
     private final LocationTutorRepository locationTutorRepository;
     private final LocationRepository locationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StudentRepository studentRepository;
 
     public TutorResponse signUpTutor(TutorSignUpRequest request) {
 
@@ -93,5 +93,28 @@ public class SignUpService {
         }
 
         return TutorResponse.from(tutorAccount);
+    }
+
+    public StudentMyResponse signUpStudent(StudentSignupRequest request) {
+
+        UserAccount userAccount = UserAccount.of(
+                request.userId(),
+                passwordEncoder.encode(request.userPassword()),
+                request.name(),
+                RoleType.STUDENT,
+                request.gender(),
+                request.birthDate(),
+                request.phoneNumber(),
+                request.email()
+        );
+        userRepository.save(userAccount);
+
+        StudentAccount studentAccount = StudentAccount.of(
+                userAccount,
+                request.introduction()
+        );
+        StudentAccount savedStudent = studentRepository.save(studentAccount);
+
+        return StudentMyResponse.from(savedStudent);
     }
 }

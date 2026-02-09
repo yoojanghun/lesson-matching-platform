@@ -2,11 +2,13 @@ package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.service.TutorsService;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/tutors")
@@ -30,4 +32,13 @@ public class TutorsController {
     ) {
         return tutorsService.getTutor(tutorId);
     }
+
+    // Student로 등록한 경우 Tutor 등록(계정 전환)
+//    @PostMapping
+//    public TutorResponse postTutor(
+//            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+//
+//    ) {
+//
+//    }
 }

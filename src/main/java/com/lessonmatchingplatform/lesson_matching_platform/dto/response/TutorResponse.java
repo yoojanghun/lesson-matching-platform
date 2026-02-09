@@ -2,6 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.type.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.type.RoleType;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 public record TutorResponse(
     String name,
     GenderType gender,
+    RoleType role,
     String email,
     String introduction,
     String career,
@@ -39,6 +41,7 @@ public record TutorResponse(
         return new TutorResponse(
                 entity.getUserAccount().getName(),
                 entity.getUserAccount().getGender(),
+                entity.getUserAccount().getRole(),
                 entity.getUserAccount().getEmail(),
                 entity.getIntroduction(),
                 entity.getCareer(),

@@ -1,8 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.StudentAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSignupRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSignUpRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.StudentMyResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.service.SignUpService;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +21,18 @@ public class SignUpController {
     // Tutor로 처음 sign up 할 때
     @PostMapping("/tutor")
     public TutorResponse signUpTutor(
-            @RequestBody TutorSignUpRequest tutorSignUpRequest
+            @RequestBody TutorSignUpRequest request
     ) {
-        return signUpService.signUpTutor(tutorSignUpRequest);
+        return signUpService.signUpTutor(request);
     }
 
     // Student로 처음 sign up 할 때
-//    @PostMapping("/student")
-//    public StudentAccount signUpStudent() {
-//
-//    }
+    @PostMapping("/student")
+    public StudentMyResponse signUpStudent(
+            @RequestBody StudentSignupRequest request
+    ) {
+        return signUpService.signUpStudent(request);
+    }
 
 }
 

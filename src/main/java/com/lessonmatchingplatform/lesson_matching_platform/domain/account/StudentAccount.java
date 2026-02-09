@@ -28,23 +28,19 @@ public class StudentAccount extends AuditingFields {
     @Column(columnDefinition = "TEXT")
     private String introduction;
 
-    @Column(length = 50)
-    private String location;
-
     @ToString.Exclude
     @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL)
     private final Set<Matching> matchingSet = new LinkedHashSet<>();
 
     protected StudentAccount() {}
 
-    private StudentAccount(UserAccount userAccount, String introduction, String location) {
+    private StudentAccount(UserAccount userAccount, String introduction) {
         this.userAccount = userAccount;
         this.introduction = introduction;
-        this.location = location;
     }
 
-    public StudentAccount of(UserAccount userAccount, String introduction, String location) {
-        return new StudentAccount(userAccount, introduction, location);
+    public static StudentAccount of(UserAccount userAccount, String introduction) {
+        return new StudentAccount(userAccount, introduction);
     }
 
     @Override

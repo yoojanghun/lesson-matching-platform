@@ -19,23 +19,23 @@ public class SubjectTutor extends AuditingFields {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
-
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id")
     private TutorAccount tutorAccount;
 
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
     protected SubjectTutor() {}
 
-    private SubjectTutor(Subject subject, TutorAccount tutorAccount) {
-        this.subject = subject;
+    private SubjectTutor(TutorAccount tutorAccount, Subject subject) {
         this.tutorAccount = tutorAccount;
+        this.subject = subject;
     }
 
-    public static SubjectTutor of(Subject subject, TutorAccount tutorAccount) {
-        return new SubjectTutor(subject, tutorAccount);
+    public static SubjectTutor of(TutorAccount tutorAccount, Subject subject) {
+        return new SubjectTutor(tutorAccount, subject);
     }
 
     @Override

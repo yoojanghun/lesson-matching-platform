@@ -175,27 +175,27 @@ VALUES
 (16, 14, NOW(), 'system', NULL, NULL),
 (17, 12, NOW(), 'system', NULL, NULL);
 
-INSERT INTO student_account (student_id, introduction, location, created_at, created_by, modified_at, modified_by)
+INSERT INTO student_account (student_id, introduction, created_at, created_by, modified_at, modified_by)
 VALUES
-(18, '음악을 전공하고 싶어 기초부터 배우려는 학생입니다.', '서울 관악구', NOW(), 'system', NULL, NULL),
-(19, '방과 후 활동으로 바이올린을 배우고 싶은 학생입니다.', '경기 안양시', NOW(), 'system', NULL, NULL),
-(20, '클래식 음악을 좋아해서 직접 연주해보고 싶어 가입했습니다.', '서울 서초구', NOW(), 'system', NULL, NULL),
-(21, '어릴 때 그만둔 피아노를 다시 취미로 시작하려는 직장인입니다.', '서울 성동구', NOW(), 'system', NULL, NULL),
-(22, '노래를 잘 부르고 싶어서 발성부터 배우고 싶은 대학생입니다.', '경기 부천시', NOW(), 'system', NULL, NULL),
-(23, 'SNS에 연주 영상을 올리는 게 목표입니다. 감성적인 곡 추천 부탁드려요.', '서울 강서구', NOW(), 'system', NULL, NULL),
-(24, '재즈의 즉흥 연주 매력에 빠져 재즈 피아노를 배우고 싶습니다.', '서울 용산구', NOW(), 'system', NULL, NULL),
-(25, '태교를 위해 첼로 연주를 시작해보려고 합니다.', '서울 송파구', NOW(), 'system', NULL, NULL),
-(26, '취미 밴드에서 드럼을 맡고 있습니다. 기본기를 더 다지고 싶네요.', '서울 은평구', NOW(), 'system', NULL, NULL),
-(27, '자작곡을 만들고 싶은데 화성학 레슨도 같이 해주실 분 찾습니다.', '경기 남양주시', NOW(), 'system', NULL, NULL),
-(28, '음대 입시를 준비하고 있는 고등학생입니다. 기본기부터 다시 배우고 싶어요.', '서울 강남구', NOW(), 'system', NULL, NULL),
-(29, '평소에 꿈꾸던 첼로를 시작해보려 합니다. 악기 대여가 가능한 곳을 찾고 있어요.', '경기 성남시', NOW(), 'system', NULL, NULL),
-(30, '취미로 피아노를 다시 시작하고 싶은 주부입니다. 오전 시간대 레슨을 선호합니다.', '서울 송파구', NOW(), 'system', NULL, NULL),
-(31, '대학교 밴드 동아리에서 일렉기타를 맡게 되었습니다. 속주 테크닉을 배우고 싶습니다.', '서울 마포구', NOW(), 'system', NULL, NULL),
-(32, '작곡을 전공하고 있는데, 편곡을 위해 건반 연주 실력을 키우고 싶습니다.', '서울 서대문구', NOW(), 'system', NULL, NULL),
-(33, '직장인 동호회에서 활동 중인 베이스 연주자입니다. 슬랩 테크닉이 고민이라 신청합니다.', '경기 용인시', NOW(), 'system', NULL, NULL),
-(34, '아이돌 지망생입니다. 고음 발성과 무대 매너를 체계적으로 배우고 싶습니다.', '서울 광진구', NOW(), 'system', NULL, NULL),
-(35, '어릴 때 배웠던 피아노를 성인이 되어 다시 시작합니다. 뉴에이지 곡 위주로 배우고 싶어요.', '경기 수원시', NOW(), 'system', NULL, NULL),
-(36, '클래식 작곡과 진학을 희망하는 중학생입니다. 이론과 실기를 병행하고 싶습니다.', '서울 노원구', NOW(), 'system', NULL, NULL);
+(18, '음악을 전공하고 싶어 기초부터 배우려는 학생입니다.', NOW(), 'system', NULL, NULL),
+(19, '방과 후 활동으로 바이올린을 배우고 싶은 학생입니다.', NOW(), 'system', NULL, NULL),
+(20, '클래식 음악을 좋아해서 직접 연주해보고 싶어 가입했습니다.', NOW(), 'system', NULL, NULL),
+(21, '어릴 때 그만둔 피아노를 다시 취미로 시작하려는 직장인입니다.', NOW(), 'system', NULL, NULL),
+(22, '노래를 잘 부르고 싶어서 발성부터 배우고 싶은 대학생입니다.', NOW(), 'system', NULL, NULL),
+(23, 'SNS에 연주 영상을 올리는 게 목표입니다. 감성적인 곡 추천 부탁드려요.', NOW(), 'system', NULL, NULL),
+(24, '재즈의 즉흥 연주 매력에 빠져 재즈 피아노를 배우고 싶습니다.', NOW(), 'system', NULL, NULL),
+(25, '태교를 위해 첼로 연주를 시작해보려고 합니다.', NOW(), 'system', NULL, NULL),
+(26, '취미 밴드에서 드럼을 맡고 있습니다. 기본기를 더 다지고 싶네요.', NOW(), 'system', NULL, NULL),
+(27, '자작곡을 만들고 싶은데 화성학 레슨도 같이 해주실 분 찾습니다.', NOW(), 'system', NULL, NULL),
+(28, '음대 입시를 준비하고 있는 고등학생입니다. 기본기부터 다시 배우고 싶어요.', NOW(), 'system', NULL, NULL),
+(29, '평소에 꿈꾸던 첼로를 시작해보려 합니다. 악기 대여가 가능한 곳을 찾고 있어요.', NOW(), 'system', NULL, NULL),
+(30, '취미로 피아노를 다시 시작하고 싶은 주부입니다. 오전 시간대 레슨을 선호합니다.', NOW(), 'system', NULL, NULL),
+(31, '대학교 밴드 동아리에서 일렉기타를 맡게 되었습니다. 속주 테크닉을 배우고 싶습니다.', NOW(), 'system', NULL, NULL),
+(32, '작곡을 전공하고 있는데, 편곡을 위해 건반 연주 실력을 키우고 싶습니다.', NOW(), 'system', NULL, NULL),
+(33, '직장인 동호회에서 활동 중인 베이스 연주자입니다. 슬랩 테크닉이 고민이라 신청합니다.', NOW(), 'system', NULL, NULL),
+(34, '아이돌 지망생입니다. 고음 발성과 무대 매너를 체계적으로 배우고 싶습니다.', NOW(), 'system', NULL, NULL),
+(35, '어릴 때 배웠던 피아노를 성인이 되어 다시 시작합니다. 뉴에이지 곡 위주로 배우고 싶어요.', NOW(), 'system', NULL, NULL),
+(36, '클래식 작곡과 진학을 희망하는 중학생입니다. 이론과 실기를 병행하고 싶습니다.', NOW(), 'system', NULL, NULL);
 
 INSERT INTO matching (student_id, tutor_id, request_msg, status, created_at, created_by, modified_at, modified_by)
 VALUES

@@ -52,6 +52,18 @@ public class TutorAccount extends AuditingFields {
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
     private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
 
+    public void addCategoryTutor(CategoryTutor categoryTutor) {
+        this.categoryTutorSet.add(categoryTutor);
+    }
+
+    public void addSubjectTutor(SubjectTutor subjectTutor) {
+        this.subjectTutorSet.add(subjectTutor);
+    }
+
+    public void addLocationTutor(LocationTutor locationTutor) {
+        this.locationTutorSet.add(locationTutor);
+    }
+
     protected TutorAccount() {}
 
     private TutorAccount(UserAccount userAccount, String introduction, String career, String title, String content) {

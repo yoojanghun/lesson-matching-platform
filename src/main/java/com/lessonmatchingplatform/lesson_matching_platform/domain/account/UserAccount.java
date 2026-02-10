@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.type.GenderType;
 import com.lessonmatchingplatform.lesson_matching_platform.type.RoleType;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class UserAccount extends AuditingFields {
     @Column(length = 50, nullable = false)
     private String name;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private RoleType role;

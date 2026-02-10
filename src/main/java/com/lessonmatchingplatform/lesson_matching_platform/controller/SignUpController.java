@@ -2,10 +2,13 @@ package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSignupRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSignUpRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.StudentMyResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.service.SignUpService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +35,15 @@ public class SignUpController {
             @RequestBody StudentSignupRequest request
     ) {
         return signUpService.signUpStudent(request);
+    }
+
+    // Student로 등록한 경우 Tutor 등록(계정 전환)
+    @PostMapping("/tutor-switch")
+    public TutorResponse postTutor(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,         // Student로 등록한 계정
+            @RequestBody TutorSwitchRequest request
+    ) {
+        return signUpService.switchTutor(boardPrincipal, request);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.service.TutorsService;
@@ -33,12 +34,5 @@ public class TutorsController {
         return tutorsService.getTutor(tutorId);
     }
 
-    // Student로 등록한 경우 Tutor 등록(계정 전환)
-//    @PostMapping
-//    public TutorResponse postTutor(
-//            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
-//
-//    ) {
-//
-//    }
+
 }

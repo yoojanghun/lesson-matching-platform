@@ -7,4 +7,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.type.SubjectType;
 public record TutorSearchCondition(
         CategoryType category,
         SubjectType subject
-) {}
+) {
+
+}

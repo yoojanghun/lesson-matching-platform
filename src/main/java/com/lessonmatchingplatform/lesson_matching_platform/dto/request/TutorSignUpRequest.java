@@ -17,6 +17,7 @@ public record TutorSignUpRequest(
         String career,
         String title,
         String content,
+        Set<Long> roleId,
         Set<Long> categoryId,
         Set<Long> subjectId,
         Set<Long> locationId

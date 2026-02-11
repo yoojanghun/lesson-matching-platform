@@ -1,6 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.dto.security;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.account.Role;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.type.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.type.RoleType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public record BoardPrincipal(
         String username,
@@ -23,9 +27,12 @@ public record BoardPrincipal(
     public static BoardPrincipal from(UserAccount entity) {
 
         // 사용자의 권한 리스트 (ROLE_TUTOR, ROLE_STUDENT 등)
-        Collection<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_" + entity.getRole().name())
-        );
+        Collection<SimpleGrantedAuthority> authorities = entity.getUserRoleSet().stream()
+                .map(userRole -> {
+                    String roleName = userRole.getRole().getRoleType().name();      // "TUTOR"
+                    return new SimpleGrantedAuthority("ROLE_" + roleName);
+                })
+                .toList();
 
         return new BoardPrincipal(
                 entity.getUserId(),

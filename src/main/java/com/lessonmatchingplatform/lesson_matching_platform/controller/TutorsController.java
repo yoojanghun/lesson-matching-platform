@@ -9,7 +9,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsRe
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/tutors")
@@ -33,6 +32,4 @@ public class TutorsController {
     ) {
         return tutorsService.getTutor(tutorId);
     }
-
-
 }

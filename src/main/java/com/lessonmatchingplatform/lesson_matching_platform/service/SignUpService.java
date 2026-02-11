@@ -12,7 +12,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.dto.response.StudentM
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.*;
-import com.lessonmatchingplatform.lesson_matching_platform.type.RoleType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +36,8 @@ public class SignUpService {
     private final LocationRepository locationRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final RoleRepository roleRepository;
 
     public TutorResponse signUpTutor(TutorSignUpRequest request) {
 
@@ -44,13 +45,16 @@ public class SignUpService {
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),         // password는 암호화 한 후 저장
                 request.name(),
-                RoleType.TUTOR,
                 request.gender(),
                 request.birthDate(),
                 request.phoneNumber(),
                 request.email()
         );
         userRepository.save(userAccount);
+
+        Role role = roleRepository.getReferenceById(1L);
+        UserRole userRole = UserRole.of(userAccount, role);
+        userRoleRepository.save(userRole);
 
         TutorAccount tutorAccount = TutorAccount.of(
                 userAccount,
@@ -70,13 +74,16 @@ public class SignUpService {
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),
                 request.name(),
-                RoleType.STUDENT,
                 request.gender(),
                 request.birthDate(),
                 request.phoneNumber(),
                 request.email()
         );
         userRepository.save(userAccount);
+
+        Role role = roleRepository.getReferenceById(2L);
+        UserRole userRole = UserRole.of(userAccount, role);
+        userRoleRepository.save(userRole);
 
         StudentAccount studentAccount = StudentAccount.of(
                 userAccount,
@@ -91,9 +98,11 @@ public class SignUpService {
          UserAccount userAccount = userRepository.findByUserId(boardPrincipal.username())
                  .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다." + boardPrincipal.username()));
 
-         userAccount.setRole(RoleType.TUTOR);
+        Role role = roleRepository.getReferenceById(1L);
+        UserRole userRole = UserRole.of(userAccount, role);
+        userRoleRepository.save(userRole);
 
-         TutorAccount tutorAccount = TutorAccount.of(
+        TutorAccount tutorAccount = TutorAccount.of(
                  userAccount,
                  request.introduction(),
                  request.career(),

@@ -8,6 +8,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -24,14 +25,11 @@ import static com.lessonmatchingplatform.lesson_matching_platform.domain.categor
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QSubjectTutor.subjectTutor;
 
 @Getter
+@RequiredArgsConstructor
 @Repository
 public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public TutorsRepositoryImpl(JPAQueryFactory queryFactory) {
-        this.queryFactory = queryFactory;
-    }
 
     @Override
     public Page<TutorAccount> searchTutors(TutorSearchCondition condition, Pageable pageable) {

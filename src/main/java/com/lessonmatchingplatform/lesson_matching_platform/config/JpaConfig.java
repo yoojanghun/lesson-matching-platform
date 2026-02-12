@@ -24,7 +24,7 @@ public class JpaConfig {
                 .filter(BoardPrincipal.class::isInstance)
                 .map(BoardPrincipal.class::cast)
                 .map(BoardPrincipal::getUsername)
-                .or(() -> Optional.of("system"));
+                .or(() -> Optional.of("SYSTEM"));
     }
 }
 

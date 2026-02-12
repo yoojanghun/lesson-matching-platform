@@ -1,9 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.service.TutorsService;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import lombok.RequiredArgsConstructor;

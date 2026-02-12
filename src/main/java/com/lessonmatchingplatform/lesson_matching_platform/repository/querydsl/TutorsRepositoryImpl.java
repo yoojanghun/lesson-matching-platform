@@ -39,7 +39,7 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 .selectFrom(tutorAccount).distinct()
                 .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
                 .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)         // 여기서 leftJoin은 필터링 용(데이터 가져오기 X)
-                .leftJoin(categoryTutor.category, category)
+                .leftJoin(categoryTutor.category, category)                     // proxy 객체가 채워짐. 나중에 필요할 때 query 발생
                 .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
                 .leftJoin(subjectTutor.subject, subject)
                 .where(

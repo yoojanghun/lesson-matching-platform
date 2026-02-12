@@ -6,6 +6,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Categ
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Subject;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.SubjectTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSignupRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSignUpRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.StudentMyResponse;
@@ -112,6 +113,22 @@ public class SignUpService {
          tutorsRepository.save(tutorAccount);
 
          return saveTutorAssociations(tutorAccount, request.categoryId(), request.subjectId(), request.locationId());
+    }
+
+    public StudentMyResponse switchStudent(BoardPrincipal boardPrincipal, StudentSwitchRequest request) {
+        UserAccount userAccount = userRepository.findByUserId(boardPrincipal.username())
+                .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다." + boardPrincipal.username()));
+
+        Role role = roleRepository.getReferenceById(2L);
+        UserRole userRole = UserRole.of(userAccount, role);
+        userRoleRepository.save(userRole);
+
+        StudentAccount studentAccount = StudentAccount.of(
+                userAccount,
+                request.introduction()
+        );
+
+        return StudentMyResponse.from(studentRepository.save(studentAccount));
     }
 
     private TutorResponse saveTutorAssociations(TutorAccount tutorAccount, Set<Long> categoryIds, Set<Long> subjectIds, Set<Long> locationIds) {

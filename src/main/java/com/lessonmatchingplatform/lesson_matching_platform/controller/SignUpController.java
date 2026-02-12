@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSignupRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.request.StudentSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSignUpRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.StudentMyResponse;
@@ -46,6 +47,14 @@ public class SignUpController {
         return signUpService.switchTutor(boardPrincipal, request);
     }
 
+    // Tutor로 등록한 경우 Student 등록(계정 전환)
+    @PostMapping("/student-switch")
+    public StudentMyResponse postStudent(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody StudentSwitchRequest request
+    ) {
+        return signUpService.switchStudent(boardPrincipal, request);
+    }
 }
 
 // Student와 Tutor로 각각 회원가입 할 때, 일부 공통된 정보는 UserAccount에 저장하도록

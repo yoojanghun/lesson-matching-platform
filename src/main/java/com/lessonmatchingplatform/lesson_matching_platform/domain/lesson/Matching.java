@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.domain.lesson;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.StudentAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -31,22 +32,23 @@ public class Matching extends AuditingFields {
     @Column(length = 500, nullable = false)
     private String requestMsg;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
-    private String status;
+    private MatchingStatus status;
 
     @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL)
     private LessonReview lessonReview;
 
     protected Matching() {}
 
-    private Matching(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, String status) {
+    private Matching(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, MatchingStatus status) {
         this.studentAccount = studentAccount;
         this.tutorAccount = tutorAccount;
         this.requestMsg = requestMsg;
         this.status = status;
     }
 
-    public static Matching of(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, String status) {
+    public static Matching of(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, MatchingStatus status) {
         return new Matching(studentAccount, tutorAccount, requestMsg, status);
     }
 

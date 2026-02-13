@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public record TutorsResponse(
+        Long tutorId,
         String name,
         String title,
         Set<String> categories,
@@ -24,6 +25,7 @@ public record TutorsResponse(
                 .collect(Collectors.toUnmodifiableSet());
 
         return new TutorsResponse(
+                entity.getTutorId(),
                 entity.getUserAccount().getName(),              // fetchJoin 사용으로 추가 쿼리 안 나감.
                 entity.getTitle(),
                 categories,

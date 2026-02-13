@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public record TutorResponse(
+    Long tutorId,
     String name,
     GenderType gender,
     String email,
@@ -37,6 +38,7 @@ public record TutorResponse(
                 .collect(Collectors.toUnmodifiableSet());
 
         return new TutorResponse(
+                entity.getTutorId(),
                 entity.getUserAccount().getName(),
                 entity.getUserAccount().getGender(),
                 entity.getUserAccount().getEmail(),

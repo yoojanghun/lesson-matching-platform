@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public record BoardPrincipal(
+        Long id,
         String username,
         String password,
         Collection<? extends GrantedAuthority> authorities,
@@ -35,6 +36,7 @@ public record BoardPrincipal(
                 .toList();
 
         return new BoardPrincipal(
+                entity.getId(),
                 entity.getUserId(),
                 entity.getUserPassword(),
                 authorities,

@@ -8,6 +8,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import java.time.LocalDate;
 
 public record MyMatchingResponse(
+        Long matchingId,
         String requestMsg,
         MatchingStatus status,
         String name,
@@ -22,6 +23,7 @@ public record MyMatchingResponse(
         UserAccount userAccount = entity.getStudentAccount().getUserAccount();
 
         return new MyMatchingResponse(
+                entity.getMatchingId(),
                 entity.getRequestMsg(),
                 entity.getStatus(),
                 userAccount.getName(),

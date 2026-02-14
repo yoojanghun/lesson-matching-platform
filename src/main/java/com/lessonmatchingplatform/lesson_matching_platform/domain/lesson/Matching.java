@@ -6,6 +6,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorA
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class Matching extends AuditingFields {
     @Column(length = 500, nullable = false)
     private String requestMsg;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private MatchingStatus status;

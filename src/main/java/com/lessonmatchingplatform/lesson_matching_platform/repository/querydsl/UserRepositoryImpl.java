@@ -12,9 +12,7 @@ import static com.lessonmatchingplatform.lesson_matching_platform.domain.account
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QUserAccount.userAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QUserRole.userRole;
 
-@Getter
 @RequiredArgsConstructor
-@Repository
 public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;

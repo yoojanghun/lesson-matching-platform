@@ -24,9 +24,7 @@ import static com.lessonmatchingplatform.lesson_matching_platform.domain.categor
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QSubject.subject;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.category.QSubjectTutor.subjectTutor;
 
-@Getter
 @RequiredArgsConstructor
-@Repository
 public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;

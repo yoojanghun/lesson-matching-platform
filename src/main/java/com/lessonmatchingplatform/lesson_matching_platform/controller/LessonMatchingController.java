@@ -2,8 +2,8 @@ package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.LessonStatusRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.LessonMatchingResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsStudent;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.service.LessonMatchingService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class LessonMatchingController {
 
     // Student가 Tutor에게 레슨 요청을 보냄
     @PostMapping("/{tutorId}/matching")
-    public LessonMatchingResponse lessonMatching(
+    public MyMatchingResponseAsStudent lessonMatching(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long tutorId,
             @RequestBody LessonMatchingRequest request
@@ -33,7 +33,7 @@ public class LessonMatchingController {
     // Tutor는 자신의 레슨 요청 정보들 중 하나를 선택후, 거절 / 승인 을 답장으로 보냄
     @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/my/matchings/{matchingId}")
-    public MyMatchingResponse postMyMatching(
+    public MyMatchingResponseAsTutor postMyMatching(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long matchingId,
             @RequestBody LessonStatusRequest request

@@ -5,8 +5,8 @@ import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorA
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.LessonStatusRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.LessonMatchingResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsStudent;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.StudentRepository;
@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,7 +29,8 @@ public class LessonMatchingService {
     private final TutorsRepository tutorsRepository;
     private final MatchingRepository matchingRepository;
 
-    public LessonMatchingResponse lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
+    // Student가 레슨 등록
+    public MyMatchingResponseAsStudent lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
         StudentAccount studentAccount = studentRepository.getReferenceById(boardPrincipal.id());
         TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);                     // pk만 필요하므로 proxy 생성
 
@@ -40,10 +40,11 @@ public class LessonMatchingService {
         Matching matchingDetails = matchingRepository.findByIdWithDetails(savedMatching.getMatchingId())
                 .orElseThrow(EntityNotFoundException::new);
 
-        return LessonMatchingResponse.from(matchingDetails);
+        return MyMatchingResponseAsStudent.from(matchingDetails);
     }
 
-    public MyMatchingResponse postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) throws AccessDeniedException {
+    // Tutor가 레슨 승인 / 거절 / 취소
+    public MyMatchingResponseAsTutor postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) throws AccessDeniedException {
         Matching matching = matchingRepository.findByIdWithDetails(matchingId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -55,18 +56,20 @@ public class LessonMatchingService {
             matching.setStatus(request.status());
         }
 
-        return MyMatchingResponse.from(matching);
+        return MyMatchingResponseAsTutor.from(matching);
     }
 
-    public List<MyMatchingResponse> myMatchingsAsTutor(BoardPrincipal boardPrincipal) {
+    // Tutor가 자신이 받은 레슨 리스트 확인
+    public List<MyMatchingResponseAsTutor> myMatchingsAsTutor(BoardPrincipal boardPrincipal) {
         List<Matching> myMatchings = matchingRepository.findAllByTutorId(boardPrincipal.id());
 
-        return myMatchings.stream().map(MyMatchingResponse::from).toList();
+        return myMatchings.stream().map(MyMatchingResponseAsTutor::from).toList();
     }
 
-    public List<MyMatchingResponse> myMatchingsAsStudent(BoardPrincipal boardPrincipal) {
+    // Student가 자신이 보낸 레슨 리스트 확인
+    public List<MyMatchingResponseAsStudent> myMatchingsAsStudent(BoardPrincipal boardPrincipal) {
         List<Matching> myMatchings = matchingRepository.findAllByStudentId(boardPrincipal.id());
 
-        return myMatchings.stream().map(MyMatchingResponse::from).toList();
+        return myMatchings.stream().map(MyMatchingResponseAsStudent::from).toList();
     }
 }

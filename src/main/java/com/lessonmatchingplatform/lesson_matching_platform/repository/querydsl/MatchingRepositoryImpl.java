@@ -48,8 +48,8 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
     public List<Matching> findAllByStudentId(Long studentId) {
         return jpaQueryFactory
                 .selectFrom(matching).distinct()
-                .leftJoin(matching.studentAccount, studentAccount).fetchJoin()
-                .leftJoin(studentAccount.userAccount, userAccount).fetchJoin()
+                .leftJoin(matching.tutorAccount, tutorAccount).fetchJoin()
+                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
                 .where(
                         matching.studentAccount.studentId.eq(studentId)
                 )

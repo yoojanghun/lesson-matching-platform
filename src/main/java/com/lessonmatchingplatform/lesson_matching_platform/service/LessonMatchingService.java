@@ -43,12 +43,6 @@ public class LessonMatchingService {
         return LessonMatchingResponse.from(matchingDetails);
     }
 
-    public List<MyMatchingResponse> myMatchings(BoardPrincipal boardPrincipal) {
-        List<Matching> myMatchings = matchingRepository.findAllByTutorId(boardPrincipal.id());
-
-        return myMatchings.stream().map(MyMatchingResponse::from).toList();
-    }
-
     public MyMatchingResponse postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) throws AccessDeniedException {
         Matching matching = matchingRepository.findByIdWithDetails(matchingId)
                 .orElseThrow(EntityNotFoundException::new);
@@ -62,5 +56,17 @@ public class LessonMatchingService {
         }
 
         return MyMatchingResponse.from(matching);
+    }
+
+    public List<MyMatchingResponse> myMatchingsAsTutor(BoardPrincipal boardPrincipal) {
+        List<Matching> myMatchings = matchingRepository.findAllByTutorId(boardPrincipal.id());
+
+        return myMatchings.stream().map(MyMatchingResponse::from).toList();
+    }
+
+    public List<MyMatchingResponse> myMatchingsAsStudent(BoardPrincipal boardPrincipal) {
+        List<Matching> myMatchings = matchingRepository.findAllByStudentId(boardPrincipal.id());
+
+        return myMatchings.stream().map(MyMatchingResponse::from).toList();
     }
 }

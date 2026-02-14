@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/tutors")              // 자원의 계층 구조를 명확히 함(tutors)
@@ -29,15 +28,6 @@ public class LessonMatchingController {
             @RequestBody LessonMatchingRequest request
     ) {
         return lessonMatchingService.lessonMatching(boardPrincipal, tutorId, request);
-    }
-
-    // Tutor는 자신의 레슨 요청 정보들을 list로 확인
-    @PreAuthorize("hasRole('TUTOR')")                       // "ROLE_TUTOR" 권한이 있으면 통과
-    @GetMapping("/my/matchings")
-    public List<MyMatchingResponse> myMatchings(
-            @AuthenticationPrincipal BoardPrincipal boardPrincipal
-    ) {
-        return lessonMatchingService.myMatchings(boardPrincipal);
     }
 
     // Tutor는 자신의 레슨 요청 정보들 중 하나를 선택후, 거절 / 승인 을 답장으로 보냄

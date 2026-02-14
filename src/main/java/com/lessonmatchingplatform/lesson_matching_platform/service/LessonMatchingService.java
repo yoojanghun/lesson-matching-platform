@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorA
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.LessonMatchingResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.StudentRepository;
@@ -14,6 +15,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
@@ -35,5 +39,15 @@ public class LessonMatchingService {
                 .orElseThrow(EntityNotFoundException::new);
 
         return LessonMatchingResponse.from(matchingDetails);
+    }
+
+    public List<MyMatchingResponse> myMatchings(BoardPrincipal boardPrincipal) {
+        if(!tutorsRepository.existsById(boardPrincipal.id())) {
+            return Collections.emptyList();
+        }
+
+        List<Matching> myMatchings = matchingRepository.findAllByTutorId(boardPrincipal.id());
+
+        return myMatchings.stream().map(MyMatchingResponse::from).toList();
     }
 }

@@ -31,6 +31,10 @@ public class LessonMatchingService {
 
     // Student가 레슨 등록
     public MyMatchingResponseAsStudent lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
+        if(matchingRepository.existsActiveMatching(boardPrincipal.id(), tutorId)) {
+            throw new IllegalStateException("이미 진행중이거나 승인된 매칭 요청이 있습니다");
+        }
+
         StudentAccount studentAccount = studentRepository.getReferenceById(boardPrincipal.id());
         TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);                     // pk만 필요하므로 proxy 생성
 

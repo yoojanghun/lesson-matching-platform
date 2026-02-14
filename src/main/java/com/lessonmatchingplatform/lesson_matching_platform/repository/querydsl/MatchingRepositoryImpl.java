@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
+import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -55,5 +56,21 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                 )
                 .orderBy(matching.createdAt.desc())         // 최신순 정렬
                 .fetch();
+    }
+
+    @Override
+    public Boolean existsActiveMatching(Long studentId, Long tutorId) {
+        Integer content = jpaQueryFactory
+                .selectOne()                // 조건에 맞는 게 있다면 그냥 숫자 1을 던짐
+                .from(matching)
+                .where(
+                        matching.tutorAccount.tutorId.eq(tutorId),
+                        matching.studentAccount.studentId.eq(studentId),
+                        matching.status.ne(MatchingStatus.REJECTED),
+                        matching.status.ne(MatchingStatus.CANCELLED),
+                        matching.status.ne(MatchingStatus.ACCEPTED)
+                ).fetchFirst();             // 조건에 맞는 record를 모두 조회하는 것이 아니라, 처음 1개만 조회 (limit 1)
+
+        return content != null;
     }
 }

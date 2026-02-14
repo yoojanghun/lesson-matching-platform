@@ -4,8 +4,10 @@ import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matchin
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
+import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QStudentAccount.studentAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QTutorAccount.tutorAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QUserAccount.userAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.QMatching.matching;
@@ -27,5 +29,18 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                 .fetchOne();
 
         return Optional.ofNullable(content);
+    }
+
+    @Override
+    public List<Matching> findAllByTutorId(Long tutorId) {
+        return jpaQueryFactory
+                .selectFrom(matching).distinct()
+                .leftJoin(matching.studentAccount, studentAccount).fetchJoin()
+                .leftJoin(studentAccount.userAccount, userAccount).fetchJoin()
+                .where(
+                        matching.tutorAccount.tutorId.eq(tutorId)
+                )
+                .orderBy(matching.createdAt.desc())         // 최신순 정렬
+                .fetch();
     }
 }

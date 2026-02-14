@@ -3,15 +3,13 @@ package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
-import com.lessonmatchingplatform.lesson_matching_platform.type.SubjectType;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public record LessonMatchingResponse(
+public record MyMatchingResponseAsStudent(
         Long MatchingId,
         String tutorName,
         Set<String> category,
@@ -20,7 +18,7 @@ public record LessonMatchingResponse(
         MatchingStatus status,
         LocalDateTime createdAt
 ) {
-    public static LessonMatchingResponse from(Matching entity) {
+    public static MyMatchingResponseAsStudent from(Matching entity) {
         TutorAccount tutorAccount = entity.getTutorAccount();
         UserAccount userAccount = tutorAccount.getUserAccount();
 
@@ -34,7 +32,7 @@ public record LessonMatchingResponse(
                         subjectTutor.getSubject().getName())
                 .collect(Collectors.toUnmodifiableSet());
 
-        return new LessonMatchingResponse(
+        return new MyMatchingResponseAsStudent(
                 entity.getMatchingId(),
                 userAccount.getName(),
                 categories,

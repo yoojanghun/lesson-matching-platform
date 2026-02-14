@@ -6,8 +6,9 @@ import com.lessonmatchingplatform.lesson_matching_platform.type.GenderType;
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public record MyMatchingResponse(
+public record MyMatchingResponseAsTutor(
         Long matchingId,
         String requestMsg,
         MatchingStatus status,
@@ -15,14 +16,15 @@ public record MyMatchingResponse(
         GenderType gender,
         LocalDate birthDate,
         String phoneNumber,
-        String email
+        String email,
+        LocalDateTime createdAt
 ) {
 
-    public static MyMatchingResponse from(Matching entity) {
+    public static MyMatchingResponseAsTutor from(Matching entity) {
 
         UserAccount userAccount = entity.getStudentAccount().getUserAccount();
 
-        return new MyMatchingResponse(
+        return new MyMatchingResponseAsTutor(
                 entity.getMatchingId(),
                 entity.getRequestMsg(),
                 entity.getStatus(),
@@ -30,7 +32,8 @@ public record MyMatchingResponse(
                 userAccount.getGender(),
                 userAccount.getBirthDate(),
                 userAccount.getPhoneNumber(),
-                userAccount.getEmail()
+                userAccount.getEmail(),
+                entity.getCreatedAt()
         );
     }
 }

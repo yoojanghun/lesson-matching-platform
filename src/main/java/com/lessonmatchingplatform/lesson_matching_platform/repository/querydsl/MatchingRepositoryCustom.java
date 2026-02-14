@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface MatchingRepositoryCustom {
     Optional<Matching> findByIdWithDetails(Long matchingId);
     List<Matching> findAllByTutorId(Long tutorId);
+    List<Matching> findAllByStudentId(Long studentId);
 }

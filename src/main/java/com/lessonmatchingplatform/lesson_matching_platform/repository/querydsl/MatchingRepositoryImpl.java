@@ -43,4 +43,17 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                 .orderBy(matching.createdAt.desc())         // 최신순 정렬
                 .fetch();
     }
+
+    @Override
+    public List<Matching> findAllByStudentId(Long studentId) {
+        return jpaQueryFactory
+                .selectFrom(matching).distinct()
+                .leftJoin(matching.studentAccount, studentAccount).fetchJoin()
+                .leftJoin(studentAccount.userAccount, userAccount).fetchJoin()
+                .where(
+                        matching.studentAccount.studentId.eq(studentId)
+                )
+                .orderBy(matching.createdAt.desc())         // 최신순 정렬
+                .fetch();
+    }
 }

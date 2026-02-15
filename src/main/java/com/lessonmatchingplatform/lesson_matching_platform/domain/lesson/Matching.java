@@ -13,6 +13,10 @@ import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
+@Table(indexes = {
+        @Index(columnList = "student_id"),
+        @Index(columnList = "tutor_id")
+})
 @Entity
 public class Matching extends AuditingFields {
 

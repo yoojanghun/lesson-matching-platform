@@ -10,6 +10,12 @@ import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_lesson_review_matching_id",
+                columnNames = {"matching_id"}
+        )
+})
 @Entity
 public class LessonReview extends AuditingFields {
 

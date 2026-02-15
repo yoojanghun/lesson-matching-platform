@@ -28,16 +28,20 @@ public class LessonReview extends AuditingFields {
     @Column(precision = 2, scale = 1, nullable = false)         // 전체 2자리수, 소숫점 이하 1자리수
     private BigDecimal rating;
 
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 1")
+    private Boolean isAnonymous = true;
+
     protected LessonReview() {}
 
-    private LessonReview(Matching matching, String content, BigDecimal rating) {
+    private LessonReview(Matching matching, String content, BigDecimal rating, Boolean isAnonymous) {
         this.matching = matching;
         this.content = content;
         this.rating = rating;
+        this.isAnonymous = isAnonymous;
     }
 
-    public static LessonReview of(Matching matching, String content, BigDecimal rating) {
-        return new LessonReview(matching, content, rating);
+    public static LessonReview of(Matching matching, String content, BigDecimal rating, Boolean isAnonymous) {
+        return new LessonReview(matching, content, rating, isAnonymous);
     }
 
     @Override

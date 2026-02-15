@@ -2,9 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.UserAccount;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 

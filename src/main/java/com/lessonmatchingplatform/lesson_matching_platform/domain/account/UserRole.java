@@ -9,6 +9,12 @@ import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_user_role_user_id_role_id",
+                columnNames = {"user_id", "role_id"}
+        )
+})
 @Entity
 public class UserRole extends AuditingFields {
 

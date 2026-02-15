@@ -8,6 +8,12 @@ import lombok.ToString;
 import java.util.Objects;
 
 @ToString(callSuper = true)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "uk_location_tutor_tutor_id_location_id",
+                columnNames = {"tutor_id", "location_id"}
+        )
+})
 @Getter
 @Entity
 public class LocationTutor extends AuditingFields {

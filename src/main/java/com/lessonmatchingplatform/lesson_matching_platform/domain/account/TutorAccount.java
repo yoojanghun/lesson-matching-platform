@@ -20,7 +20,7 @@ public class TutorAccount extends AuditingFields {
     private Long tutorId;
 
     @ToString.Exclude
-    @MapsId
+    @MapsId                                 // 여기에 이미 index 설정이 되어 있음
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tutor_id")
     private UserAccount userAccount;

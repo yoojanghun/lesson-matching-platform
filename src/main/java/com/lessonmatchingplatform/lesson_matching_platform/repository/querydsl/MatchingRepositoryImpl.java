@@ -11,6 +11,7 @@ import java.util.Optional;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QStudentAccount.studentAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QTutorAccount.tutorAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.account.QUserAccount.userAccount;
+import static com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.QLessonReview.lessonReview;
 import static com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.QMatching.matching;
 
 @RequiredArgsConstructor
@@ -70,6 +71,21 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                         matching.status.ne(MatchingStatus.CANCELLED),
                         matching.status.ne(MatchingStatus.ACCEPTED)
                 ).fetchFirst();             // 조건에 맞는 record를 모두 조회하는 것이 아니라, 처음 1개만 조회 (limit 1)
+
+        return content != null;
+    }
+
+    @Override
+    public Boolean hasAlreadyReviewedTutor(Long tutorId, Long studentId) {
+        Integer content = jpaQueryFactory
+                .selectOne()
+                .from(lessonReview)
+                .leftJoin(lessonReview.matching, matching)
+                .where(
+                        matching.tutorAccount.tutorId.eq(tutorId),
+                        matching.studentAccount.studentId.eq(studentId)
+                )
+                .fetchFirst();
 
         return content != null;
     }

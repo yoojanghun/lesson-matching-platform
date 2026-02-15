@@ -10,4 +10,5 @@ public interface MatchingRepositoryCustom {
     List<Matching> findAllByTutorId(Long tutorId);
     List<Matching> findAllByStudentId(Long studentId);
     Boolean existsActiveMatching(Long studentId, Long tutorId);
+    Boolean hasAlreadyReviewedTutor(Long tutorId, Long studentId);
 }

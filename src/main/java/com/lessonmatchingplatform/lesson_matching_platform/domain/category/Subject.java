@@ -11,9 +11,6 @@ import java.util.Set;
 
 @ToString(callSuper = true)
 @Getter
-@Table(indexes = {
-        @Index(columnList = "name")
-})
 @Entity
 public class Subject extends AuditingFields {
 

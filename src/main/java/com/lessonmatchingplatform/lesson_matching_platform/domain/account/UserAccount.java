@@ -16,10 +16,8 @@ import java.util.Set;
 @ToString(callSuper = true)
 @Getter
 @Table(indexes = {
-        @Index(columnList = "userId"),
         @Index(columnList = "name"),
-        @Index(columnList = "phoneNumber"),
-        @Index(columnList = "email")
+        @Index(columnList = "birthDate"),
 })
 @Entity
 public class UserAccount extends AuditingFields {
@@ -48,10 +46,10 @@ public class UserAccount extends AuditingFields {
     @Column(nullable = false)
     private LocalDate birthDate;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, unique = true)
     private String email;
 
     protected UserAccount() {}

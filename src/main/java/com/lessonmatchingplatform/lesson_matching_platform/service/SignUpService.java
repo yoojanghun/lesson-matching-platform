@@ -14,7 +14,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorRes
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,6 @@ public class SignUpService {
     private final RoleRepository roleRepository;
 
     public TutorResponse signUpTutor(TutorSignUpRequest request) {
-
         UserAccount userAccount = UserAccount.of(
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),         // password는 암호화 한 후 저장
@@ -70,7 +68,6 @@ public class SignUpService {
     }
 
     public StudentMyResponse signUpStudent(StudentSignupRequest request) {
-
         UserAccount userAccount = UserAccount.of(
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),
@@ -96,8 +93,7 @@ public class SignUpService {
     }
 
     public TutorResponse switchTutor(BoardPrincipal boardPrincipal, TutorSwitchRequest request) {
-         UserAccount userAccount = userRepository.findByUserId(boardPrincipal.username())
-                 .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다." + boardPrincipal.username()));
+        UserAccount userAccount = userRepository.getReferenceById(boardPrincipal.id());
 
         Role role = roleRepository.getReferenceById(1L);
         UserRole userRole = UserRole.of(userAccount, role);
@@ -116,8 +112,7 @@ public class SignUpService {
     }
 
     public StudentMyResponse switchStudent(BoardPrincipal boardPrincipal, StudentSwitchRequest request) {
-        UserAccount userAccount = userRepository.findByUserId(boardPrincipal.username())
-                .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다." + boardPrincipal.username()));
+        UserAccount userAccount = userRepository.getReferenceById(boardPrincipal.id());
 
         Role role = roleRepository.getReferenceById(2L);
         UserRole userRole = UserRole.of(userAccount, role);

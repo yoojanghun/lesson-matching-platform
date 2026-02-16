@@ -28,9 +28,4 @@ public class LessonReviewController {
         return reviewService.postReview(boardPrincipal, request, tutorId);
     }
 
-    // 선생님의 레슨정보와 학생들의 리뷰를 한꺼번에 보여주기
-//    @GetMapping("/{tutorId}/reviews")
-//    public TutorWithReviewsResponse getTutorAndReviews(
-//
-//    )
 }

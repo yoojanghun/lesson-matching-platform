@@ -2,8 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.service;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSwitchRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorWithReviewsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,10 +26,10 @@ public class TutorsService {
     }
 
     @Transactional(readOnly = true)
-    public TutorResponse getTutor(Long tutorId) {
+    public TutorWithReviewsResponse getTutorAndReviews(Long tutorId) {
         TutorAccount tutorAccount = tutorsRepository.searchTutor(tutorId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        return TutorResponse.from(tutorAccount);
+        return TutorWithReviewsResponse.from(tutorAccount);
     }
 }

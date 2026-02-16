@@ -1,7 +1,10 @@
 package com.lessonmatchingplatform.lesson_matching_platform.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsStudent;
+import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -34,9 +37,21 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
     }
 
     @Override
-    public List<Matching> findAllByTutorId(Long tutorId) {
+    public List<MyMatchingResponseAsTutor> findAllByTutorId(Long tutorId) {
         return jpaQueryFactory
-                .selectFrom(matching).distinct()
+                .select(Projections.constructor(
+                        MyMatchingResponseAsTutor.class,
+                        matching.matchingId,
+                        matching.requestMsg,
+                        matching.status,
+                        userAccount.name,
+                        userAccount.gender,
+                        userAccount.birthDate,
+                        userAccount.phoneNumber,
+                        userAccount.email,
+                        matching.createdAt
+                ))
+                .from(matching).distinct()
                 .leftJoin(matching.studentAccount, studentAccount).fetchJoin()
                 .leftJoin(studentAccount.userAccount, userAccount).fetchJoin()
                 .where(

@@ -13,10 +13,9 @@ import com.lessonmatchingplatform.lesson_matching_platform.repository.StudentRep
 import com.lessonmatchingplatform.lesson_matching_platform.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
@@ -64,13 +63,13 @@ public class LessonMatchingService {
     }
 
     // Tutor가 자신이 받은 레슨 리스트 확인
+    @Transactional(readOnly = true)
     public List<MyMatchingResponseAsTutor> myMatchingsAsTutor(BoardPrincipal boardPrincipal) {
-        List<Matching> myMatchings = matchingRepository.findAllByTutorId(boardPrincipal.id());
-
-        return myMatchings.stream().map(MyMatchingResponseAsTutor::from).toList();
+        return matchingRepository.findAllByTutorId(boardPrincipal.id());
     }
 
     // Student가 자신이 보낸 레슨 리스트 확인
+    @Transactional(readOnly = true)
     public List<MyMatchingResponseAsStudent> myMatchingsAsStudent(BoardPrincipal boardPrincipal) {
         List<Matching> myMatchings = matchingRepository.findAllByStudentId(boardPrincipal.id());
 

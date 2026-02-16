@@ -52,8 +52,8 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                         matching.createdAt
                 ))
                 .from(matching).distinct()
-                .leftJoin(matching.studentAccount, studentAccount).fetchJoin()
-                .leftJoin(studentAccount.userAccount, userAccount).fetchJoin()
+                .leftJoin(matching.studentAccount, studentAccount)
+                .leftJoin(studentAccount.userAccount, userAccount)
                 .where(
                         matching.tutorAccount.tutorId.eq(tutorId)
                 )

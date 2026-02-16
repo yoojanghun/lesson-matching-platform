@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.domain.account;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.CategoryTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.SubjectTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -51,6 +52,11 @@ public class TutorAccount extends AuditingFields {
     @ToString.Exclude
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
     private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @OrderBy("createdAt DESC")
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    private final Set<Matching> matchingSet = new LinkedHashSet<>();
 
     public void addCategoryTutor(CategoryTutor categoryTutor) {
         this.categoryTutorSet.add(categoryTutor);

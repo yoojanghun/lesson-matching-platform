@@ -2,7 +2,6 @@ package com.lessonmatchingplatform.lesson_matching_platform.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.ReviewRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.ReviewResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorWithReviewsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.service.ReviewService;
 import lombok.RequiredArgsConstructor;

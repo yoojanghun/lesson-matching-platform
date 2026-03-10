@@ -39,3 +39,6 @@ out/
 ### Query Dsl ###
 /src/main/generated/
 /build/generated/
+
+# MySQL data directory
+mysql_data/

@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.service;
 
+import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.LessonReview;
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.ReviewRequest;
@@ -7,6 +8,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.dto.response.ReviewRe
 import com.lessonmatchingplatform.lesson_matching_platform.dto.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.repository.ReviewRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final MatchingRepository matchingRepository;
+    private final TutorsRepository tutorsRepository;
 
     public ReviewResponse postReview(BoardPrincipal boardPrincipal, ReviewRequest request, Long tutorId) {
         if(matchingRepository.hasAlreadyReviewedTutor(tutorId, boardPrincipal.id())) {
@@ -30,6 +33,11 @@ public class ReviewService {
                         boardPrincipal.id(),
                         MatchingStatus.ACCEPTED
                 ).orElseThrow(() -> new EntityNotFoundException("리뷰를 작성할 수 있는 승인된 매칭이 없습니다."));
+
+        TutorAccount tutorAccount = tutorsRepository.findById(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("강사를 찾을 수 없습니다."));
+
+        tutorAccount.updateRating(request.rating());
 
         LessonReview lessonReview = LessonReview.of(matching, request.content(), request.rating(), request.isAnonymous());
 

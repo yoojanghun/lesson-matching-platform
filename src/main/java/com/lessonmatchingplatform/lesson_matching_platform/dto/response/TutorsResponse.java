@@ -1,6 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
+
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -8,6 +10,8 @@ public record TutorsResponse(
         Long tutorId,
         String name,
         String title,
+        BigDecimal averageRating,
+        Integer reviewCount,
         Set<String> categories,
         Set<String> subjects
 ){
@@ -28,6 +32,8 @@ public record TutorsResponse(
                 entity.getTutorId(),
                 entity.getUserAccount().getName(),              // fetchJoin 사용으로 추가 쿼리 안 나감.
                 entity.getTitle(),
+                entity.getAverageRating(),
+                entity.getReviewCount(),
                 categories,
                 subjects
         );

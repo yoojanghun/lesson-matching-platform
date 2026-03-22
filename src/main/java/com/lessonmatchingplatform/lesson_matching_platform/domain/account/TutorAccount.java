@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -41,6 +43,12 @@ public class TutorAccount extends AuditingFields {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(precision = 2, scale = 1, nullable = false)
+    private BigDecimal averageRating = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private Integer reviewCount = 0;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
     private final Set<CategoryTutor> categoryTutorSet = new LinkedHashSet<>();
@@ -68,6 +76,20 @@ public class TutorAccount extends AuditingFields {
 
     public void addLocationTutor(LocationTutor locationTutor) {
         this.locationTutorSet.add(locationTutor);
+    }
+
+    public void updateRating(BigDecimal newRating) {
+        BigDecimal totalScore = this.averageRating
+                .multiply(BigDecimal.valueOf(this.reviewCount))
+                .add(newRating);
+
+        this.reviewCount++;
+
+        this.averageRating = totalScore.divide(
+                BigDecimal.valueOf(reviewCount),
+                1,
+                RoundingMode.HALF_UP
+        );
     }
 
     protected TutorAccount() {}

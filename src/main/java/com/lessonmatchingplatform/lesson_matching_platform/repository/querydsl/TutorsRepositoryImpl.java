@@ -64,6 +64,23 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
     }
 
     @Override
+    public List<TutorAccount> searchPopularTutors(Long categoryId) {
+        return queryFactory
+                .selectFrom(tutorAccount).distinct()
+                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
+                .where(
+                        categoryTutor.category.categoryId.eq(categoryId)
+                )
+                .orderBy(
+                        tutorAccount.averageRating.desc(),
+                        tutorAccount.reviewCount.desc()
+                )
+                .limit(8)
+                .fetch();
+    }
+
+    @Override
     public Optional<TutorAccount> searchTutor(Long tutorId) {
         TutorAccount content = queryFactory
                 .selectFrom(tutorAccount)

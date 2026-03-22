@@ -1,7 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.lesson.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsStudent;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.type.MatchingStatus;
 import com.querydsl.core.types.Projections;

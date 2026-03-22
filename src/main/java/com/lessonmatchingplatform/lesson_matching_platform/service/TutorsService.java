@@ -1,7 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.service;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.domain.account.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.ReviewResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.dto.response.TutorWithReviewsResponse;

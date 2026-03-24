@@ -94,7 +94,7 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
 
     // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것
     private BooleanExpression categoryEq(CategoryType categoryType) {
-        return categoryType != null ? category.name.eq(categoryType.name()) : null;
+        return categoryType != null ? category.name.eq(categoryType) : null;
     }
 
     private BooleanExpression subjectEq(SubjectType subjectType) {

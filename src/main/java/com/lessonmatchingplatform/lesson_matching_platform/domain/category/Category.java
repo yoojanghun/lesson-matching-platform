@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.domain.category;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.AuditingFields;
+import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,8 +22,9 @@ public class Category extends AuditingFields {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false, unique = true)
-    private String name;
+    private CategoryType name;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
@@ -30,11 +32,11 @@ public class Category extends AuditingFields {
 
     protected Category() {}
 
-    private Category(String name) {
+    private Category(CategoryType name) {
         this.name = name;
     }
 
-    public static Category of(String name) {
+    public static Category of(CategoryType name) {
         return new Category(name);
     }
 

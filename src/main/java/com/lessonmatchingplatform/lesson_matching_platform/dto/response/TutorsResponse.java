@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -12,13 +13,13 @@ public record TutorsResponse(
         String title,
         BigDecimal averageRating,
         Integer reviewCount,
-        Set<String> categories,
+        Set<CategoryType> categories,
         Set<String> subjects
 ){
     public static TutorsResponse from(TutorAccount entity) {
 
         // batch_fetch_size=100 설정으로 tutors들의 categories들을 한두번의 쿼리로 빠르게 채워줌
-        Set<String> categories = entity.getCategoryTutorSet().stream()
+        Set<CategoryType> categories = entity.getCategoryTutorSet().stream()
                 .map(categoryTutor ->
                         categoryTutor.getCategory().getName())
                 .collect(Collectors.toUnmodifiableSet());

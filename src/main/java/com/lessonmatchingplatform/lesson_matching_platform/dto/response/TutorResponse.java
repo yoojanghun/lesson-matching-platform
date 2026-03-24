@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.account.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.type.GenderType;
 
 import java.util.Set;
@@ -16,7 +17,7 @@ public record TutorResponse(
     String title,
     String content,
     Set<String> locations,
-    Set<String> categories,
+    Set<CategoryType> categories,
     Set<String> subjects
 ) {
 
@@ -27,7 +28,7 @@ public record TutorResponse(
                         locationTutor.getLocation().getName())
                 .collect(Collectors.toUnmodifiableSet());
 
-        Set<String> categories = entity.getCategoryTutorSet().stream()
+        Set<CategoryType> categories = entity.getCategoryTutorSet().stream()
                 .map(categoryTutor ->
                         categoryTutor.getCategory().getName())
                 .collect(Collectors.toUnmodifiableSet());

@@ -1,16 +1,22 @@
 package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Category;
+import com.lessonmatchingplatform.lesson_matching_platform.type.CategoryType;
 
 public record CategoryResponse(
         Long id,
-        String name
+        CategoryType name,
+        String displayName,
+        String icon
 ) {
 
     public static CategoryResponse from(Category entity) {
+        CategoryType categoryType = entity.getName();
         return new CategoryResponse(
                 entity.getCategoryId(),
-                entity.getName()
+                categoryType,
+                categoryType.getDescription(),
+                categoryType.getIcon()
         );
     }
 }

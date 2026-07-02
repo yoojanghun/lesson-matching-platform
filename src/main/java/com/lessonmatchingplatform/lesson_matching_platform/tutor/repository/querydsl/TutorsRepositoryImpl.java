@@ -1,0 +1,110 @@
+package com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.querydsl;
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategory;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategoryTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubject;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubjectTutor;
+
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryType;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.SubjectType;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount.tutorAccount;
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount.userAccount;
+import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategory.category;
+import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategoryTutor.categoryTutor;
+import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubject.subject;
+import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubjectTutor.subjectTutor;
+
+@RequiredArgsConstructor
+public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Override
+    public Page<TutorAccount> searchTutors(TutorSearchCondition condition, Pageable pageable) {
+
+        // 실제 데이터 조회
+        List<TutorAccount> content = queryFactory
+                .selectFrom(tutorAccount).distinct()
+                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)         // 여기서 leftJoin은 필터링 용(데이터 가져오기 X)
+                .leftJoin(categoryTutor.category, category)                     // proxy 객체가 채워짐. 나중에 필요할 때 query 발생
+                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
+                .leftJoin(subjectTutor.subject, subject)
+                .where(
+                        categoryEq(condition.category()),
+                        subjectEq(condition.subject())
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(tutorAccount.createdAt.desc())     // 최신순 정렬, 별점순과 같은 필터 추가 시 OrderSpecifier를 사용해 메서드로 분리
+                .fetch();
+
+        // 페이징 용 카운트 쿼리(사용자가 보는 리스트가 전체 몇 페이지까지 있는지)
+        JPAQuery<Long> countQuery = queryFactory
+                .select(tutorAccount.countDistinct())
+                .from(tutorAccount)
+                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
+                .leftJoin(categoryTutor.category, category)
+                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
+                .leftJoin(subjectTutor.subject, subject)
+                .where(
+                        categoryEq(condition.category()),
+                        subjectEq(condition.subject())
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public List<TutorAccount> searchPopularTutors(Long categoryId) {
+        return queryFactory
+                .selectFrom(tutorAccount).distinct()
+                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
+                .where(
+                        categoryTutor.category.categoryId.eq(categoryId)
+                )
+                .orderBy(
+                        tutorAccount.averageRating.desc(),
+                        tutorAccount.reviewCount.desc()
+                )
+                .limit(8)
+                .fetch();
+    }
+
+    @Override
+    public Optional<TutorAccount> searchTutor(Long tutorId) {
+        TutorAccount content = queryFactory
+                .selectFrom(tutorAccount)
+                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                .where(
+                        tutorAccount.tutorId.eq(tutorId)
+                ).fetchOne();
+
+        return Optional.ofNullable(content);
+    }
+
+    // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것
+    private BooleanExpression categoryEq(CategoryType categoryType) {
+        return categoryType != null ? category.name.eq(categoryType) : null;
+    }
+
+    private BooleanExpression subjectEq(SubjectType subjectType) {
+        return subjectType != null ? subject.name.eq(subjectType.name()) : null;
+    }
+
+}

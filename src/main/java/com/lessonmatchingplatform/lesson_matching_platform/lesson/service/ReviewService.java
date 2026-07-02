@@ -1,0 +1,46 @@
+package com.lessonmatchingplatform.lesson_matching_platform.lesson.service;
+
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.LessonReview;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.ReviewRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReviewRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@RequiredArgsConstructor
+@Transactional
+@Service
+public class ReviewService {
+
+    private final ReviewRepository reviewRepository;
+    private final MatchingRepository matchingRepository;
+    private final TutorsRepository tutorsRepository;
+
+    public ReviewResponse postReview(BoardPrincipal boardPrincipal, ReviewRequest request, Long tutorId) {
+        if(matchingRepository.hasAlreadyReviewedTutor(tutorId, boardPrincipal.id())) {
+            throw new IllegalStateException("이미 리뷰를 작성한 수업입니다.");
+        }
+
+        Matching matching = matchingRepository.findByStudentAccount_StudentIdAndStatus(
+                        boardPrincipal.id(),
+                        MatchingStatus.ACCEPTED
+                ).orElseThrow(() -> new EntityNotFoundException("리뷰를 작성할 수 있는 승인된 매칭이 없습니다."));
+
+        TutorAccount tutorAccount = tutorsRepository.findById(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("강사를 찾을 수 없습니다."));
+
+        tutorAccount.updateRating(request.rating());
+
+        LessonReview lessonReview = LessonReview.of(matching, request.content(), request.rating(), request.isAnonymous());
+
+        return ReviewResponse.from(reviewRepository.save(lessonReview));
+    }
+}

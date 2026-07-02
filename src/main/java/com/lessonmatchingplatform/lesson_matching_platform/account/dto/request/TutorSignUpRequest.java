@@ -1,0 +1,26 @@
+package com.lessonmatchingplatform.lesson_matching_platform.account.dto.request;
+
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.GenderType;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+public record TutorSignUpRequest(
+        String userId,
+        String userPassword,
+        String name,
+        GenderType gender,
+        LocalDate birthDate,
+        String phoneNumber,
+        String email,
+        String introduction,
+        String career,
+        String title,
+        String content,
+        Set<Long> roleId,
+        Set<Long> categoryId,
+        Set<Long> subjectId,
+        Set<Long> locationId
+) {
+
+}

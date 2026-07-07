@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: lesson-matching-platform
+
+  # Datasource Configuration
+  datasource:
+    url: jdbc:mysql://localhost:3306/lesson_platform?serverTimezone=Asia/Seoul&createDatabaseIfNotExist=true
+    username: root
+    password: Janghun7926*
+
+  # JPA Configuration
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    defer-datasource-initialization: true
+
+  # SQL Init
+  sql:
+    init:
+      mode: always
+
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+  querydsl:
+    enabled: false
+
+# JWT
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 900000       # 15분 (ms)
+  refresh-token-expiration: 604800000   # 7일 (ms)

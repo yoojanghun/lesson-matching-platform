@@ -1,45 +1,58 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.jwt.JwtAuthenticationFilter;
+import com.lessonmatchingplatform.lesson_matching_platform.global.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(AbstractHttpConfigurer::disable)                          // 나중에 JWT 사용 고려
+                .csrf(AbstractHttpConfigurer::disable)
+                // JWT 사용으로 세션 비활성화 (Stateless)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(
                                 "/",
-                                "/login",
-                                "/api/**",
-                                "/error"
-                        ).permitAll().anyRequest().authenticated())
-                // API 경로에서는 Basic Auth 팝업 없이 401만 반환 (브라우저 "사용자 이름, 비밀번호" 팝업 방지)
-                .exceptionHandling(ex -> ex
-                        .defaultAuthenticationEntryPointFor(
-                                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                request -> request.getServletPath().startsWith("/api")
-                        )
-                )
-                .httpBasic(AbstractHttpConfigurer::disable)                      // Basic Auth 비활성화로 팝업 제거
-                .logout(LogoutConfigurer::permitAll)
+                                "/error",
+                                "/api/auth/**",          // 로그인, 토큰 재발급
+                                "/api/sign-up/**",       // 회원가입
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .anyRequest().authenticated())
+                // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 등록
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtTokenProvider),
+                        UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    // AuthenticationManager Bean 등록 (AuthService에서 사용)
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean

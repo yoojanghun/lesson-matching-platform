@@ -78,7 +78,8 @@ VALUES
 INSERT INTO role (role_type, created_at, created_by)
 VALUES
 ('TUTOR', NOW(), 'SYSTEM'),
-('STUDENT', NOW(), 'SYSTEM');
+('STUDENT', NOW(), 'SYSTEM'),
+('GUEST', NOW(), 'SYSTEM');
 
 INSERT INTO user_role (user_id, role_id, created_at, created_by)
 VALUES

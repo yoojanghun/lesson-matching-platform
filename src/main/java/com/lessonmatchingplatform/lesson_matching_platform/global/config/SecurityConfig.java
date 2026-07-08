@@ -16,12 +16,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.oauth2.CustomOAuth2UserService;
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.oauth2.OAuth2SuccessHandler;
+
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,6 +46,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                )
                 // JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 등록
                 .addFilterBefore(
                         new JwtAuthenticationFilter(jwtTokenProvider),

@@ -30,6 +30,16 @@ spring:
       host: localhost
       port: 6379
 
+  # Security OAuth2
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:임시_클라이언트_아이디}
+            client-secret: ${GOOGLE_CLIENT_SECRET:임시_클라이언트_시크릿}
+            scope: profile, email
+
 # Swagger
 springdoc:
   swagger-ui:

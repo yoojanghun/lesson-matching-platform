@@ -1,14 +1,13 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentSignupRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentSwitchRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorSignUpRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorSwitchRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentMyResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.*;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TokenResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.account.service.AuthService;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.account.service.SignUpService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,40 +20,56 @@ import org.springframework.web.bind.annotation.RestController;
 public class SignUpController {
 
     private final SignUpService signUpService;
+    private final AuthService authService;
 
     // Tutor로 처음 sign up 할 때
     @PostMapping("/tutor")
-    public TutorResponse signUpTutor(
+    public ResponseEntity<TokenResponse> signUpTutor(
             @RequestBody TutorSignUpRequest request
     ) {
-        return signUpService.signUpTutor(request);
+        signUpService.signUpTutor(request);
+        LoginRequest loginRequest = LoginRequest.of(request.userId(), request.userPassword());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authService.login(loginRequest));
     }
 
     // Student로 처음 sign up 할 때
     @PostMapping("/student")
-    public StudentMyResponse signUpStudent(
+    public ResponseEntity<TokenResponse> signUpStudent(
             @RequestBody StudentSignupRequest request
     ) {
-        return signUpService.signUpStudent(request);
+        signUpService.signUpStudent(request);
+        LoginRequest loginRequest = LoginRequest.of(request.userId(), request.userPassword());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authService.login(loginRequest));
     }
 
     // Student로 등록한 경우 Tutor 등록(계정 전환)
     @PostMapping("/tutor-switch")
-    public TutorResponse postTutor(
+    public ResponseEntity<TokenResponse> postTutor(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,         // Student로 등록한 계정
             @RequestBody TutorSwitchRequest request
     ) {
-        return signUpService.switchTutor(boardPrincipal, request);
+        signUpService.switchTutor(boardPrincipal, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authService.issueTokenWithoutPassword(boardPrincipal.username()));
     }
 
     // Tutor로 등록한 경우 Student 등록(계정 전환)
     @PostMapping("/student-switch")
-    public StudentMyResponse postStudent(
+    public ResponseEntity<TokenResponse> postStudent(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody StudentSwitchRequest request
     ) {
-        return signUpService.switchStudent(boardPrincipal, request);
+        signUpService.switchStudent(boardPrincipal, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authService.issueTokenWithoutPassword(boardPrincipal.username()));
     }
 }
 
 // Student와 Tutor로 각각 회원가입 할 때, 일부 공통된 정보는 UserAccount에 저장하도록
+// 헤더에 Access Token을 담아서 보내면 JwtAuthenticationFilter가 BoardPrincipal객체로 만들어 SecurityContextHolder에 저장

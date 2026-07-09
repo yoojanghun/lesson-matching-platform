@@ -1,41 +1,24 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.service;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Location;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.LocationTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Role;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserRole;
-import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LocationRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LocationTutorRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.RoleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.UserRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.UserRoleRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryTutorRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectTutorRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Category;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryTutor;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Subject;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.SubjectTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentSignupRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorSignUpRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorSwitchRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentMyResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Transactional
@@ -44,18 +27,12 @@ public class SignUpService {
 
     private final UserRepository userRepository;
     private final TutorsRepository tutorsRepository;
-    private final CategoryRepository categoryRepository;
-    private final SubjectRepository subjectRepository;
-    private final CategoryTutorRepository categoryTutorRepository;
-    private final SubjectTutorRepository subjectTutorRepository;
-    private final LocationTutorRepository locationTutorRepository;
-    private final LocationRepository locationRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
 
-    public TutorResponse signUpTutor(TutorSignUpRequest request) {
+    public void signUpTutor(TutorSignUpRequest request) {       // TODO: userRole에 GUEST 있으면 삭제
         UserAccount userAccount = UserAccount.of(
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),         // password는 암호화 한 후 저장
@@ -79,11 +56,9 @@ public class SignUpService {
                 request.content()
         );
         tutorsRepository.save(tutorAccount);
-
-        return saveTutorAssociations(tutorAccount, request.categoryId(), request.subjectId(), request.locationId());
     }
 
-    public StudentMyResponse signUpStudent(StudentSignupRequest request) {
+    public void signUpStudent(StudentSignupRequest request) {
         UserAccount userAccount = UserAccount.of(
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),
@@ -103,12 +78,10 @@ public class SignUpService {
                 userAccount,
                 request.introduction()
         );
-        StudentAccount savedStudent = studentRepository.save(studentAccount);
-
-        return StudentMyResponse.from(savedStudent);
+        studentRepository.save(studentAccount);
     }
 
-    public TutorResponse switchTutor(BoardPrincipal boardPrincipal, TutorSwitchRequest request) {
+    public void switchTutor(BoardPrincipal boardPrincipal, TutorSwitchRequest request) {
         UserAccount userAccount = userRepository.getReferenceById(boardPrincipal.id());
 
         Role role = roleRepository.getReferenceById(1L);
@@ -123,11 +96,9 @@ public class SignUpService {
                  request.content()
          );
          tutorsRepository.save(tutorAccount);
-
-         return saveTutorAssociations(tutorAccount, request.categoryId(), request.subjectId(), request.locationId());
     }
 
-    public StudentMyResponse switchStudent(BoardPrincipal boardPrincipal, StudentSwitchRequest request) {
+    public void switchStudent(BoardPrincipal boardPrincipal, StudentSwitchRequest request) {
         UserAccount userAccount = userRepository.getReferenceById(boardPrincipal.id());
 
         Role role = roleRepository.getReferenceById(2L);
@@ -139,46 +110,6 @@ public class SignUpService {
                 request.introduction()
         );
 
-        return StudentMyResponse.from(studentRepository.save(studentAccount));
-    }
-
-    private TutorResponse saveTutorAssociations(TutorAccount tutorAccount, Set<Long> categoryIds, Set<Long> subjectIds, Set<Long> locationIds) {
-        if(categoryIds != null && !categoryIds.isEmpty()) {
-            List<CategoryTutor> categoryTutors = categoryIds.stream()
-                    .map(id -> {
-                        Category category = categoryRepository.getReferenceById(id);
-                        CategoryTutor categoryTutor = CategoryTutor.of(tutorAccount, category);
-                        tutorAccount.addCategoryTutor(categoryTutor);
-                        return categoryTutor;
-                    }).toList();
-
-            categoryTutorRepository.saveAll(categoryTutors);
-        }
-
-        if(subjectIds != null && !subjectIds.isEmpty()) {
-            List<SubjectTutor> subjectTutors = subjectIds.stream()
-                    .map(id -> {
-                        Subject subject = subjectRepository.getReferenceById(id);
-                        SubjectTutor subjectTutor = SubjectTutor.of(tutorAccount, subject);
-                        tutorAccount.addSubjectTutor(subjectTutor);
-                        return subjectTutor;
-                    }).toList();
-
-            subjectTutorRepository.saveAll(subjectTutors);
-        }
-
-        if(locationIds != null && !locationIds.isEmpty()) {
-            List<LocationTutor> locationTutors = locationIds.stream()
-                    .map(id -> {
-                        Location location = locationRepository.getReferenceById(id);
-                        LocationTutor locationTutor = LocationTutor.of(tutorAccount, location);
-                        tutorAccount.addLocationTutor(locationTutor);
-                        return locationTutor;
-                    }).toList();
-
-            locationTutorRepository.saveAll(locationTutors);
-        }
-
-        return TutorResponse.from(tutorAccount);
+        studentRepository.save(studentAccount);
     }
 }

@@ -28,11 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
         String token = resolveToken(request);                                 // jwt token 획득
 
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);  // filter에서 jwt token 받을 때마다 권한(TUTOR, STUDENT) 조회.
             SecurityContextHolder.getContext().setAuthentication(authentication);       // 검증된 신분증(authentication)을 지갑(SecurityContextHolder)에 넣음
             log.debug("JWT 인증 성공 - username: {}, uri: {}",
                     authentication.getName(), request.getRequestURI());

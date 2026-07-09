@@ -1,17 +1,12 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.security;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Role;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.GenderType;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.RoleType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public record BoardPrincipal(
         Long id,

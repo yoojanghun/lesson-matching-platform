@@ -29,7 +29,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Lesson Matching Platform API")
-                        .description("레슨 매칭 플랫폼 API 문서 — 로그인 후 발급된 Access Token을 🔒 Authorize 버튼에 입력하세요.")
+                        .description("레슨 매칭 플랫폼 API 문서 — 로그인 후 발급된 Access Token을 Authorize 버튼에 입력하세요.")
                         .version("v1.0.0"))
                 .components(new Components()
                         .addSecuritySchemes(BEARER_AUTH, bearerScheme))

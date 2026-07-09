@@ -35,13 +35,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(username);
         String refreshToken = jwtTokenProvider.createRefreshToken(username);
 
-        // Redis에 Refresh Token 저장 (Key: "refresh:{username}", TTL: 7일) => 서버 RAM에 저장
-        redisTemplate.opsForValue().set(
-                REFRESH_TOKEN_PREFIX + username,
-                refreshToken,
-                jwtProperties.getRefreshTokenExpiration(),
-                TimeUnit.MILLISECONDS
-        );
+        saveRefreshToken(username, refreshToken);
 
         return TokenResponse.of(accessToken, refreshToken, jwtProperties.getAccessTokenExpiration());
     }
@@ -64,18 +58,34 @@ public class AuthService {
         String newAccessToken = jwtTokenProvider.createAccessToken(username);
         String newRefreshToken = jwtTokenProvider.createRefreshToken(username);
 
-        redisTemplate.opsForValue().set(
-                redisKey,
-                newRefreshToken,
-                jwtProperties.getRefreshTokenExpiration(),
-                TimeUnit.MILLISECONDS
-        );
+        saveRefreshToken(username, refreshToken);
 
         return TokenResponse.of(newAccessToken, newRefreshToken, jwtProperties.getAccessTokenExpiration());
+    }
+
+    public TokenResponse issueTokenWithoutPassword(String username) {
+        String accessToken = jwtTokenProvider.createAccessToken(username);
+        String refreshToken = jwtTokenProvider.createRefreshToken(username);
+
+        saveRefreshToken(username, refreshToken);
+
+        return TokenResponse.of(accessToken, refreshToken, jwtProperties.getAccessTokenExpiration());
     }
 
     // 로그아웃 → Redis에서 Refresh Token 삭제
     public void logout(String username) {
         redisTemplate.delete(REFRESH_TOKEN_PREFIX + username);
+    }
+
+    // Redis에 Refresh Token 저장 (Key: "refresh:{username}", TTL: 7일) => 서버 RAM에 저장
+    private void saveRefreshToken(String username, String refreshToken) {
+        String redisKey = REFRESH_TOKEN_PREFIX + username;
+
+        redisTemplate.opsForValue().set(
+                redisKey,
+                refreshToken,
+                jwtProperties.getRefreshTokenExpiration(),
+                TimeUnit.MILLISECONDS
+        );
     }
 }

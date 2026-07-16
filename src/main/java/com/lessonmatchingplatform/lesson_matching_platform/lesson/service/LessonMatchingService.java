@@ -29,7 +29,7 @@ public class LessonMatchingService {
     private final MatchingRepository matchingRepository;
 
     // Student가 레슨 등록
-    public MyMatchingResponseAsStudent lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
+    public Long lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
         if(matchingRepository.existsActiveMatching(boardPrincipal.id(), tutorId)) {
             throw new IllegalStateException("이미 진행중이거나 승인된 매칭 요청이 있습니다");
         }
@@ -40,15 +40,12 @@ public class LessonMatchingService {
         Matching lessonMatching = Matching.of(studentAccount, tutorAccount, request.requestMsg(), MatchingStatus.PENDING);
         Matching savedMatching = matchingRepository.save(lessonMatching);
 
-        Matching matchingDetails = matchingRepository.findByIdWithDetails(savedMatching.getMatchingId())
-                .orElseThrow(EntityNotFoundException::new);
-
-        return MyMatchingResponseAsStudent.from(matchingDetails);
+        return savedMatching.getMatchingId();
     }
 
     // Tutor가 레슨 승인 / 거절 / 취소
-    public MyMatchingResponseAsTutor postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) throws AccessDeniedException {
-        Matching matching = matchingRepository.findByIdWithDetails(matchingId)
+    public Long postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) throws AccessDeniedException {
+        Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(EntityNotFoundException::new);
 
         if(!boardPrincipal.id().equals(matching.getTutorAccount().getTutorId())) {
@@ -59,7 +56,7 @@ public class LessonMatchingService {
             matching.setStatus(request.status());
         }
 
-        return MyMatchingResponseAsTutor.from(matching);
+        return matching.getMatchingId();
     }
 
     // Tutor가 자신이 받은 레슨 리스트 확인

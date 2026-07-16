@@ -1,10 +1,4 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QStudentAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QLessonReview;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QMatching;
-
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
@@ -13,7 +7,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QStudentAccount.studentAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount.tutorAccount;
@@ -25,20 +18,6 @@ import static com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.
 public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
-
-    @Override
-    public Optional<Matching> findByIdWithDetails(Long matchingId) {
-        Matching content = jpaQueryFactory
-                .selectFrom(matching).distinct()
-                .leftJoin(matching.tutorAccount, tutorAccount).fetchJoin()      // fetchJoin 없으면 proxy가 들어옴
-                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()    // 일반 join은 검색조건(where)으로 사용할 때 씀
-                .where(
-                        matching.matchingId.eq(matchingId)
-                )
-                .fetchOne();
-
-        return Optional.ofNullable(content);
-    }
 
     @Override
     public List<MyMatchingResponseAsTutor> findAllByTutorId(Long tutorId) {

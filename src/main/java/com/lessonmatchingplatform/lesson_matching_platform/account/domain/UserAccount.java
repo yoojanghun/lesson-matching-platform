@@ -47,7 +47,7 @@ public class UserAccount extends AuditingFields {
     @Column(length = 20, nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(length = 100, nullable = false, unique = true)
+    @Column(length = 100, unique = true)
     private String email;
 
     @Column(length = 50)
@@ -72,6 +72,14 @@ public class UserAccount extends AuditingFields {
 
     public static UserAccount of(String userId, String userPassword, String name, GenderType gender, LocalDate birthDate, String phoneNumber, String email) {
         return new UserAccount(userId, userPassword, name, gender, birthDate, phoneNumber, email, null, null);
+    }
+
+    // 특정 객체에 접근하기 위한 것 => static X, 다른 클래스에서 사용하기 위해 public
+    public void updateAccount(String name, GenderType gender, LocalDate birthDate, String phoneNumber) {
+        this.name = name;
+        this.gender = gender;
+        this.birthDate = birthDate;
+        this.phoneNumber = phoneNumber;
     }
 
     public static UserAccount ofOAuth2(String userId, String userPassword, String name, String email, String provider, String providerId, String tempPhoneNumber, Role guestRole) {

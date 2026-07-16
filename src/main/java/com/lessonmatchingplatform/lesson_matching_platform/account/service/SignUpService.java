@@ -4,17 +4,15 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Studen
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserRole;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.RoleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.UserRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.UserRoleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentSignupRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentSwitchRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorSignUpRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorSwitchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +30,7 @@ public class SignUpService {
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
 
-    public void signUpTutor(TutorSignUpRequest request) {       // TODO: userRole에 GUEST 있으면 삭제
+    public void signUpTutor(TutorSignUpRequest request) {
         UserAccount userAccount = UserAccount.of(
                 request.userId(),
                 passwordEncoder.encode(request.userPassword()),         // password는 암호화 한 후 저장
@@ -50,6 +48,28 @@ public class SignUpService {
 
         TutorAccount tutorAccount = TutorAccount.of(
                 userAccount,
+                request.introduction(),
+                request.career(),
+                request.title(),
+                request.content()
+        );
+        tutorsRepository.save(tutorAccount);
+    }
+
+    public void signUpTutorFromGuest(BoardPrincipal boardPrincipal, GuestToTutorRequest request) {
+        UserAccount guestUser = userRepository.findById(boardPrincipal.id())
+                .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
+
+        guestUser.updateAccount(request.name(), request.gender(), request.birthDate(), request.phoneNumber());
+
+        userRoleRepository.deleteByUserAccount(guestUser);
+
+        Role tutorRole = roleRepository.getReferenceById(1L);               // TUTOR
+        UserRole userRole = UserRole.of(guestUser, tutorRole);
+        userRoleRepository.save(userRole);
+
+        TutorAccount tutorAccount = TutorAccount.of(
+                guestUser,
                 request.introduction(),
                 request.career(),
                 request.title(),
@@ -76,6 +96,25 @@ public class SignUpService {
 
         StudentAccount studentAccount = StudentAccount.of(
                 userAccount,
+                request.introduction()
+        );
+        studentRepository.save(studentAccount);
+    }
+
+    public void signUpStudentFromGuest(BoardPrincipal boardPrincipal, GuestToStudentRequest request) {
+        UserAccount guestUser = userRepository.findById(boardPrincipal.id())
+                .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
+
+        guestUser.updateAccount(request.name(), request.gender(), request.birthDate(), request.phoneNumber());
+
+        userRoleRepository.deleteByUserAccount(guestUser);
+
+        Role studentRole = roleRepository.getReferenceById(2L);
+        UserRole userRole = UserRole.of(guestUser, studentRole);
+        userRoleRepository.save(userRole);
+
+        StudentAccount studentAccount = StudentAccount.of(
+                guestUser,
                 request.introduction()
         );
         studentRepository.save(studentAccount);
@@ -109,7 +148,6 @@ public class SignUpService {
                 userAccount,
                 request.introduction()
         );
-
         studentRepository.save(studentAccount);
     }
 }

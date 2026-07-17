@@ -1,10 +1,13 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.service;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Schedule;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.repository.ScheduleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonStatusRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.WeeklyScheduleRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsStudent;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
@@ -17,7 +20,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional
@@ -27,6 +36,7 @@ public class LessonMatchingService {
     private final StudentRepository studentRepository;
     private final TutorsRepository tutorsRepository;
     private final MatchingRepository matchingRepository;
+    private final ScheduleRepository scheduleRepository;
 
     // Student가 레슨 등록
     public Long lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
@@ -71,5 +81,48 @@ public class LessonMatchingService {
         List<Matching> myMatchings = matchingRepository.findAllByStudentId(boardPrincipal.id());
 
         return myMatchings.stream().map(MyMatchingResponseAsStudent::from).toList();
+    }
+
+    // TUTOR는 본인이 레슨 가능한 시간을 시간표에서 표시해 둠
+    public void myScheduleAsTutor(BoardPrincipal boardPrincipal, List<WeeklyScheduleRequest> request) {
+        Long tutorId = boardPrincipal.id();
+        validateOverlappingSchedule(request);
+
+        scheduleRepository.deleteByTutorId(tutorId);
+        List<Schedule> schedule = request.stream()
+                .map(scheduleRequest -> Schedule.of(scheduleRequest.dayOfWeek(), scheduleRequest.startTime(), scheduleRequest.endTime()))
+                .toList();
+
+        scheduleRepository.saveAll(schedule);
+    }
+
+    private void validateOverlappingSchedule(List<WeeklyScheduleRequest> request) {
+        Map<DayOfWeek, List<WeeklyScheduleRequest>> groupedByDay = request.stream()
+                .collect(Collectors.groupingBy(
+                        WeeklyScheduleRequest::dayOfWeek,
+                        Collectors.toCollection(ArrayList::new)
+                ));
+
+        for (Map.Entry<DayOfWeek, List<WeeklyScheduleRequest>> entry : groupedByDay.entrySet()) {
+            List<WeeklyScheduleRequest> dayRequests = entry.getValue();
+
+            dayRequests.sort(Comparator.comparing(WeeklyScheduleRequest::startTime));
+            for (int i = 0; i < dayRequests.size() - 1; i++) {
+                WeeklyScheduleRequest request1 = dayRequests.get(i);
+                WeeklyScheduleRequest request2 = dayRequests.get(i+1);
+
+                if (isOverlapping(request1.endTime(), request2.startTime())) {
+                    throw new IllegalStateException(
+                            "겹치는 스케줄이 존재합니다. 요일: " + entry.getKey() +
+                                    ", 시간: " + request1.startTime() + "~" + request1.endTime() +
+                                    " 와 " + request2.startTime() + "~" + request2.endTime()
+                    );
+                }
+            }
+        }
+    }
+
+    private boolean isOverlapping(LocalTime end1, LocalTime start2) {
+        return start2.isBefore(end1);
     }
 }

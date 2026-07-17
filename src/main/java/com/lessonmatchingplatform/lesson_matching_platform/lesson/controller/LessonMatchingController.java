@@ -2,9 +2,10 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonStatusRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.WeeklyScheduleRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/tutors")              // 자원의 계층 구조를 명확히 함(tutors)
@@ -44,6 +46,18 @@ public class LessonMatchingController {
         Long tutorMatchingId = lessonMatchingService.postMyMatching(boardPrincipal, matchingId, request);
 
         return ResponseEntity.ok().body(tutorMatchingId);
+    }
+
+    // TUTOR는 본인이 레슨 가능한 시간을 시간표에서 표시해 둠
+    @PreAuthorize("hasRole('TUTOR')")
+    @PostMapping("my/weekly-schedules")
+    public ResponseEntity<Void> postMySchedule(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody List<@Valid WeeklyScheduleRequest> request
+    ) {
+        lessonMatchingService.myScheduleAsTutor(boardPrincipal, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

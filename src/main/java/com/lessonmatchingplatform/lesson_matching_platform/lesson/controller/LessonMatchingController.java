@@ -2,6 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonStatusRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.ScheduleExceptionRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.WeeklyScheduleRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
@@ -57,7 +58,19 @@ public class LessonMatchingController {
     ) {
         lessonMatchingService.myScheduleAsTutor(boardPrincipal, request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
+    }
+
+    // TUTOR가 특정 날에 레슨 불가 시간을 신청할 수 있도록 함.
+    @PreAuthorize("hasRole('TUTOR')")
+    @PostMapping("my/schedule-exceptions")
+    public ResponseEntity<Void> registerScheduleExceptions(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody List<@Valid ScheduleExceptionRequest> request
+    ) {
+        lessonMatchingService.registerScheduleExceptions(boardPrincipal, request);
+
+        return ResponseEntity.ok().build();
     }
 
 }

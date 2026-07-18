@@ -38,15 +38,16 @@ public class ScheduleException extends AuditingFields {
 
     protected ScheduleException() {}
 
-    private ScheduleException(LocalDate exceptionDate, LocalTime startTime, LocalTime endTime, ExceptionType exceptionType) {
+    private ScheduleException(TutorAccount tutorAccount, LocalDate exceptionDate, LocalTime startTime, LocalTime endTime, ExceptionType exceptionType) {
+        this.tutorAccount = tutorAccount;
         this.exceptionDate = exceptionDate;
         this.startTime = startTime;
         this.endTime = endTime;
         this.exceptionType = exceptionType;
     }
 
-    public static ScheduleException of(LocalDate exceptionDate, LocalTime startTime, LocalTime endTime, ExceptionType exceptionType) {
-        return new ScheduleException(exceptionDate, startTime, endTime, exceptionType);
+    public static ScheduleException of(TutorAccount tutorAccount, LocalDate exceptionDate, LocalTime startTime, LocalTime endTime, ExceptionType exceptionType) {
+        return new ScheduleException(tutorAccount, exceptionDate, startTime, endTime, exceptionType);
     }
 
     @Override

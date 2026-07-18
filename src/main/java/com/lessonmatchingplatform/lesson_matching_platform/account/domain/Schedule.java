@@ -34,14 +34,15 @@ public class Schedule extends AuditingFields {
 
     protected Schedule() {}
 
-    private Schedule(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    private Schedule(TutorAccount tutorAccount, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.tutorAccount = tutorAccount;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public static Schedule of(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        return new Schedule(dayOfWeek, startTime, endTime);
+    public static Schedule of(TutorAccount tutorAccount, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        return new Schedule(tutorAccount, dayOfWeek, startTime, endTime);
     }
 
     @Override

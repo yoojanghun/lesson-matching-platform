@@ -19,7 +19,7 @@ public record WeeklyScheduleRequest(
         LocalTime endTime
 ) {
     public WeeklyScheduleRequest {
-        if (!startTime.isBefore(endTime)) {
+        if (startTime != null && endTime != null && !startTime.isBefore(endTime)) {
             throw new IllegalArgumentException("시작 시간은 종료 시간보다 빨라야 합니다.");
         }
     }

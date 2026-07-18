@@ -4,6 +4,10 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Schedu
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface ScheduleExceptionRepository extends JpaRepository<ScheduleException, Long> {
+    List<ScheduleException> findAllByTutorAccount_TutorIdAndExceptionDate(Long tutorId, LocalDate date);
 }

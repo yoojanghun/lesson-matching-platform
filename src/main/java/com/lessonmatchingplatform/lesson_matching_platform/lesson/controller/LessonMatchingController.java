@@ -1,9 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonMatchingRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonStatusRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.ScheduleExceptionRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.WeeklyScheduleRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
 import jakarta.validation.Valid;
@@ -34,6 +31,19 @@ public class LessonMatchingController {
         Long matchingId = lessonMatchingService.lessonMatching(boardPrincipal, tutorId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
+    }
+
+    // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
+    @PostMapping("/{tutorId}/matching/{matchingId}")
+    public ResponseEntity<Void> requestLessonSchedule(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long tutorId,
+            @PathVariable Long matchingId,
+            @RequestBody @Valid LessonScheduleRequest request
+    ) {
+        lessonMatchingService.lessonScheduleMatching(boardPrincipal, tutorId, matchingId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // Tutor는 자신의 레슨 요청 정보들 중 하나를 선택후, 거절 / 승인 을 답장으로 보냄

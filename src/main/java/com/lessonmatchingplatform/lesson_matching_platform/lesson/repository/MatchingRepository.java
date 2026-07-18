@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface MatchingRepository extends JpaRepository<Matching, Long>, MatchingRepositoryCustom {
     Optional<Matching> findByStudentAccount_StudentIdAndStatus(Long studentId, MatchingStatus status);
+
+    Optional<Matching> findByMatchingIdAndStudentAccount_StudentId(Long matchingId, Long studentId);
 }

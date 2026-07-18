@@ -7,15 +7,15 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorA
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.ScheduleExceptionRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.ScheduleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonMatchingRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonStatusRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.ScheduleExceptionRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.WeeklyScheduleRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsStudent;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,6 +43,7 @@ public class LessonMatchingService {
     private final MatchingRepository matchingRepository;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleExceptionRepository scheduleExceptionRepository;
+    private final ReservationRepository reservationRepository;
 
     // Student가 레슨 등록
     public Long lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
@@ -57,6 +58,66 @@ public class LessonMatchingService {
         Matching savedMatching = matchingRepository.save(lessonMatching);
 
         return savedMatching.getMatchingId();
+    }
+
+    // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
+    public void lessonScheduleMatching(BoardPrincipal boardPrincipal, Long tutorId, Long matchingId, @Valid LessonScheduleRequest request) {
+        Long studentId = boardPrincipal.id();
+
+        Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(matchingId, studentId)
+                .orElseThrow(() -> new EntityNotFoundException("matchingId, studentId 에 해당하는 matching이 없습니다."));
+
+        if (matching.getStatus() != MatchingStatus.ACCEPTED) {
+            throw new IllegalStateException("tutor와 student는 매칭된 레슨이 없습니다.");
+        }
+
+        DayOfWeek requestDayOfWeek = request.dayOfWeek();
+        LocalDate requestDate = request.date();
+        LocalTime requestStartTime = request.startTime();
+        LocalTime requestEndTime = request.endTime();
+
+        List<Schedule> tutorSchedule = scheduleRepository.findAllByTutorAccount_TutorIdAndDayOfWeek(tutorId, requestDayOfWeek);
+        if (tutorSchedule.isEmpty()) {
+            throw new IllegalStateException("해당 요일에는 튜터의 레슨 일정이 없습니다.");
+        }
+
+        boolean isWithinSchedule = tutorSchedule.stream()
+                .anyMatch(schedule ->
+                        !requestStartTime.isBefore(schedule.getStartTime()) && !requestEndTime.isAfter(schedule.getEndTime())
+                );
+
+        if (!isWithinSchedule) {
+            throw new IllegalStateException("요청한 시간이 튜터의 레슨 가능 시간에 포함되지 않습니다.");
+        }
+
+        List<ScheduleException> tutorScheduleException = scheduleExceptionRepository.findAllByTutorAccount_TutorIdAndExceptionDate(tutorId, requestDate);
+
+        boolean isOverlappingWithException = tutorScheduleException.stream()
+                .anyMatch(exception ->
+                        requestStartTime.isBefore(exception.getEndTime()) && requestEndTime.isAfter(exception.getStartTime())
+                );
+
+        if (isOverlappingWithException) {
+            throw new IllegalStateException("요청한 시간이 튜터의 휴무/불가 시간과 겹칩니다.");
+        }
+
+        boolean isAlreadyReserved = reservationRepository.existsOverlappingReservation(tutorId, requestDate, requestStartTime, requestEndTime);
+        if (isAlreadyReserved) {
+            throw new IllegalStateException("해당 시간대는 이미 다른 학생의 레슨 예약이 차 있습니다.");
+        }
+
+        TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
+        Reservation reservation = Reservation.of(
+                matching,
+                tutorAccount,
+                request.requestMsg(),
+                requestDate,
+                requestStartTime,
+                requestEndTime,
+                ReservationStatus.PENDING
+        );
+
+        reservationRepository.save(reservation);
     }
 
     // Tutor가 레슨 승인 / 거절 / 취소
@@ -92,11 +153,12 @@ public class LessonMatchingService {
     // TUTOR는 본인이 레슨 가능한 시간을 시간표에서 표시해 둠
     public void myScheduleAsTutor(BoardPrincipal boardPrincipal, List<WeeklyScheduleRequest> request) {
         Long tutorId = boardPrincipal.id();
+        TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
         validateOverlappingSchedule(request);
 
-        scheduleRepository.deleteByTutorId(tutorId);
+        scheduleRepository.deleteByTutorAccount_TutorId(tutorId);
         List<Schedule> schedule = request.stream()
-                .map(scheduleRequest -> Schedule.of(scheduleRequest.dayOfWeek(), scheduleRequest.startTime(), scheduleRequest.endTime()))
+                .map(scheduleRequest -> Schedule.of(tutorAccount, scheduleRequest.dayOfWeek(), scheduleRequest.startTime(), scheduleRequest.endTime()))
                 .toList();
 
         scheduleRepository.saveAll(schedule);
@@ -105,6 +167,7 @@ public class LessonMatchingService {
     // TUTOR가 특정 날에 레슨 불가 시간을 신청할 수 있도록 함.
     public void registerScheduleExceptions(BoardPrincipal boardPrincipal, List<@Valid ScheduleExceptionRequest> request) {
         Long tutorId = boardPrincipal.id();
+        TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
         validateExceptionRequests(request);
 
         List<ScheduleException> exceptionToSave = new ArrayList<>();        // 가변 객체
@@ -114,6 +177,7 @@ public class LessonMatchingService {
             // TODO: 해당 날짜, 해당 시간에 겹쳐 있는 '학생 예약'들이 있다면 취소해야 함
 
             ScheduleException scheduleException = ScheduleException.of(
+                    tutorAccount,
                     exceptionRequest.exceptionDate(),
                     exceptionRequest.startTime(),
                     exceptionRequest.endTime(),

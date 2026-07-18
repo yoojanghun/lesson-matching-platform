@@ -1,0 +1,36 @@
+package com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+public record LessonScheduleRequest(
+
+        @NotNull(message = "날짜는 필수입니다.")
+        @FutureOrPresent(message = "과거 날짜는 예약할 수 없습니다.")
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        LocalDate date,
+
+        String requestMsg,
+
+        @NotNull(message = "요일은 필수입니다.")
+        DayOfWeek dayOfWeek,
+
+        @NotNull(message = "시작 시간은 필수입니다.")
+        @JsonFormat(pattern = "HH:mm")
+        LocalTime startTime,
+
+        @NotNull(message = "종료 시간은 필수입니다.")
+        @JsonFormat(pattern = "HH:mm")
+        LocalTime endTime
+) {
+    public LessonScheduleRequest {
+        if (startTime != null && endTime != null && !startTime.isBefore(endTime)) {
+            throw new IllegalArgumentException("시작 시간은 종료 시간보다 빨라야 합니다.");
+        }
+    }
+}

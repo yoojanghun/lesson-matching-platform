@@ -5,18 +5,18 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
 @Entity
-public class Schedule extends AuditingFields {
+public class ScheduleException extends AuditingFields {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long scheduleId;
+    private Long exceptionId;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,7 +24,7 @@ public class Schedule extends AuditingFields {
     private TutorAccount tutorAccount;
 
     @Column(nullable = false)
-    private DayOfWeek dayOfWeek;
+    private LocalDate exceptionDate;
 
     @Column(nullable = false)
     private LocalTime startTime;
@@ -32,27 +32,32 @@ public class Schedule extends AuditingFields {
     @Column(nullable = false)
     private LocalTime endTime;
 
-    protected Schedule() {}
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private ExceptionType exceptionType;
 
-    private Schedule(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        this.dayOfWeek = dayOfWeek;
+    protected ScheduleException() {}
+
+    private ScheduleException(LocalDate exceptionDate, LocalTime startTime, LocalTime endTime, ExceptionType exceptionType) {
+        this.exceptionDate = exceptionDate;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.exceptionType = exceptionType;
     }
 
-    public static Schedule of(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        return new Schedule(dayOfWeek, startTime, endTime);
+    public static ScheduleException of(LocalDate exceptionDate, LocalTime startTime, LocalTime endTime, ExceptionType exceptionType) {
+        return new ScheduleException(exceptionDate, startTime, endTime, exceptionType);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Schedule that)) return false;
-        return this.scheduleId != null && Objects.equals(this.scheduleId, that.scheduleId);
+        if (!(o instanceof ScheduleException that)) return false;
+        return this.exceptionId != null && Objects.equals(this.exceptionId, that.exceptionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(scheduleId);
+        return Objects.hashCode(exceptionId);
     }
 }

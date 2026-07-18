@@ -1,7 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ExceptionType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.ExceptionType;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;

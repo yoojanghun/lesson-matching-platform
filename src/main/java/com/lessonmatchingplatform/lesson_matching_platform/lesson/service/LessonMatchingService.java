@@ -23,7 +23,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.nio.file.AccessDeniedException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -118,22 +117,6 @@ public class LessonMatchingService {
         );
 
         reservationRepository.save(reservation);
-    }
-
-    // Tutor가 레슨 승인 / 거절 / 취소
-    public Long postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) throws AccessDeniedException {
-        Matching matching = matchingRepository.findById(matchingId)
-                .orElseThrow(EntityNotFoundException::new);
-
-        if(!boardPrincipal.id().equals(matching.getTutorAccount().getTutorId())) {
-            throw new AccessDeniedException("본인에게 온 요청만 처리할 수 있습니다");
-        }
-
-        if(!matching.getStatus().equals(request.status())) {
-            matching.setStatus(request.status());
-        }
-
-        return matching.getMatchingId();
     }
 
     // Tutor가 자신이 받은 레슨 리스트 확인
@@ -242,5 +225,59 @@ public class LessonMatchingService {
 
     private boolean isOverlapping(LocalTime end1, LocalTime start2) {
         return start2.isBefore(end1);
+    }
+
+    // 선생님이 학생에게 받은 레슨 요청에 대한 상태 변경
+    public void updateLessonScheduleStatus(BoardPrincipal boardPrincipal, Long reservationId, LessonScheduleStatusRequest request) {
+        Long tutorId = boardPrincipal.id();
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));
+
+        if (!reservation.getTutorAccount().getTutorId().equals(tutorId)) {
+            throw new IllegalStateException("해당 요청을 처리할 권한이 없는 강사입니다.");
+        }
+
+        if (!reservation.getReservationStatus().equals(ReservationStatus.PENDING)) {
+            throw new IllegalStateException("이미 처리되었거나 변경이 불가능한 상태의 예약입니다.");
+        }
+
+        ReservationStatus newStatus = request.reservationStatus();
+
+        reservation.updateReservationStatus(newStatus);
+    }
+
+    public void createDirectReservation(BoardPrincipal boardPrincipal, TutorDirectReservationRequest request) {
+        Long tutorId = boardPrincipal.id();
+
+        Matching matching = matchingRepository.findById(request.matchingId())
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 matching이 없습니다."));
+
+        if (!matching.getTutorAccount().getTutorId().equals(tutorId)) {
+            throw new IllegalStateException("해당 요청을 처리할 권한이 없는 강사입니다.");
+        }
+
+        LocalDate requestDate = request.date();
+        LocalTime requestStartTime = request.startTime();
+        LocalTime requestEndTime = request.endTime();
+        ReservationStatus requestStatus = request.status();
+
+        boolean isOverlappingReservation = reservationRepository.existsOverlappingReservation(tutorId, requestDate, requestStartTime, requestEndTime);
+        if (isOverlappingReservation) {
+            throw new IllegalStateException("해당 시간대는 이미 다른 학생의 레슨 예약이 차 있습니다.");
+        }
+
+        TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
+        Reservation reservation = Reservation.of(
+                matching,
+                tutorAccount,
+                request.requestMsg(),
+                requestDate,
+                requestStartTime,
+                requestEndTime,
+                requestStatus
+        );
+
+        reservationRepository.save(reservation);
     }
 }

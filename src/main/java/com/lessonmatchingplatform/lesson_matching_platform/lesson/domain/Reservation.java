@@ -60,6 +60,10 @@ public class Reservation extends AuditingFields {
         return new Reservation(matching, tutorAccount, requestMsg, lessonDate, startTime, endTime, reservationStatus);
     }
 
+    public void updateReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

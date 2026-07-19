@@ -46,19 +46,6 @@ public class LessonMatchingController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // Tutor는 자신의 레슨 요청 정보들 중 하나를 선택후, 거절 / 승인 을 답장으로 보냄
-    @PreAuthorize("hasRole('TUTOR')")
-    @PatchMapping("/my/matchings/{matchingId}")
-    public ResponseEntity<Long> postMyMatching(
-            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
-            @PathVariable Long matchingId,
-            @RequestBody LessonStatusRequest request
-    ) throws AccessDeniedException {
-        Long tutorMatchingId = lessonMatchingService.postMyMatching(boardPrincipal, matchingId, request);
-
-        return ResponseEntity.ok().body(tutorMatchingId);
-    }
-
     // TUTOR는 본인이 레슨 가능한 시간을 시간표에서 표시해 둠
     @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("my/weekly-schedules")
@@ -83,4 +70,28 @@ public class LessonMatchingController {
         return ResponseEntity.ok().build();
     }
 
+    // 학생이 특정 시간에 레슨 신청하면 해당 레슨을 취소, 삭제, 승인 등을 할 수 있도록 해야 함.
+    @PreAuthorize("hasRole('TUTOR')")
+    @PatchMapping("my/reservations/{reservationId}/status")
+    public ResponseEntity<Void> updateLessonScheduleStatus(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long reservationId,
+            @RequestBody @Valid LessonScheduleStatusRequest request
+    ) {
+        lessonMatchingService.updateLessonScheduleStatus(boardPrincipal, reservationId, request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 학생이 레슨 신청을 하지 않더라도, 강사는 특정 레슨을 COMPLETED 할 수 있어야 함.
+    @PreAuthorize("hasRole('TUTOR')")
+    @PostMapping("my/reservations")
+    public ResponseEntity<Void> createDirectReservation(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody @Valid TutorDirectReservationRequest request
+    ) {
+        lessonMatchingService.createDirectReservation(boardPrincipal, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

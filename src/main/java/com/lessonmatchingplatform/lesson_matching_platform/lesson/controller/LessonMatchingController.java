@@ -1,11 +1,15 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.TutorScheduleResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +34,8 @@ public class LessonMatchingController {
             @PathVariable Long tutorId,
             @RequestBody LessonMatchingRequest request
     ) {
-        Long matchingId = lessonMatchingService.lessonMatching(boardPrincipal, tutorId, request);
+        Long studentId = boardPrincipal.id();
+        Long matchingId = lessonMatchingService.lessonMatching(studentId, tutorId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
     }
@@ -43,7 +48,8 @@ public class LessonMatchingController {
             @PathVariable Long matchingId,
             @RequestBody @Valid LessonStatusRequest request
     ) {
-        Long tutorMatchingId = lessonMatchingService.postMyMatching(boardPrincipal, matchingId, request);
+        Long tutorId = boardPrincipal.id();
+        Long tutorMatchingId = lessonMatchingService.postMyMatching(tutorId, matchingId, request);
 
         return ResponseEntity.ok().body(tutorMatchingId);
     }
@@ -68,7 +74,8 @@ public class LessonMatchingController {
             @PathVariable Long matchingId,
             @RequestBody @Valid LessonScheduleRequest request
     ) {
-        lessonMatchingService.lessonScheduleMatching(boardPrincipal, tutorId, matchingId, request);
+        Long studentId = boardPrincipal.id();
+        lessonMatchingService.lessonScheduleMatching(studentId, tutorId, matchingId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -80,7 +87,8 @@ public class LessonMatchingController {
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody List<@Valid WeeklyScheduleRequest> request
     ) {
-        lessonMatchingService.myScheduleAsTutor(boardPrincipal, request);
+        Long tutorId = boardPrincipal.id();
+        lessonMatchingService.myScheduleAsTutor(tutorId, request);
 
         return ResponseEntity.ok().build();
     }
@@ -92,7 +100,8 @@ public class LessonMatchingController {
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody List<@Valid ScheduleExceptionRequest> request
     ) {
-        lessonMatchingService.registerScheduleExceptions(boardPrincipal, request);
+        Long tutorId = boardPrincipal.id();
+        lessonMatchingService.registerScheduleExceptions(tutorId, request);
 
         return ResponseEntity.ok().build();
     }
@@ -105,7 +114,8 @@ public class LessonMatchingController {
             @PathVariable Long reservationId,
             @RequestBody @Valid LessonScheduleStatusRequest request
     ) {
-        lessonMatchingService.updateLessonScheduleStatus(boardPrincipal, reservationId, request);
+        Long tutorId = boardPrincipal.id();
+        lessonMatchingService.updateLessonScheduleStatus(tutorId, reservationId, request);
 
         return ResponseEntity.ok().build();
     }
@@ -117,7 +127,8 @@ public class LessonMatchingController {
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody @Valid TutorDirectReservationRequest request
     ) {
-        lessonMatchingService.createDirectReservation(boardPrincipal, request);
+        Long tutorId = boardPrincipal.id();
+        lessonMatchingService.createDirectReservation(tutorId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

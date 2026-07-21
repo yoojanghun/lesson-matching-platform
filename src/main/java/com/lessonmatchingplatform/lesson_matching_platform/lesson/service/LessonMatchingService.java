@@ -42,12 +42,12 @@ public class LessonMatchingService {
     private final ReservationRepository reservationRepository;
 
     // Student가 레슨 등록
-    public Long lessonMatching(BoardPrincipal boardPrincipal, Long tutorId, LessonMatchingRequest request) {
-        if(matchingRepository.existsActiveMatching(boardPrincipal.id(), tutorId)) {
+    public Long lessonMatching(Long studentId, Long tutorId, LessonMatchingRequest request) {
+        if(matchingRepository.existsActiveMatching(studentId, tutorId)) {
             throw new IllegalStateException("이미 진행중이거나 승인된 매칭 요청이 있습니다");
         }
 
-        StudentAccount studentAccount = studentRepository.getReferenceById(boardPrincipal.id());
+        StudentAccount studentAccount = studentRepository.getReferenceById(studentId);
         TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);                     // pk만 필요하므로 proxy 생성
 
         Matching lessonMatching = Matching.of(studentAccount, tutorAccount, request.requestMsg(), MatchingStatus.PENDING);
@@ -57,11 +57,11 @@ public class LessonMatchingService {
     }
 
     // Tutor가 레슨 승인 / 거절 / 취소
-    public Long postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) {
+    public Long postMyMatching(Long tutorId, Long matchingId, LessonStatusRequest request) {
         Matching matching = matchingRepository.findById(matchingId)
                 .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
 
-        if(!boardPrincipal.id().equals(matching.getTutorAccount().getTutorId())) {
+        if(!tutorId.equals(matching.getTutorAccount().getTutorId())) {
             throw new AccessDeniedException("본인에게 온 요청만 처리할 수 있습니다");
         }
 
@@ -74,6 +74,7 @@ public class LessonMatchingService {
     }
 
     // Student가 Tutor가 레슨 가능한 일정을 확인하는 요청
+    @Transactional(readOnly = true)
     public TutorScheduleResponse getTutorSchedules(Long tutorId, LocalDate startDate, LocalDate endDate) {
         List<WeeklyScheduleResponse> weeklySchedules = scheduleRepository.findAllByTutorAccount_TutorId(tutorId).stream()
                 .map(WeeklyScheduleResponse::from).toList();
@@ -88,9 +89,7 @@ public class LessonMatchingService {
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
-    public void lessonScheduleMatching(BoardPrincipal boardPrincipal, Long tutorId, Long matchingId, @Valid LessonScheduleRequest request) {
-        Long studentId = boardPrincipal.id();
-
+    public void lessonScheduleMatching(Long studentId, Long tutorId, Long matchingId, LessonScheduleRequest request) {
         Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(matchingId, studentId)
                 .orElseThrow(() -> new EntityNotFoundException("matchingId, studentId 에 해당하는 matching이 없습니다."));
 
@@ -149,21 +148,20 @@ public class LessonMatchingService {
 
     // Tutor가 자신이 받은 레슨 리스트 확인
     @Transactional(readOnly = true)
-    public List<MyMatchingResponseAsTutor> myMatchingsAsTutor(BoardPrincipal boardPrincipal) {
-        return matchingRepository.findAllByTutorId(boardPrincipal.id());
+    public List<MyMatchingResponseAsTutor> myMatchingsAsTutor(Long tutorId) {
+        return matchingRepository.findAllByTutorId(tutorId);
     }
 
     // Student가 자신이 보낸 레슨 리스트 확인
     @Transactional(readOnly = true)
-    public List<MyMatchingResponseAsStudent> myMatchingsAsStudent(BoardPrincipal boardPrincipal) {
-        List<Matching> myMatchings = matchingRepository.findAllByStudentId(boardPrincipal.id());
+    public List<MyMatchingResponseAsStudent> myMatchingsAsStudent(Long studentId) {
+        List<Matching> myMatchings = matchingRepository.findAllByStudentId(studentId);
 
         return myMatchings.stream().map(MyMatchingResponseAsStudent::from).toList();
     }
 
     // TUTOR는 본인이 레슨 가능한 시간을 시간표에서 표시해 둠
-    public void myScheduleAsTutor(BoardPrincipal boardPrincipal, List<WeeklyScheduleRequest> request) {
-        Long tutorId = boardPrincipal.id();
+    public void myScheduleAsTutor(Long tutorId, List<WeeklyScheduleRequest> request) {
         TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
         validateOverlappingSchedule(request);
 
@@ -176,8 +174,7 @@ public class LessonMatchingService {
     }
 
     // TUTOR가 특정 날에 레슨 불가 시간을 신청할 수 있도록 함.
-    public void registerScheduleExceptions(BoardPrincipal boardPrincipal, List<@Valid ScheduleExceptionRequest> request) {
-        Long tutorId = boardPrincipal.id();
+    public void registerScheduleExceptions(Long tutorId, List<@Valid ScheduleExceptionRequest> request) {
         TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
         validateExceptionRequests(request);
 
@@ -263,9 +260,7 @@ public class LessonMatchingService {
     }
 
     // 선생님이 학생에게 받은 레슨 요청에 대한 상태 변경
-    public void updateLessonScheduleStatus(BoardPrincipal boardPrincipal, Long reservationId, LessonScheduleStatusRequest request) {
-        Long tutorId = boardPrincipal.id();
-
+    public void updateLessonScheduleStatus(Long tutorId, Long reservationId, LessonScheduleStatusRequest request) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));
 
@@ -283,9 +278,7 @@ public class LessonMatchingService {
     }
 
     // 학생이 레슨 신청을 하지 않더라도, 강사는 특정 레슨을 COMPLETED 할 수 있어야 함.
-    public void createDirectReservation(BoardPrincipal boardPrincipal, TutorDirectReservationRequest request) {
-        Long tutorId = boardPrincipal.id();
-
+    public void createDirectReservation(Long tutorId, TutorDirectReservationRequest request) {
         Matching matching = matchingRepository.findById(request.matchingId())
                 .orElseThrow(() -> new EntityNotFoundException("해당되는 matching이 없습니다."));
 

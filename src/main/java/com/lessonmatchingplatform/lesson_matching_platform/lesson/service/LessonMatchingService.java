@@ -1,9 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.service;
 
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Schedule;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.ScheduleException;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.*;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.ScheduleExceptionRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.ScheduleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
@@ -156,15 +153,22 @@ public class LessonMatchingService {
         List<ScheduleException> exceptionToSave = new ArrayList<>();        // 가변 객체
 
         for (ScheduleExceptionRequest exceptionRequest : request) {
+            LocalDate requestExceptionDate = exceptionRequest.exceptionDate();
+            LocalTime requestStartTime = exceptionRequest.startTime();
+            LocalTime requestEndTime = exceptionRequest.endTime();
+            ExceptionType requestExceptionType = exceptionRequest.exceptionType();
 
-            // TODO: 해당 날짜, 해당 시간에 겹쳐 있는 '학생 예약'들이 있다면 취소해야 함
+            boolean isAlreadyReserved = reservationRepository.existsOverlappingReservation(tutorId, requestExceptionDate, requestStartTime, requestEndTime);
+            if (isAlreadyReserved) {
+                throw new IllegalStateException("해당 시간대는 이미 다른 학생의 레슨 예약이 차 있습니다.");
+            }
 
             ScheduleException scheduleException = ScheduleException.of(
                     tutorAccount,
-                    exceptionRequest.exceptionDate(),
-                    exceptionRequest.startTime(),
-                    exceptionRequest.endTime(),
-                    exceptionRequest.exceptionType()
+                    requestExceptionDate,
+                    requestStartTime,
+                    requestEndTime,
+                    requestExceptionType
             );
 
             exceptionToSave.add(scheduleException);
@@ -247,6 +251,7 @@ public class LessonMatchingService {
         reservation.updateReservationStatus(newStatus);
     }
 
+    // 학생이 레슨 신청을 하지 않더라도, 강사는 특정 레슨을 COMPLETED 할 수 있어야 함.
     public void createDirectReservation(BoardPrincipal boardPrincipal, TutorDirectReservationRequest request) {
         Long tutorId = boardPrincipal.id();
 

@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl;
 
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import static com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QReservation.reservation;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,8 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                         reservation.tutorAccount.tutorId.eq(tutorId),
                         reservation.lessonDate.eq(date),
                         reservation.startTime.lt(endTime),
-                        reservation.endTime.gt(startTime)
+                        reservation.endTime.gt(startTime),
+                        reservation.reservationStatus.in(ReservationStatus.PENDING, ReservationStatus.CONFIRMED)
                 )
                 .fetchFirst();
 

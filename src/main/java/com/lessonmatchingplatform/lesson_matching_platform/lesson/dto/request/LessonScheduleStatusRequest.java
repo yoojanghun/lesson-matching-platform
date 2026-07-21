@@ -12,10 +12,9 @@ public record LessonScheduleStatusRequest(
     public LessonScheduleStatusRequest {
         if (reservationStatus != null) {
             if (reservationStatus != ReservationStatus.CONFIRMED &&
-                    reservationStatus != ReservationStatus.REJECTED &&
-                    reservationStatus != ReservationStatus.CANCELLED
+                    reservationStatus != ReservationStatus.REJECTED
             ) {
-                throw new IllegalStateException("튜터가 변경할 수 없는 예약 상태 값입니다.");
+                throw new IllegalArgumentException("튜터가 변경할 수 없는 예약 상태 값입니다.");
             }
         }
     }

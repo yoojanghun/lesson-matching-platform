@@ -62,6 +62,21 @@ public class Reservation extends AuditingFields {
 
     public void updateReservationStatus(ReservationStatus reservationStatus) {
         this.reservationStatus = reservationStatus;
+
+    public void cancelReservation(LocalDateTime now) {
+        if (this.reservationStatus != ReservationStatus.PENDING && this.reservationStatus != ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException("이미 종료되었거나 진행할 수 없는 예약 상태입니다.");
+        }
+
+        if (this.reservationStatus == ReservationStatus.CONFIRMED) {
+            LocalDateTime lessonStartTime = LocalDateTime.of(this.lessonDate, this.startTime);
+
+            if (now.plusHours(24).isAfter(lessonStartTime)) {
+                throw new IllegalStateException("확정된 레슨은 수업 시작 24시간 전까지만 취소할 수 있습니다.");
+            }
+        }
+
+        this.reservationStatus = ReservationStatus.CANCELLED;
     }
 
     @Override

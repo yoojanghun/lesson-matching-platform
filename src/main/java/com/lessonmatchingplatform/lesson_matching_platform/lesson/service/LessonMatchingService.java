@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -156,6 +157,16 @@ public class LessonMatchingService {
         );
 
         reservationRepository.save(reservation);
+    }
+
+    // Student가 Tutor에게 보냈던 reservation 취소
+    public Long cancelReservation(Long studentId, Long reservationId) {
+        Reservation reservation = reservationRepository.findByReservationIdAndMatching_StudentAccount_StudentId(reservationId, studentId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 학생의 예약 요청을 찾을 수 없습니다."));
+
+        reservation.cancelReservation(LocalDateTime.now());
+
+        return reservationId;
     }
 
     // Tutor가 자신이 받은 레슨 리스트 확인

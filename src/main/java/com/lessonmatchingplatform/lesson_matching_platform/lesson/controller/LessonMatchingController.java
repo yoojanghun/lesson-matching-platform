@@ -43,7 +43,7 @@ public class LessonMatchingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
     }
 
-    // Student가 Tutor에게 보냈던 matching의 status 취소
+    // Student가 Tutor에게 보냈던 matching 취소
     @PreAuthorize("hasRole('STUDENT')")
     @PatchMapping("/{matchingId}/cancel")
     public ResponseEntity<Long> cancelMatching(
@@ -83,6 +83,7 @@ public class LessonMatchingController {
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/{tutorId}/matching/{matchingId}")
     public ResponseEntity<Void> requestLessonSchedule(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
@@ -94,6 +95,19 @@ public class LessonMatchingController {
         lessonMatchingService.lessonScheduleMatching(studentId, tutorId, matchingId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    // Student가 Tutor에게 보냈던 reservation 취소
+    @PreAuthorize("hasRole('STUDENT')")
+    @PatchMapping("/{reservationId}/cancel")
+    public ResponseEntity<Long> cancelReservation(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long reservationId
+    ) {
+        Long studentId = boardPrincipal.id();
+        Long canceledReservationId = lessonMatchingService.cancelReservation(studentId, reservationId);
+
+        return ResponseEntity.ok().body(canceledReservationId);
     }
 
     // TUTOR는 본인이 레슨 가능한 시간을 시간표에서 표시해 둠

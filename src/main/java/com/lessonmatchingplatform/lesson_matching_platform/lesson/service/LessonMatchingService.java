@@ -17,6 +17,8 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matchin
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,7 +154,7 @@ public class LessonMatchingService {
         return matchingRepository.findAllByTutorId(tutorId);
     }
 
-    // Student가 자신이 보낸 레슨 리스트 확인
+    // Student가 자신이 보낸 Matching 리스트 확인
     @Transactional(readOnly = true)
     public List<MyMatchingResponseAsStudent> myMatchingsAsStudent(Long studentId) {
         List<Matching> myMatchings = matchingRepository.findAllByStudentId(studentId);
@@ -259,6 +261,11 @@ public class LessonMatchingService {
         return start2.isBefore(end1);
     }
 
+    // TUTOR는 자신에게 요청이 들어온 Reservation들을 Page 형태로 확인할 수 있도록 해야 함.
+    public Page<ReservationResponse> getTutorReservations(Long tutorId, ReservationStatus status, Pageable pageable) {
+        return reservationRepository.findTutorReservations(tutorId, status, pageable);
+    }
+
     // 선생님이 학생에게 받은 레슨 요청에 대한 상태 변경
     public void updateLessonScheduleStatus(Long tutorId, Long reservationId, LessonScheduleStatusRequest request) {
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -309,5 +316,6 @@ public class LessonMatchingService {
 
         reservationRepository.save(reservation);
     }
+
 
 }

@@ -3,10 +3,12 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReservationResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.TutorScheduleResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -104,6 +106,20 @@ public class LessonMatchingController {
         lessonMatchingService.registerScheduleExceptions(tutorId, request);
 
         return ResponseEntity.ok().build();
+    }
+
+    // TUTOR는 자신에게 요청이 들어온 Reservation들을 Page 형태로 확인할 수 있도록 해야 함.
+    @PreAuthorize("hasRole('TUTOR')")
+    @GetMapping("my/reservations")
+    public ResponseEntity<Page<ReservationResponse>> getTutorReservations(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestParam(required = false) ReservationStatus status,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Long tutorId = boardPrincipal.id();
+        Page<ReservationResponse> reservations = lessonMatchingService.getTutorReservations(tutorId, status, pageable);
+
+        return ResponseEntity.ok().body(reservations);
     }
 
     // 학생이 특정 시간에 레슨 신청하면 해당 레슨을 취소, 삭제, 승인 등을 할 수 있도록 해야 함.

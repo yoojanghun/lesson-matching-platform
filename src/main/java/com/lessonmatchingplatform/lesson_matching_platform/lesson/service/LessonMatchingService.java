@@ -7,8 +7,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matchin
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsStudent;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.*;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
@@ -72,6 +71,20 @@ public class LessonMatchingService {
         }
 
         return matching.getMatchingId();
+    }
+
+    // Student가 Tutor가 레슨 가능한 일정을 확인하는 요청
+    public TutorScheduleResponse getTutorSchedules(Long tutorId, LocalDate startDate, LocalDate endDate) {
+        List<WeeklyScheduleResponse> weeklySchedules = scheduleRepository.findAllByTutorAccount_TutorId(tutorId).stream()
+                .map(WeeklyScheduleResponse::from).toList();
+
+        List<ScheduleExceptionResponse> scheduleExceptions = scheduleExceptionRepository.findByTutorIdAndDateRange(tutorId, startDate, endDate).stream()
+                .map(ScheduleExceptionResponse::from).toList();
+
+        List<ReservedSlotResponse> reservedSlots = reservationRepository.findActiveReservationsByTutorIdAndDateRange(tutorId, startDate, endDate).stream()
+                .map(ReservedSlotResponse::from).toList();
+
+        return TutorScheduleResponse.of(tutorId, weeklySchedules, scheduleExceptions, reservedSlots);
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
@@ -303,4 +316,5 @@ public class LessonMatchingService {
 
         reservationRepository.save(reservation);
     }
+
 }

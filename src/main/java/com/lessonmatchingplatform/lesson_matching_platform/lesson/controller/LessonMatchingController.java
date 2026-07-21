@@ -2,15 +2,18 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.TutorScheduleResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -43,6 +46,18 @@ public class LessonMatchingController {
         Long tutorMatchingId = lessonMatchingService.postMyMatching(boardPrincipal, matchingId, request);
 
         return ResponseEntity.ok().body(tutorMatchingId);
+    }
+
+    // Student가 Tutor가 레슨 가능한 일정을 확인하는 요청
+    @GetMapping("/{tutorId}/schedules")
+    public ResponseEntity<TutorScheduleResponse> getTutorSchedules(
+            @PathVariable Long tutorId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        TutorScheduleResponse tutorScheduleResponse = lessonMatchingService.getTutorSchedules(tutorId, startDate, endDate);
+
+        return ResponseEntity.ok().body(tutorScheduleResponse);
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청

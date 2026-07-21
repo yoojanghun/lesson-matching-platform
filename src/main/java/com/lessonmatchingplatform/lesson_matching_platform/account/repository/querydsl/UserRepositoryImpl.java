@@ -1,7 +1,4 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.repository.querydsl;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QRole;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserRole;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.querydsl.jpa.impl.JPAQueryFactory;

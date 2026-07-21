@@ -18,6 +18,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matchin
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
@@ -54,6 +55,23 @@ public class LessonMatchingService {
         Matching savedMatching = matchingRepository.save(lessonMatching);
 
         return savedMatching.getMatchingId();
+    }
+
+    // Tutor가 레슨 승인 / 거절 / 취소
+    public Long postMyMatching(BoardPrincipal boardPrincipal, Long matchingId, LessonStatusRequest request) {
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
+
+        if(!boardPrincipal.id().equals(matching.getTutorAccount().getTutorId())) {
+            throw new AccessDeniedException("본인에게 온 요청만 처리할 수 있습니다");
+        }
+
+        MatchingStatus requestStatus = request.status();
+        if(!matching.getStatus().equals(requestStatus)) {
+            matching.setStatus(requestStatus);
+        }
+
+        return matching.getMatchingId();
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
@@ -239,7 +257,7 @@ public class LessonMatchingService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));
 
         if (!reservation.getTutorAccount().getTutorId().equals(tutorId)) {
-            throw new IllegalStateException("해당 요청을 처리할 권한이 없는 강사입니다.");
+            throw new AccessDeniedException("해당 요청을 처리할 권한이 없는 강사입니다.");
         }
 
         if (!reservation.getReservationStatus().equals(ReservationStatus.PENDING)) {

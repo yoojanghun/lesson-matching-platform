@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -31,6 +30,19 @@ public class LessonMatchingController {
         Long matchingId = lessonMatchingService.lessonMatching(boardPrincipal, tutorId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
+    }
+
+    // Tutor는 자신의 레슨 요청 정보(Matching)들 중 하나를 선택후, 거절 / 승인 을 답장으로 보냄
+    @PreAuthorize("hasRole('TUTOR')")
+    @PatchMapping("/my/matchings/{matchingId}")
+    public ResponseEntity<Long> postMyMatching(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long matchingId,
+            @RequestBody @Valid LessonStatusRequest request
+    ) {
+        Long tutorMatchingId = lessonMatchingService.postMyMatching(boardPrincipal, matchingId, request);
+
+        return ResponseEntity.ok().body(tutorMatchingId);
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청

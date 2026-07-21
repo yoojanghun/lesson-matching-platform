@@ -58,6 +58,13 @@ public class Matching extends AuditingFields {
         return new Matching(studentAccount, tutorAccount, requestMsg, status);
     }
 
+    public void cancelMatching() {
+        if (this.status != MatchingStatus.PENDING) {
+            throw new IllegalStateException("대기 중(PENDING)인 매칭 요청만 취소할 수 있습니다.");
+        }
+        this.status = MatchingStatus.CANCELLED;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

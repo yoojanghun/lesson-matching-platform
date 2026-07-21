@@ -58,6 +58,16 @@ public class LessonMatchingService {
         return savedMatching.getMatchingId();
     }
 
+    // Student가 Tutor에게 보냈던 matching의 status 취소
+    public Long cancelMatching(Long studentId, Long matchingId) {
+        Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(matchingId, studentId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 학생에 대한 matching 요청이 없습니다."));
+
+        matching.cancelMatching();
+
+        return matchingId;
+    }
+
     // Tutor가 레슨 승인 / 거절 / 취소
     public Long postMyMatching(Long tutorId, Long matchingId, LessonStatusRequest request) {
         Matching matching = matchingRepository.findById(matchingId)

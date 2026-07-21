@@ -30,6 +30,7 @@ public class LessonMatchingController {
     private final LessonMatchingService lessonMatchingService;
 
     // Student가 Tutor에게 레슨 요청을 보냄
+    @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/{tutorId}/matching")
     public ResponseEntity<Long> lessonMatching(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
@@ -40,6 +41,19 @@ public class LessonMatchingController {
         Long matchingId = lessonMatchingService.lessonMatching(studentId, tutorId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
+    }
+
+    // Student가 Tutor에게 보냈던 matching의 status 취소
+    @PreAuthorize("hasRole('STUDENT')")
+    @PatchMapping("/{matchingId}/cancel")
+    public ResponseEntity<Long> cancelMatching(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long matchingId
+    ) {
+        Long studentId = boardPrincipal.id();
+        Long canceledMatchingId = lessonMatchingService.cancelMatching(studentId, matchingId);
+
+        return ResponseEntity.ok().body(canceledMatchingId);
     }
 
     // Tutor는 자신의 레슨 요청 정보(Matching)들 중 하나를 선택후, 거절 / 승인 을 답장으로 보냄

@@ -287,17 +287,13 @@ public class LessonMatchingService {
         return reservationRepository.findTutorReservations(tutorId, status, pageable);
     }
 
-    // 선생님이 학생에게 받은 레슨 요청에 대한 상태 변경
+    // 선생님이 학생에게 받은 Reservation(레슨 시간 요청)에 대한 상태 변경
     public void updateLessonScheduleStatus(Long tutorId, Long reservationId, LessonScheduleStatusRequest request) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));
 
         if (!reservation.getTutorAccount().getTutorId().equals(tutorId)) {
             throw new AccessDeniedException("해당 요청을 처리할 권한이 없는 강사입니다.");
-        }
-
-        if (!reservation.getReservationStatus().equals(ReservationStatus.PENDING)) {
-            throw new IllegalStateException("이미 처리되었거나 변경이 불가능한 상태의 예약입니다.");
         }
 
         ReservationStatus newStatus = request.reservationStatus();

@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 
@@ -60,8 +61,17 @@ public class Reservation extends AuditingFields {
         return new Reservation(matching, tutorAccount, requestMsg, lessonDate, startTime, endTime, reservationStatus);
     }
 
-    public void updateReservationStatus(ReservationStatus reservationStatus) {
-        this.reservationStatus = reservationStatus;
+    public void updateReservationStatus(ReservationStatus newStatus) {
+        if (this.getReservationStatus() != ReservationStatus.PENDING) {
+            throw new IllegalStateException("이미 처리되었거나 변경이 불가능한 상태의 예약입니다.");
+        }
+
+        if (newStatus != ReservationStatus.CONFIRMED && newStatus != ReservationStatus.REJECTED) {
+            throw new IllegalArgumentException("허용되지 않은 예약 상태 변경 요청입니다.");
+        }
+
+        this.reservationStatus = newStatus;
+    }
 
     public void cancelReservation(LocalDateTime now) {
         if (this.reservationStatus != ReservationStatus.PENDING && this.reservationStatus != ReservationStatus.CONFIRMED) {

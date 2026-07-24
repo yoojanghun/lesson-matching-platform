@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MatchingRepositoryCustom {
-    Optional<Matching> findByIdWithDetails(Long matchingId);
     List<MyMatchingResponseAsTutor> findAllByTutorId(Long tutorId);
     List<Matching> findAllByStudentId(Long studentId);
     Boolean existsActiveMatching(Long studentId, Long tutorId);

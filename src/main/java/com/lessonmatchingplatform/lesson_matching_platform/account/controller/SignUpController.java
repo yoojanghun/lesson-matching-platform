@@ -58,12 +58,16 @@ public class SignUpController {
                 .body(authService.login(loginRequest));
     }
 
+    // GUEST 계정에서 STUDENT로 확정지을 때
     @PostMapping("/student-from-guest")
     public ResponseEntity<TokenResponse> signUpStudentFromGuest(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody GuestToStudentRequest request
     ) {
         signUpService.signUpStudentFromGuest(boardPrincipal, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authService.issueTokenWithoutPassword(boardPrincipal.username()));
     }
 
     // Student로 등록한 경우 Tutor 등록(계정 전환)

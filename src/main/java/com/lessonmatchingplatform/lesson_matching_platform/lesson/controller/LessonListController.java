@@ -26,7 +26,8 @@ public class LessonListController {
     public List<MyMatchingResponseAsTutor> myMatchingsAsTutor(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal
     ) {
-        return lessonMatchingService.myMatchingsAsTutor(boardPrincipal);
+        Long tutorId = boardPrincipal.id();
+        return lessonMatchingService.myMatchingsAsTutor(tutorId);
     }
 
     // Student는 자신이 보낸 레슨 요청 정보들을 List로 확인
@@ -35,6 +36,7 @@ public class LessonListController {
     public List<MyMatchingResponseAsStudent> myMatchingAsStudent(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal
     ) {
-        return lessonMatchingService.myMatchingsAsStudent(boardPrincipal);
+        Long studentId = boardPrincipal.id();
+        return lessonMatchingService.myMatchingsAsStudent(studentId);
     }
 }

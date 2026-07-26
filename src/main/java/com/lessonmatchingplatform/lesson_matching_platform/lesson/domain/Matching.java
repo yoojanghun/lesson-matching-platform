@@ -3,7 +3,6 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.domain;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +44,9 @@ public class Matching extends AuditingFields {
     @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL)
     private LessonReview lessonReview;
 
+    @Column(nullable = false)
+    private Integer pricePerLesson;
+
     protected Matching() {}
 
     private Matching(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, MatchingStatus status) {
@@ -52,6 +54,7 @@ public class Matching extends AuditingFields {
         this.tutorAccount = tutorAccount;
         this.requestMsg = requestMsg;
         this.status = status;
+        this.pricePerLesson = null;
     }
 
     public static Matching of(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, MatchingStatus status) {

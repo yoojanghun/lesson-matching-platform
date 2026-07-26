@@ -8,7 +8,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reserva
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.*;
-import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;

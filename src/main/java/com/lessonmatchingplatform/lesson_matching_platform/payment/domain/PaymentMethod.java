@@ -14,4 +14,15 @@ public enum PaymentMethod {
     MOBILE("휴대폰 소액결제");
 
     private final String description;
+
+    public static PaymentMethod fromPgMethod(String pgMethod) {
+        return switch (pgMethod) {
+            case "카드" -> CARD;
+            case "간편결제" -> EASY_PAY;
+            case "가상계좌" -> VIRTUAL_ACCOUNT;
+            case "계좌이체" -> TRANSFER;
+            case "휴대폰" -> MOBILE;
+            default -> CARD;
+        };
+    }
 }

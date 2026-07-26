@@ -73,7 +73,7 @@ public class LessonPaymentService {
         String paymentKey = request.paymentKey();
         Integer amount = request.amount();
 
-        Payment payment = paymentRepository.findByOrderId(orderId)
+        Payment payment = paymentRepository.findByOrderIdWithMatchingAndStudent(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("orderId에 해당되는 결제 정보가 없습니다."));
 
         if (!payment.getMatching().getStudentAccount().getStudentId().equals(studentId)) {

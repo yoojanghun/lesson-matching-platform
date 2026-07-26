@@ -18,7 +18,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
@@ -70,12 +69,8 @@ public class LessonMatchingService {
 
     // Tutor가 레슨 승인 / 거절 / 취소
     public Long postMyMatching(Long tutorId, Long matchingId, LessonStatusRequest request) {
-        Matching matching = matchingRepository.findById(matchingId)
+        Matching matching = matchingRepository.findByMatchingIdAndTutorAccount_TutorId(matchingId, tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
-
-        if(!tutorId.equals(matching.getTutorAccount().getTutorId())) {
-            throw new AccessDeniedException("본인에게 온 요청만 처리할 수 있습니다");
-        }
 
         MatchingStatus requestStatus = request.status();
         if(!matching.getStatus().equals(requestStatus)) {
@@ -288,12 +283,8 @@ public class LessonMatchingService {
 
     // 선생님이 학생에게 받은 Reservation(레슨 시간 요청)에 대한 상태 변경
     public void updateLessonScheduleStatus(Long tutorId, Long reservationId, LessonScheduleStatusRequest request) {
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findByReservationIdAndTutorAccount_TutorId(reservationId, tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));
-
-        if (!reservation.getTutorAccount().getTutorId().equals(tutorId)) {
-            throw new AccessDeniedException("해당 요청을 처리할 권한이 없는 강사입니다.");
-        }
 
         ReservationStatus newStatus = request.reservationStatus();
 
@@ -302,12 +293,8 @@ public class LessonMatchingService {
 
     // 학생이 레슨 신청을 하지 않더라도, 강사는 특정 레슨을 COMPLETED 할 수 있어야 함.
     public void createDirectReservation(Long tutorId, TutorDirectReservationRequest request) {
-        Matching matching = matchingRepository.findById(request.matchingId())
+        Matching matching = matchingRepository.findByMatchingIdAndTutorAccount_TutorId(request.matchingId(), tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당되는 matching이 없습니다."));
-
-        if (!matching.getTutorAccount().getTutorId().equals(tutorId)) {
-            throw new IllegalStateException("해당 요청을 처리할 권한이 없는 강사입니다.");
-        }
 
         LocalDate requestDate = request.date();
         LocalTime requestStartTime = request.startTime();
@@ -335,12 +322,8 @@ public class LessonMatchingService {
 
     // 강사가 학생의 개별적인 레슨비를 설정
     public void setPricePerLesson(Long tutorId, Long matchingId, PricePerLessonRequest request) {
-        Matching matching = matchingRepository.findById(matchingId)
+        Matching matching = matchingRepository.findByMatchingIdAndTutorAccount_TutorId(matchingId, tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
-
-        if (!matching.getTutorAccount().getTutorId().equals(tutorId)) {
-            throw new IllegalStateException("해당 요청을 처리할 권한이 없는 강사입니다.");
-        }
 
         if (matching.getStatus() != MatchingStatus.ACCEPTED) {
             throw new IllegalStateException("승인된 매칭 상태에서만 레슨비를 설정할 수 있습니다.");

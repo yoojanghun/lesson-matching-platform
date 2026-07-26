@@ -13,4 +13,6 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
     Optional<Matching> findByStudentAccount_StudentIdAndStatus(Long studentId, MatchingStatus status);
 
     Optional<Matching> findByMatchingIdAndStudentAccount_StudentId(Long matchingId, Long studentId);
+
+    Optional<Matching> findByMatchingIdAndTutorAccount_TutorId(Long matchingId, Long tutorId);
 }

@@ -176,4 +176,18 @@ public class LessonMatchingController {
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    // 강사가 학생의 개별적인 레슨비를 설정
+    @PreAuthorize("hasRole('TUTOR')")
+    @PatchMapping("/my/matchings/{matchingId}/price")
+    public ResponseEntity<Void> setPricePerLesson(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long matchingId,
+            @RequestBody @Valid PricePerLessonRequest request
+    ) {
+        Long tutorId = boardPrincipal.id();
+        lessonMatchingService.setPricePerLesson(tutorId, matchingId, request);
+
+        return ResponseEntity.ok().build();
+    }
 }

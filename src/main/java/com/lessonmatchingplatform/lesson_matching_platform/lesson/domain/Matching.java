@@ -68,6 +68,13 @@ public class Matching extends AuditingFields {
         this.status = MatchingStatus.CANCELLED;
     }
 
+    public void setPrice(Integer price) {
+        if (price == null || price < 0) {
+            throw new IllegalArgumentException("레슨비는 0원 이상이어야 합니다.");
+        }
+        this.pricePerLesson = price;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

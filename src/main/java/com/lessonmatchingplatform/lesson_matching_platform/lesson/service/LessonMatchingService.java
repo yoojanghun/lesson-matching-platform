@@ -333,5 +333,19 @@ public class LessonMatchingService {
         reservationRepository.save(reservation);
     }
 
+    // 강사가 학생의 개별적인 레슨비를 설정
+    public void setPricePerLesson(Long tutorId, Long matchingId, PricePerLessonRequest request) {
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
 
+        if (!matching.getTutorAccount().getTutorId().equals(tutorId)) {
+            throw new IllegalStateException("해당 요청을 처리할 권한이 없는 강사입니다.");
+        }
+
+        if (matching.getStatus() != MatchingStatus.ACCEPTED) {
+            throw new IllegalStateException("승인된 매칭 상태에서만 레슨비를 설정할 수 있습니다.");
+        }
+
+        matching.setPrice(request.pricePerLesson());
+    }
 }

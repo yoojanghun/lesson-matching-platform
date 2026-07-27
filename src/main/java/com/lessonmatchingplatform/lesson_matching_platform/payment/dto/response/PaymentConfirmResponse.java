@@ -1,8 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.PaymentMethod;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.PaymentStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentMethod;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
 
 import java.time.LocalDateTime;
 

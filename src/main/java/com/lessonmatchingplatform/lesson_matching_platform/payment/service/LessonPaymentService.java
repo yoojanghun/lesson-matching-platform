@@ -1,12 +1,12 @@
 package com.lessonmatchingplatform.lesson_matching_platform.payment.service;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.client.TossPaymentsClient;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.PaymentMethod;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.PaymentStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentMethod;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentConfirmRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentPrepareRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentConfirmResponse;

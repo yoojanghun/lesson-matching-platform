@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.payment.domain;
+package com.lessonmatchingplatform.lesson_matching_platform.payment.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

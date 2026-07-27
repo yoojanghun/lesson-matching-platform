@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request;
 
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import jakarta.validation.constraints.NotNull;
 
 public record LessonScheduleStatusRequest(

@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.domain;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

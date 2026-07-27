@@ -8,8 +8,8 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubj
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryType;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.SubjectType;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;

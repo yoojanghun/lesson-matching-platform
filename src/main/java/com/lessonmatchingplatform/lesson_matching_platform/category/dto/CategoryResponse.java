@@ -1,7 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.category.dto;
 
 import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Category;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryType;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 
 public record CategoryResponse(
         Long id,

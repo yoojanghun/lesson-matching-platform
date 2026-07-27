@@ -9,7 +9,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.global.security.Board
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReviewRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

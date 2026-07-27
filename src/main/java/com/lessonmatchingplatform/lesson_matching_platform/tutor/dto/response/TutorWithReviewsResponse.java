@@ -4,8 +4,8 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.R
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryType;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 import org.springframework.data.domain.Slice;
 
 import java.util.Set;

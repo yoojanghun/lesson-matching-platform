@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.category.domain;
+package com.lessonmatchingplatform.lesson_matching_platform.category.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

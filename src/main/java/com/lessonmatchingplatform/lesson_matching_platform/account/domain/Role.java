@@ -1,7 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.RoleType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.RoleType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;

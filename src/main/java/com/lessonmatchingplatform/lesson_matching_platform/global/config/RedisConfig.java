@@ -82,7 +82,7 @@ public class RedisConfig {
         // RedisSubscriber 구현 후 아래처럼 변경:
         // return new MessageListenerAdapter(redisSubscriber, "onMessage");
         return new MessageListenerAdapter(new Object() {
-            public void onMessage(String message) {}
+            public void handleMessage(String message) {}
         });
     }
 }

@@ -242,26 +242,26 @@ VALUES
 (35, '어릴 때 배웠던 피아노를 성인이 되어 다시 시작합니다. 뉴에이지 곡 위주로 배우고 싶어요.', NOW(), 'SYSTEM'),
 (36, '클래식 작곡과 진학을 희망하는 중학생입니다. 이론과 실기를 병행하고 싶습니다.', NOW(), 'SYSTEM');
 
-INSERT INTO matching (student_id, tutor_id, request_msg, status, created_at, created_by)
+INSERT INTO matching (student_id, tutor_id, request_msg, status, price_per_lesson, created_at, created_by)
 VALUES
-(18, 1, '기초부터 체계적으로 배우고 싶습니다.', 'ACCEPTED', NOW(), 'SYSTEM'),
-(20, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능할까요?', 'ACCEPTED', NOW(), 'SYSTEM'),
-(24, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨', 'ACCEPTED', NOW(), 'SYSTEM'),
-(25, 1, '기초부터 체계적으', 'ACCEPTED', NOW(), 'SYSTEM'),
-(27, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능', 'ACCEPTED', NOW(), 'SYSTEM'),
-(28, 1, '기초부터 체계적', 'ACCEPTED', NOW(), 'SYSTEM'),
-(30, 1, '기초부터 체계적으로 배우고 싶습니다. 주', 'ACCEPTED', NOW(), 'SYSTEM'),
-(32, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가', 'ACCEPTED', NOW(), 'SYSTEM'),
-(33, 1, '기초부터 체계적으로 배우고', 'ACCEPTED', NOW(), 'SYSTEM'),
-(34, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능?', 'ACCEPTED', NOW(), 'SYSTEM'),
-(21, 10, '직장인이라 저녁 7시 이후 수업을 희망합니다.', 'PENDING', NOW(), 'SYSTEM'),
-(35, 12, '뉴에이지 곡 위주로 배우고 싶어요. 잘 부탁드립니다!', 'ACCEPTED', NOW(), 'SYSTEM'),
-(19, 2, '학교 방과후 수업이랑 병행하려고 합니다. 악기 대여 가능한가요?', 'PENDING', NOW(), 'SYSTEM'),
-(23, 14, '유튜브에 연주 영상 올리는 게 목표입니다! 자세 교정 부탁드려요.', 'REJECTED', NOW(), 'SYSTEM'),
-(31, 4, '밴드 공연이 한 달 남았습니다. 일렉기타 속주 집중 레슨 부탁드립니다.', 'ACCEPTED', NOW(), 'SYSTEM'),
-(22, 5, '고음 발성법이 너무 궁금합니다. 테스트 한 번 받아보고 싶어요.', 'PENDING', NOW(), 'SYSTEM'),
-(26, 6, '기본기부터 다시 다지고 싶은 7년 차 취미 드러머입니다.', 'ACCEPTED', NOW(), 'SYSTEM'),
-(29, 3, '첼로 소리가 너무 좋아서 시작하려 합니다. 완전 초보인데 괜찮나요?', 'PENDING', NOW(), 'SYSTEM');
+(18, 1, '기초부터 체계적으로 배우고 싶습니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(20, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능할까요?', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(24, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(25, 1, '기초부터 체계적으', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(27, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(28, 1, '기초부터 체계적', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(30, 1, '기초부터 체계적으로 배우고 싶습니다. 주', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(32, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(33, 1, '기초부터 체계적으로 배우고', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(34, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능?', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(21, 10, '직장인이라 저녁 7시 이후 수업을 희망합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(35, 12, '뉴에이지 곡 위주로 배우고 싶어요. 잘 부탁드립니다!', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(19, 2, '학교 방과후 수업이랑 병행하려고 합니다. 악기 대여 가능한가요?', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(23, 14, '유튜브에 연주 영상 올리는 게 목표입니다! 자세 교정 부탁드려요.', 'REJECTED', 30000, NOW(), 'SYSTEM'),
+(31, 4, '밴드 공연이 한 달 남았습니다. 일렉기타 속주 집중 레슨 부탁드립니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(22, 5, '고음 발성법이 너무 궁금합니다. 테스트 한 번 받아보고 싶어요.', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(26, 6, '기본기부터 다시 다지고 싶은 7년 차 취미 드러머입니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
+(29, 3, '첼로 소리가 너무 좋아서 시작하려 합니다. 완전 초보인데 괜찮나요?', 'PENDING', 30000, NOW(), 'SYSTEM');
 
 INSERT INTO lesson_review (matching_id, content, rating, created_at, created_by)
 VALUES

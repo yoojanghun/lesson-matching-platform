@@ -5,14 +5,15 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.repository.Sc
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.ScheduleRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.ExceptionType;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.*;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

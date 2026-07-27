@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/error",
                                 "/api/auth/**",          // 로그인, 토큰 재발급
                                 "/api/sign-up/**",       // 회원가입
+                                "/ws-chat/**",           // WebSocket 핸드셰이크 (JWT 인증은 StompJwtInterceptor에서 처리)
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"

@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReservationResponse;

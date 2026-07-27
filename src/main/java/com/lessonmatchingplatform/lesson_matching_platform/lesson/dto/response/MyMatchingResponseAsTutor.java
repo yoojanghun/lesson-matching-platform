@@ -2,8 +2,8 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.GenderType;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

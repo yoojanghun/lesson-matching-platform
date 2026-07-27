@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.lesson.domain;
+package com.lessonmatchingplatform.lesson_matching_platform.lesson.type;
 
 public enum ReservationStatus {
     PENDING,            // 대기중 (학생이 웹으로 신청 후 선생님 승인 대기)

@@ -1,7 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReservationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

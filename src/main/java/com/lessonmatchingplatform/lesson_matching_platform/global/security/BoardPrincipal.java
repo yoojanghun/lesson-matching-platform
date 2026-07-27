@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.security;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

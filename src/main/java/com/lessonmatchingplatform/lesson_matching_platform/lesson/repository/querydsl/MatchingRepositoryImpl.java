@@ -1,7 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

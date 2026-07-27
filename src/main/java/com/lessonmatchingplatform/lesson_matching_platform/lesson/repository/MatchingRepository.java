@@ -2,7 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl.MatchingRepositoryCustom;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

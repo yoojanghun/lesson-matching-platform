@@ -2,6 +2,8 @@ package com.lessonmatchingplatform.lesson_matching_platform.payment.domain;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentMethod;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;

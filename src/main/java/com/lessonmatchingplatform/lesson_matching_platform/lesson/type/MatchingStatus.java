@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.lesson.domain;
+package com.lessonmatchingplatform.lesson_matching_platform.lesson.type;
 
 public enum MatchingStatus {
     PENDING,            // 대기중

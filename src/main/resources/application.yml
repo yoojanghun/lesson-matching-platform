@@ -29,6 +29,8 @@ spring:
     redis:
       host: localhost
       port: 6379
+    mongodb:
+      uri: mongodb://localhost:27017/lesson_chat
 
   # Security OAuth2
   security:
@@ -51,12 +53,12 @@ springdoc:
 
 # JWT
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:temp_jwt_secret_key_which_is_long_enough_to_be_secure_32_bytes}
   access-token-expiration: 900000       # 15분 (ms)
   refresh-token-expiration: 604800000   # 7일 (ms)
 
 # Toss
 toss:
   payments:
-    secret-key: ${TOSS_SECRET}
+    secret-key: ${TOSS_SECRET:temp_toss_secret_key}
     confirm-url: https://api.tosspayments.com/v1/payments/confirm

@@ -1,7 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.security.oauth2;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Role;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.RoleType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.RoleType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserRole;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.RoleRepository;

@@ -3,8 +3,8 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryType;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.MatchingStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 
 import java.time.LocalDateTime;
 import java.util.Set;

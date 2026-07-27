@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.service.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -73,16 +74,11 @@ public class RedisConfig {
 
     /**
      * Redis Pub/Sub: 메시지 리스너 어댑터
-     * - RedisSubscriber의 onMessage 메서드를 리스너로 등록합니다.
-     * - RedisSubscriber 구현 후 주입받아 사용하세요.
-     *   (예: container.addMessageListener(listenerAdapter, new PatternTopic("chat:*")))
+       Redis 메시지 감시탑(Container)이 신호를 받아왔을 때,
+       내가 만든 자바 객체(RedisSubscriber)의 sendMessage 메서드를 자동으로 실행하도록 연결해 주는 스위치(어댑터)
      */
     @Bean
-    public MessageListenerAdapter messageListenerAdapter() {
-        // RedisSubscriber 구현 후 아래처럼 변경:
-        // return new MessageListenerAdapter(redisSubscriber, "onMessage");
-        return new MessageListenerAdapter(new Object() {
-            public void handleMessage(String message) {}
-        });
+    public MessageListenerAdapter messageListenerAdapter(RedisSubscriber redisSubscriber) {
+        return new MessageListenerAdapter(redisSubscriber, "sendMessage");
     }
 }

@@ -24,7 +24,6 @@ public class RedisSubscriber {
 
             messagingTemplate.convertAndSend(destination, chatMessage);
             log.info("WebSocket Push 성공 - Destination: {}", destination);
-
         } catch (Exception e) {
             log.error("RedisSubscriber 메시지 처리 중 에러 발생: {}", e.getMessage(), e);
         }

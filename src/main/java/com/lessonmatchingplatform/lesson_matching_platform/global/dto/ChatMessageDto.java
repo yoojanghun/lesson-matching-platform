@@ -1,7 +1,9 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.dto;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.type.MessageType;
+import lombok.Builder;
 
+@Builder
 public record ChatMessageDto(
         MessageType type,
         Long matchingId,            // 신청 전 문의는 null, 매칭 진행 중엔 matchingId 값 들어옴

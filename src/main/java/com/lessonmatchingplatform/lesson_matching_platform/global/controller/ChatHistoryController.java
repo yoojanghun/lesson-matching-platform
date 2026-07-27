@@ -2,10 +2,13 @@ package com.lessonmatchingplatform.lesson_matching_platform.global.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.ChatMessageDocument;
 import com.lessonmatchingplatform.lesson_matching_platform.global.repository.ChatMessageMongoRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,12 +23,17 @@ public class ChatHistoryController {
 
     @GetMapping("/history")
     public ResponseEntity<Slice<ChatMessageDocument>> getChatHistory(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestParam(required = false) Long matchingId,
             @RequestParam Long studentId,
             @RequestParam Long tutorId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
+        if (boardPrincipal != null && !boardPrincipal.id().equals(studentId) && !boardPrincipal.id().equals(tutorId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         PageRequest pageable = PageRequest.of(page, size);
 
         Slice<ChatMessageDocument> history;

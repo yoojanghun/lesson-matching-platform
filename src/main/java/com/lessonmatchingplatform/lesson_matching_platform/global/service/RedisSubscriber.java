@@ -23,14 +23,20 @@ public class RedisSubscriber {
         try {
             ChatMessageDto chatMessage = objectMapper.readValue(publishMessage, ChatMessageDto.class);
 
-            saveMessageToMongo(chatMessage);
-
             String destination = "/topic/chat/" + chatMessage.getChannelPath();
 
+            // 1. 웹소켓 메시지 푸시
             messagingTemplate.convertAndSend(destination, chatMessage);
             log.info("WebSocket Push 성공 - Destination: {}", destination);
+
+            // 2. MongoDB 내역 저장 (저장 실패 시에도 실시간 푸시는 보장)
+            try {
+                saveMessageToMongo(chatMessage);
+            } catch (Exception e) {
+                log.error("MongoDB 채팅 메시지 저장 실패: {}", e.getMessage(), e);
+            }
         } catch (Exception e) {
-            log.error("RedisSubscriber 메시지 처리 중 에러 발생: {}", e.getMessage(), e);
+            log.error("RedisSubscriber 메시지 역직렬화/처리 중 에러 발생: {}", e.getMessage(), e);
         }
     }
 

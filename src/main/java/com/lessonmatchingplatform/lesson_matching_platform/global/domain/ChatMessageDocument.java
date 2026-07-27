@@ -10,11 +10,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+
 import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(collection = "chat_messages")         // MongoDB 컬렉션 이름
+@CompoundIndexes({
+        @CompoundIndex(name = "idx_matching_created", def = "{'matching_id': 1, 'created_at': -1}"),
+        @CompoundIndex(name = "idx_inquiry_created", def = "{'student_id': 1, 'tutor_id': 1, 'matching_id': 1, 'created_at': -1}")
+})
 public class ChatMessageDocument {
 
     @Id

@@ -18,14 +18,9 @@ public class ChatController {
     public void message(ChatMessageDto message, BoardPrincipal boardPrincipal) {
         String senderName = boardPrincipal.name();
 
-        ChatMessageDto updatedMessage = ChatMessageDto.builder()
-                .type(message.type())
-                .matchingId(message.matchingId())
-                .sender(senderName)
-                .message(message.message())
-                .build();
+        ChatMessageDto updatedMessage = message.withSender(senderName);
 
-        ChannelTopic topic = new ChannelTopic("chat:room:" + message.matchingId());
+        ChannelTopic topic = new ChannelTopic("chat:room:" + updatedMessage.getChannelPath());
 
         redisPublisher.publish(topic, updatedMessage);
     }

@@ -37,8 +37,17 @@ public class ChatMessageDocument {
     private Long tutorId;
 
     private MessageType type;
-    private String sender;
+
+    @Field("sender_id")
+    private Long senderId;                      // 발신자 ID (PK)
+
+    @Field("sender_name")
+    private String senderName;                  // 발신자 이름/닉네임
+
     private String message;
+
+    @Field("is_read")
+    private boolean isRead; // 읽음 처리 여부
 
     @CreatedDate
     @Field("created_at")
@@ -46,13 +55,20 @@ public class ChatMessageDocument {
 
     @Builder
     public ChatMessageDocument(Long matchingId, Long studentId, Long tutorId,
-                               MessageType type, String sender, String message) {
+                               MessageType type, Long senderId, String senderName,
+                               String message, boolean isRead) {
         this.matchingId = matchingId;
         this.studentId = studentId;
         this.tutorId = tutorId;
         this.type = type;
-        this.sender = sender;
+        this.senderId = senderId;
+        this.senderName = senderName;
         this.message = message;
+        this.isRead = isRead;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
     }
 }

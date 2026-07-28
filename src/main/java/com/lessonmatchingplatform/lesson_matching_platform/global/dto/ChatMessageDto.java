@@ -5,22 +5,29 @@ import lombok.Builder;
 
 @Builder
 public record ChatMessageDto(
+        String mongoId,             // Mongo Object Id
         MessageType type,
         Long matchingId,            // 신청 전 문의는 null, 매칭 진행 중엔 matchingId 값 들어옴
         Long studentId,             // 발신자/수신자 식별용
         Long tutorId,               // 발신자/수신자 식별용
-        String sender,
-        String message
+        Long senderId,              // 발신자 Id
+        String senderName,          // 발신자 이름/닉네임
+        String message,
+        boolean isRead              // 읽음 여부
 ) {
 
-    public ChatMessageDto withSender(String authenticatedSender) {
+    // senderId, senderName, isRead만 새로운 값으로 바꿈
+    public ChatMessageDto withSender(String mongoId, Long senderId, String senderName, boolean isRead) {
         return new ChatMessageDto(
+                mongoId,
                 this.type,
                 this.matchingId,
                 this.studentId,
                 this.tutorId,
-                authenticatedSender,
-                this.message
+                senderId,
+                senderName,
+                this.message,
+                isRead
         );
     }
 

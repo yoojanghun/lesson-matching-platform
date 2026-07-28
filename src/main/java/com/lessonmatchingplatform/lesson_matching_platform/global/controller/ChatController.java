@@ -16,12 +16,17 @@ public class ChatController {
 
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message, BoardPrincipal boardPrincipal) {
+        Long senderId = boardPrincipal.id();
         String senderName = boardPrincipal.name();
 
-        ChatMessageDto updatedMessage = message.withSender(senderName);
+        ChatMessageDto updatedMessage = message.withSender(
+                null,
+                senderId,
+                senderName,
+                false
+        );
 
         ChannelTopic topic = new ChannelTopic("chat:room:" + updatedMessage.getChannelPath());
-
         redisPublisher.publish(topic, updatedMessage);
     }
 }

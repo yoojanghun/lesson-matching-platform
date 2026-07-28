@@ -46,28 +46,39 @@ public class StompJwtInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (accessor != null) {
-            // CONNECT 프레임에서만 JWT 검증 수행
-            if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                String authHeader = accessor.getFirstNativeHeader("Authorization");
+        if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
+            String authHeader = accessor.getFirstNativeHeader("Authorization");
 
-                if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                    String token = authHeader.substring(7);
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
 
-                    if (jwtTokenProvider.validateToken(token)) {
-                        // STOMP 세션에 인증 정보 등록 → 이후 @MessageMapping에서 Principal로 접근 가능
-                        Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                        accessor.setUser(authentication);
-                        log.debug("WebSocket JWT 인증 성공: {}", authentication.getName());
-                    } else {
-                        log.warn("WebSocket JWT 인증 실패: 유효하지 않은 토큰");
-                        throw new IllegalArgumentException("유효하지 않은 WebSocket JWT 토큰입니다.");
-                    }
+                if (jwtTokenProvider.validateToken(token)) {
+                    // STOMP 세션에 인증 정보 등록 → 이후 @MessageMapping에서 Principal로 접근 가능
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    accessor.setUser(authentication);
+                    log.debug("WebSocket JWT 인증 성공: {}", authentication.getName());
                 } else {
-                    log.warn("WebSocket 연결 시 Authorization 헤더가 없습니다.");
-                    throw new IllegalArgumentException("WebSocket 연결에 Authorization 헤더가 필요합니다.");
+                    log.warn("WebSocket JWT 인증 실패: 유효하지 않은 토큰");
+                    throw new IllegalArgumentException("유효하지 않은 WebSocket JWT 토큰입니다.");
                 }
-            } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+            } else {
+                log.warn("WebSocket 연결 시 Authorization 헤더가 없습니다.");
+                throw new IllegalArgumentException("WebSocket 연결에 Authorization 헤더가 필요합니다.");
+            }
+        }
+
+        return message;
+    }
+
+    @Override
+    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+        if (!sent) return;
+
+        StompHeaderAccessor accessor =
+                MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
+        if (accessor != null) {
+            if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
                 String destination = accessor.getDestination();
                 if (destination != null && destination.startsWith("/topic/chat/") && !destination.endsWith("/read")) {
                     String channelPath = destination.substring("/topic/chat/".length());
@@ -79,7 +90,7 @@ public class StompJwtInterceptor implements ChannelInterceptor {
                             accessor.getSessionAttributes().put("userId", userId);
                         }
                         sessionManager.userEnteredRoom(channelPath, userId);
-                        log.info("WebSocket 채팅방 구독 성공 - 유저 ID: {}, 채널: {}", userId, channelPath);
+                        log.info("WebSocket postSend - 채팅방 구독 성공 (온라인 업데이트) - 유저 ID: {}, 채널: {}", userId, channelPath);
                     }
                 }
             } else if (StompCommand.UNSUBSCRIBE.equals(accessor.getCommand())) {
@@ -89,12 +100,10 @@ public class StompJwtInterceptor implements ChannelInterceptor {
                     if (channelPath != null && userId != null) {
                         sessionManager.userLeftRoom(channelPath, userId);
                         accessor.getSessionAttributes().remove("channelPath");
-                        log.info("WebSocket 채팅방 구독 해제 - 유저 ID: {}, 채널: {}", userId, channelPath);
+                        log.info("WebSocket postSend - 채팅방 구독 해제 (오프라인 업데이트) - 유저 ID: {}, 채널: {}", userId, channelPath);
                     }
                 }
             }
         }
-
-        return message;
     }
 }

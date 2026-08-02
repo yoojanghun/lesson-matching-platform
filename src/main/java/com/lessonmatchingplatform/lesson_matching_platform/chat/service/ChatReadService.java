@@ -1,15 +1,14 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.service;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.service;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.domain.ChatMessageDocument;
-import com.lessonmatchingplatform.lesson_matching_platform.global.dto.request.ChatReadRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.global.repository.ChatMessageMongoRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.domain.ChatMessageDocument;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.ChatReadEventDto;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.request.ChatReadRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.repository.ChatMessageMongoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Transactional
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ public class ChatReadService {
 
     private final ChatMessageMongoRepository mongoRepository;
     private final ChatRoomSessionManager sessionManager;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final RedisPublisher redisPublisher;
 
     public void markMessagesAsRead(ChatReadRequest request, Long currentUserId) {
         List<ChatMessageDocument> unreadMessages;
@@ -44,12 +43,9 @@ public class ChatReadService {
         // Redis 안 읽은 카운트 0으로 리셋 및 현재 접속 상태 등록
         sessionManager.userEnteredRoom(channelPath, currentUserId);
 
-        // 상대방에게 읽음 이벤트 Websocket 전파
-        String destination = "/topic/chat/" + channelPath + "/read";
-        messagingTemplate.convertAndSend(destination, Map.of(
-                "readerId", currentUserId,
-                "readCount", unreadMessages.size()
-        ));
+        // 읽음 이벤트를 Redis Pub/Sub으로 전파 (다중 서버 환경 대응)
+        ChatReadEventDto readEvent = ChatReadEventDto.of(channelPath, currentUserId, unreadMessages.size());
+        redisPublisher.publishReadEvent(channelPath, readEvent);
     }
 
     public void leaveRoom(ChatReadRequest request, Long currentUserId) {

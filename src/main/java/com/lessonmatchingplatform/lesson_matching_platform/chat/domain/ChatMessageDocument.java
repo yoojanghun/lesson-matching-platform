@@ -1,6 +1,6 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.domain;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.domain;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.type.MessageType;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.type.MessageType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

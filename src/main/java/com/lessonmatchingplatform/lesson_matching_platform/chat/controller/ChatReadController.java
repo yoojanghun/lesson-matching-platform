@@ -1,8 +1,8 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.controller;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.dto.request.ChatReadRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.request.ChatReadRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
-import com.lessonmatchingplatform.lesson_matching_platform.global.service.ChatReadService;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.service.ChatReadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

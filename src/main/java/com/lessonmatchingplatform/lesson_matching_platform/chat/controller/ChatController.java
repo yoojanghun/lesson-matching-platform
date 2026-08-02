@@ -1,11 +1,12 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.controller;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.dto.ChatMessageDto;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.ChatMessageDto;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
-import com.lessonmatchingplatform.lesson_matching_platform.global.service.RedisPublisher;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.service.RedisPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 @RequiredArgsConstructor
@@ -15,7 +16,8 @@ public class ChatController {
     private final RedisPublisher redisPublisher;
 
     @MessageMapping("/chat/message")
-    public void message(ChatMessageDto message, BoardPrincipal boardPrincipal) {
+    public void message(ChatMessageDto message,
+                        @AuthenticationPrincipal BoardPrincipal boardPrincipal) {
         Long senderId = boardPrincipal.id();
         String senderName = boardPrincipal.name();
 
@@ -30,3 +32,4 @@ public class ChatController {
         redisPublisher.publish(topic, updatedMessage);
     }
 }
+

@@ -1,6 +1,6 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.repository;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.repository;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.domain.ChatMessageDocument;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.domain.ChatMessageDocument;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.Query;

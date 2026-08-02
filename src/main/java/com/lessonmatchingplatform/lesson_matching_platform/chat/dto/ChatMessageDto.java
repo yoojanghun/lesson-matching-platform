@@ -1,6 +1,6 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.dto;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.dto;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.type.MessageType;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.type.MessageType;
 import lombok.Builder;
 
 @Builder

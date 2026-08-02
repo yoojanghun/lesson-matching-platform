@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.service.RedisSubscriber;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.service.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -11,6 +11,7 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
@@ -66,9 +67,16 @@ public class RedisConfig {
      * - 채널 등록은 ChatService 등에서 동적으로 추가할 수 있습니다.
      */
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+            RedisConnectionFactory connectionFactory,
+            MessageListenerAdapter messageListenerAdapter
+    ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
+
+        // "chat:room:*" 패턴의 모든 Redis 채널 구독 (채팅 메시지 + 읽음 이벤트 모두 수신)
+        container.addMessageListener(messageListenerAdapter, new PatternTopic("chat:room:*"));
+
         return container;
     }
 

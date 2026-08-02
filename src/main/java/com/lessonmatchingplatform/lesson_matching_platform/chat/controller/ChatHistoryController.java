@@ -1,7 +1,7 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.controller;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.domain.ChatMessageDocument;
-import com.lessonmatchingplatform.lesson_matching_platform.global.repository.ChatMessageMongoRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.domain.ChatMessageDocument;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.repository.ChatMessageMongoRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

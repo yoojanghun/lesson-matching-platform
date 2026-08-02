@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.interceptor;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.interceptor;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
  * 1. 클라이언트가 STOMP CONNECT 프레임을 보낼 때 실행됩니다.
  * 2. STOMP 헤더의 'Authorization: Bearer {token}' 을 추출합니다.
  * 3. JWT 유효성을 검증하고, 인증 객체를 STOMP 세션에 등록합니다.
- * 4. 이후 @MessageMapping 컨트롤러에서 Principal 로 사용자 정보를 꺼낼 수 있습니다.
+ * 4. 이후 @MessageMapping 컨트롤러에서 @AuthenticationPrincipal로 사용자 정보를 꺼낼 수 있습니다.
+ *
+ * 채팅방 구독/퇴장 세션 처리는 WebSocketEventListener가 담당합니다.
  *
  * 클라이언트 연결 예시 (JS SockJS + StompJS):
  * <pre>
@@ -42,9 +44,7 @@ public class StompJwtInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        // CONNECT 프레임에서만 JWT 검증 수행
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
-
             String authHeader = accessor.getFirstNativeHeader("Authorization");
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {

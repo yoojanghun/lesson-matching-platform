@@ -1,6 +1,6 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.config;
+package com.lessonmatchingplatform.lesson_matching_platform.chat.config;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.interceptor.StompJwtInterceptor;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.interceptor.StompJwtInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;

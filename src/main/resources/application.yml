@@ -62,3 +62,11 @@ toss:
   payments:
     secret-key: ${TOSS_SECRET:temp_toss_secret_key}
     confirm-url: https://api.tosspayments.com/v1/payments/confirm
+
+# LangChain4j
+langchain4j:
+  open-ai:
+    chat-model:
+      api-key: ${OPENAI_API_KEY} # 발급받은 API 키
+      model-name: gpt-4o-mini   # 속도가 빠르고 비용이 매우 저렴한 모델
+      temperature: 0.2

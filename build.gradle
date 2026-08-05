@@ -60,6 +60,11 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
+    // LangChain4j & MongoDB Atlas Vector Store
+    implementation 'dev.langchain4j:langchain4j-open-ai-spring-boot-starter:0.35.0'
+    implementation 'dev.langchain4j:langchain4j-spring-boot-starter:1.18.1-beta28'
+    implementation 'dev.langchain4j:langchain4j-mongodb-atlas:0.35.0'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'

@@ -1,13 +1,14 @@
-package com.lessonmatchingplatform.lesson_matching_platform.dto.response;
+package com.lessonmatchingplatform.lesson_matching_platform.category.dto.response;
 
-import com.lessonmatchingplatform.lesson_matching_platform.domain.category.Category;
+import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Category;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 
 import java.util.List;
 
 public record CategoryWithSubjectResponse(
         Long categoryId,
-        String name,
-        List<SubjectResponse> subjects      // Response로 순환참조 방지
+        CategoryType name,
+        List<SubjectResponse> subjects              // Response로 순환참조 방지
 ) {
 
     public static CategoryWithSubjectResponse from(Category entity) {

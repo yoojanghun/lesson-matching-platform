@@ -3,7 +3,6 @@ package com.lessonmatchingplatform.lesson_matching_platform.category.domain;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.ToString;
 

@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ public record TutorResponse(
     String content,
     Set<String> locations,
     Set<CategoryType> categories,
-    Set<String> subjects
+    Set<SubjectType> subjects
 ) {
 
     public static TutorResponse from(TutorAccount entity) {
@@ -33,7 +34,7 @@ public record TutorResponse(
                         categoryTutor.getCategory().getName())
                 .collect(Collectors.toUnmodifiableSet());
 
-        Set<String> subjects = entity.getSubjectTutorSet().stream()
+        Set<SubjectType> subjects = entity.getSubjectTutorSet().stream()
                 .map(subjectTutor ->
                         subjectTutor.getSubject().getName())
                 .collect(Collectors.toUnmodifiableSet());

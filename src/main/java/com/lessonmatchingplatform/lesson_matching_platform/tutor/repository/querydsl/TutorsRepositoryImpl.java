@@ -1,10 +1,4 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.querydsl;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategory;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategoryTutor;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubject;
-import com.lessonmatchingplatform.lesson_matching_platform.category.domain.QSubjectTutor;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
@@ -104,7 +98,7 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
     }
 
     private BooleanExpression subjectEq(SubjectType subjectType) {
-        return subjectType != null ? subject.name.eq(subjectType.name()) : null;
+        return subjectType != null ? subject.name.eq(subjectType) : null;
     }
 
 }

@@ -26,18 +26,31 @@ public class Category extends AuditingFields {
     @Column(length = 50, nullable = false, unique = true)
     private CategoryType name;
 
+    @Column(nullable = false)
+    private Integer displayOrder;
+
     @ToString.Exclude
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<Subject> subjects = new LinkedHashSet<>();
 
     protected Category() {}
 
-    private Category(CategoryType name) {
+    private Category(CategoryType name, Integer displayOrder) {
         this.name = name;
+        this.displayOrder = displayOrder;
     }
 
-    public static Category of(CategoryType name) {
-        return new Category(name);
+    public static Category of(CategoryType name, Integer displayOrder) {
+        return new Category(name, displayOrder);
+    }
+
+    public void update(CategoryType name, Integer displayOrder) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (displayOrder != null) {
+            this.displayOrder = displayOrder;
+        }
     }
 
     @Override

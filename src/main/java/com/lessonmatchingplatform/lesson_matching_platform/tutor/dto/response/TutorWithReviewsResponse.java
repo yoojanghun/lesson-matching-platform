@@ -1,9 +1,9 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 import org.springframework.data.domain.Slice;
@@ -22,7 +22,7 @@ public record TutorWithReviewsResponse(
         String content,
         Set<String> locations,
         Set<CategoryType> categories,
-        Set<String> subjects,
+        Set<SubjectType> subjects,
         Slice<ReviewResponse> reviews                // 최신순 정렬을 위해 필요
 ) {
 
@@ -39,12 +39,10 @@ public record TutorWithReviewsResponse(
                         categoryTutor.getCategory().getName())
                 .collect(Collectors.toUnmodifiableSet());
 
-        Set<String> subjects = entity.getSubjectTutorSet().stream()
+        Set<SubjectType> subjects = entity.getSubjectTutorSet().stream()
                 .map(subjectTutor ->
                         subjectTutor.getSubject().getName())
                 .collect(Collectors.toUnmodifiableSet());
-
-        Set<Matching> matchings = entity.getMatchingSet();
 
         return new TutorWithReviewsResponse(
                 entity.getTutorId(),

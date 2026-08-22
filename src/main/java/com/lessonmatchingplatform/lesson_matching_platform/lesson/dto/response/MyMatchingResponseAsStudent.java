@@ -2,6 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
@@ -14,7 +15,7 @@ public record MyMatchingResponseAsStudent(
         Long MatchingId,
         String tutorName,
         Set<CategoryType> category,
-        Set<String> subject,
+        Set<SubjectType> subject,
         String requestMsg,
         MatchingStatus status,
         LocalDateTime createdAt
@@ -28,7 +29,7 @@ public record MyMatchingResponseAsStudent(
                         categoryTutor.getCategory().getName())
                 .collect(Collectors.toUnmodifiableSet());
 
-        Set<String> subjects = tutorAccount.getSubjectTutorSet().stream()
+        Set<SubjectType> subjects = tutorAccount.getSubjectTutorSet().stream()
                 .map(subjectTutor ->
                         subjectTutor.getSubject().getName())
                 .collect(Collectors.toUnmodifiableSet());

@@ -50,15 +50,15 @@ public class TutorAccount extends AuditingFields {
     private Integer reviewCount = 0;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<CategoryTutor> categoryTutorSet = new LinkedHashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<SubjectTutor> subjectTutorSet = new LinkedHashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
 
     @ToString.Exclude
@@ -90,6 +90,21 @@ public class TutorAccount extends AuditingFields {
                 1,
                 RoundingMode.HALF_UP
         );
+    }
+
+    public void updateProfile(String title, String content, String introduction, String career) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (content != null) {
+            this.content = content;
+        }
+        if (introduction != null) {
+            this.introduction = introduction;
+        }
+        if (career != null) {
+            this.career = career;
+        }
     }
 
     protected TutorAccount() {}

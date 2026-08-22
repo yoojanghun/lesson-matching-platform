@@ -24,23 +24,22 @@ public class StudentAccount extends AuditingFields {
     @JoinColumn(name = "student_id")
     private UserAccount userAccount;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String introduction;
-
     @ToString.Exclude
     @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL)
     private final Set<Matching> matchingSet = new LinkedHashSet<>();
 
     protected StudentAccount() {}
 
-    private StudentAccount(UserAccount userAccount, String introduction) {
+    private StudentAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
-        this.introduction = introduction;
     }
 
-    public static StudentAccount of(UserAccount userAccount, String introduction) {
-        return new StudentAccount(userAccount, introduction);
+    public static StudentAccount of(UserAccount userAccount) {
+        return new StudentAccount(userAccount);
+    }
+
+    public static StudentAccount ofRegister(UserAccount userAccount) {
+        return new StudentAccount(userAccount);
     }
 
     @Override

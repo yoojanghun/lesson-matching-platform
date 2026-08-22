@@ -121,6 +121,10 @@ public class TutorAccount extends AuditingFields {
         return new TutorAccount(userAccount, introduction, career, title, content);
     }
 
+    public static TutorAccount ofRegister(UserAccount userAccount) {
+        return new TutorAccount(userAccount, null, null, null, null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

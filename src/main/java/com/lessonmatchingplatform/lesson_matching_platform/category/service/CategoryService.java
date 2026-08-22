@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class CategoryService {
 
         return categories.stream()
                 .map(CategoryWithSubjectResponse::from)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @CacheEvict(value = "categories", key = "'all'")

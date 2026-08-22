@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.controller;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.AuthTokens;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.LoginRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TokenResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.account.service.AuthService;
@@ -26,26 +27,30 @@ public class AuthController {
     @Operation(summary = "로그인", description = "username과 password로 JWT 토큰을 발급합니다.")
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request, HttpServletResponse response) {
-        TokenResponse tokenResponse = authService.login(request);
+        AuthTokens tokens = authService.login(request);
 
-        ResponseCookie cookie = createRefreshTokenCookie(tokenResponse.refreshToken(), 7 * 24 * 60 * 60);
+        ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken(), 7 * 24 * 60 * 60);
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
+        TokenResponse tokenResponse = TokenResponse.of(tokens.accessToken(), tokens.expiresIn());
         return ResponseEntity.ok(tokenResponse);
     }
 
     @Operation(summary = "토큰 재발급", description = "쿠키에 담긴 Refresh Token으로 새 Access Token을 발급합니다.")
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
-        if (refreshToken == null) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            ResponseCookie clearCookie = createRefreshTokenCookie("", 0); // 쿠키 즉시 만료
+            response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        TokenResponse tokenResponse = authService.refresh(refreshToken);
+        AuthTokens tokens = authService.refresh(refreshToken);
 
-        ResponseCookie cookie = createRefreshTokenCookie(tokenResponse.refreshToken(), 7 * 24 * 60 * 60);
+        ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken(), 7 * 24 * 60 * 60);
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
+        TokenResponse tokenResponse = TokenResponse.of(tokens.accessToken(), tokens.expiresIn());
         return ResponseEntity.ok(tokenResponse);
     }
 

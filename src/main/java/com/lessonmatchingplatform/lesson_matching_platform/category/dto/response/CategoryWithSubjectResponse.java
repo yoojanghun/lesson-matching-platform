@@ -4,10 +4,13 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Categ
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public record CategoryWithSubjectResponse(
         Long categoryId,
-        CategoryType name,
+        String categoryName,
+        String description,
+        String icon,
         List<SubjectResponse> subjects              // Response로 순환참조 방지
 ) {
 
@@ -15,11 +18,15 @@ public record CategoryWithSubjectResponse(
 
         List<SubjectResponse> subjects = entity.getSubjects().stream()
                 .map(SubjectResponse::from)
-                .toList();
+                .collect(Collectors.toList());
+
+        CategoryType categoryType = entity.getName();
 
         return new CategoryWithSubjectResponse(
                 entity.getCategoryId(),
-                entity.getName(),
+                categoryType.name(),
+                categoryType.getDescription(),
+                categoryType.getIcon(),
                 subjects
         );
     }

@@ -5,7 +5,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderTy
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.catalina.User;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -39,13 +38,13 @@ public class UserAccount extends AuditingFields {
     private final Set<UserRole> userRoleSet = new LinkedHashSet<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private GenderType gender;
 
-    @Column(nullable = false)
+    @Column
     private LocalDate birthDate;
 
-    @Column(length = 20, nullable = false, unique = true)
+    @Column(length = 20, unique = true)
     private String phoneNumber;
 
     @Column(length = 100, unique = true)
@@ -71,8 +70,14 @@ public class UserAccount extends AuditingFields {
         this.providerId = providerId;
     }
 
+    // 튜터 가입 (모든 정보 필수)
     public static UserAccount of(String userId, String userPassword, String name, GenderType gender, LocalDate birthDate, String phoneNumber, String email) {
         return new UserAccount(userId, userPassword, name, gender, birthDate, phoneNumber, email, null, null);
+    }
+
+    // 학생 가입 (최소 정보만 필수 — 성별/생년월일/전화번호는 매칭 시 입력)
+    public static UserAccount ofRegister(String userId, String userPassword, String name, String email) {
+        return new UserAccount(userId, userPassword, name, null, null, null, email, null, null);
     }
 
     // 특정 객체에 접근하기 위한 것 => static X, 다른 클래스에서 사용하기 위해 public

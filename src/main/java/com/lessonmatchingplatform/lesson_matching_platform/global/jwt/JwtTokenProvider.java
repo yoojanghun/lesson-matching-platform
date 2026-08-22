@@ -6,13 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Base64;
-import java.util.Date;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,8 +31,17 @@ public class JwtTokenProvider {
     }
 
     // Access Token 생성
-    public String createAccessToken(String username) {
-        return buildToken(username, jwtProperties.getAccessTokenExpiration());
+    public String createAccessToken(String username, List<String> roles) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + jwtProperties.getAccessTokenExpiration());
+
+        return Jwts.builder()
+                .subject(username)
+                .claim("roles", roles) // JWT Payload에 role 추가
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(getSigningKey())
+                .compact();
     }
 
     // Refresh Token 생성
@@ -76,9 +87,24 @@ public class JwtTokenProvider {
 
     // 토큰으로 Authentication(인증 토큰 신분증) 객체 반환
     public Authentication getAuthentication(String token) {
-        String username = getUsername(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);      // UserDetails: 전용 회원 정보 규격 (비밀번호, 권한, 계정 만료 여부)
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Claims claims = parseClaims(token);
+        String username = claims.getSubject();
+
+        // Claims에서 roles 리스트 추출
+        List<?> rawRoles = claims.get("roles", List.class);
+
+        List<SimpleGrantedAuthority> authorities = Collections.emptyList();
+        if (rawRoles != null) {
+            authorities = rawRoles.stream()
+                    .map(Object::toString)
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
+        }
+
+        // UserDetails 구현체인 Spring Security 기본 User 객체 생성
+        UserDetails principal = new User(username, "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
     // 토큰 비밀 키로 검증한 후, payload 반환

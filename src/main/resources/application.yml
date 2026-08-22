@@ -4,7 +4,7 @@ spring:
 
   # Datasource Configuration
   datasource:
-    url: jdbc:mysql://localhost:3306/lesson_platform?serverTimezone=Asia/Seoul&createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3308/lesson_platform?serverTimezone=Asia/Seoul&createDatabaseIfNotExist=true
     username: root
     password: Janghun7926*
 
@@ -67,6 +67,9 @@ toss:
 langchain4j:
   open-ai:
     chat-model:
-      api-key: ${OPENAI_API_KEY} # 발급받은 API 키
+      api-key: ${OPENAI_API_KEY:temp_openai_api_key} # 발급받은 API 키
       model-name: gpt-4o-mini   # 속도가 빠르고 비용이 매우 저렴한 모델
       temperature: 0.2
+    embedding-model:
+      api-key: ${OPENAI_API_KEY:temp_openai_api_key}
+      model-name: text-embedding-3-small

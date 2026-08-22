@@ -1,4 +1,5 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.service;
+
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Role;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
@@ -23,131 +24,106 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class SignUpService {
 
-    private final UserRepository userRepository;
-    private final TutorsRepository tutorsRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final StudentRepository studentRepository;
-    private final UserRoleRepository userRoleRepository;
-    private final RoleRepository roleRepository;
+        private final UserRepository userRepository;
+        private final TutorsRepository tutorsRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final StudentRepository studentRepository;
+        private final UserRoleRepository userRoleRepository;
+        private final RoleRepository roleRepository;
 
-    public void signUpTutor(TutorSignUpRequest request) {
-        UserAccount userAccount = UserAccount.of(
-                request.userId(),
-                passwordEncoder.encode(request.userPassword()),         // password는 암호화 한 후 저장
-                request.name(),
-                request.gender(),
-                request.birthDate(),
-                request.phoneNumber(),
-                request.email()
-        );
-        userRepository.save(userAccount);
+        public void signUpTutor(TutorSignUpRequest request) {
+                UserAccount userAccount = UserAccount.ofRegister(
+                                request.userId(),
+                                passwordEncoder.encode(request.userPassword()), // password는 암호화 한 후 저장
+                                request.name(),
+                                request.email());
+                userRepository.save(userAccount);
 
-        Role role = roleRepository.getReferenceById(1L);
-        UserRole userRole = UserRole.of(userAccount, role);
-        userRoleRepository.save(userRole);
+                Role role = roleRepository.getReferenceById(1L);
+                UserRole userRole = UserRole.of(userAccount, role);
+                userRoleRepository.save(userRole);
 
-        TutorAccount tutorAccount = TutorAccount.of(
-                userAccount,
-                request.introduction(),
-                request.career(),
-                request.title(),
-                request.content()
-        );
-        tutorsRepository.save(tutorAccount);
-    }
+                TutorAccount tutorAccount = TutorAccount.ofRegister(userAccount);
+                tutorsRepository.save(tutorAccount);
+        }
 
-    public void signUpTutorFromGuest(BoardPrincipal boardPrincipal, GuestToTutorRequest request) {
-        UserAccount guestUser = userRepository.findById(boardPrincipal.id())
-                .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
+        public void signUpTutorFromGuest(BoardPrincipal boardPrincipal) {
+                UserAccount userToUpdate = userRepository.findById(boardPrincipal.id())
+                                .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
 
-        guestUser.updateAccount(request.name(), request.gender(), request.birthDate(), request.phoneNumber());
+                userRoleRepository.deleteByUserAccount(userToUpdate);
+                userRoleRepository.flush();                                     //  JPA 쿼리 순서 꼬임 방지
 
-        userRoleRepository.deleteByUserAccount(guestUser);
+                Role tutorRole = roleRepository.getReferenceById(1L);           // TUTOR
+                UserRole userRole = UserRole.of(userToUpdate, tutorRole);
+                userRoleRepository.save(userRole);
 
-        Role tutorRole = roleRepository.getReferenceById(1L);               // TUTOR
-        UserRole userRole = UserRole.of(guestUser, tutorRole);
-        userRoleRepository.save(userRole);
+                TutorAccount tutorAccount = TutorAccount.ofRegister(userToUpdate);
+                tutorsRepository.save(tutorAccount);
+        }
 
-        TutorAccount tutorAccount = TutorAccount.of(
-                guestUser,
-                request.introduction(),
-                request.career(),
-                request.title(),
-                request.content()
-        );
-        tutorsRepository.save(tutorAccount);
-    }
+        public void signUpStudent(StudentSignupRequest request) {
+                UserAccount userAccount = UserAccount.ofRegister(
+                                request.userId(),
+                                passwordEncoder.encode(request.userPassword()),
+                                request.name(),
+                                request.email());
+                userRepository.save(userAccount);
 
-    public void signUpStudent(StudentSignupRequest request) {
-        UserAccount userAccount = UserAccount.of(
-                request.userId(),
-                passwordEncoder.encode(request.userPassword()),
-                request.name(),
-                request.gender(),
-                request.birthDate(),
-                request.phoneNumber(),
-                request.email()
-        );
-        userRepository.save(userAccount);
+                Role role = roleRepository.getReferenceById(2L);
+                UserRole userRole = UserRole.of(userAccount, role);
+                userRoleRepository.save(userRole);
 
-        Role role = roleRepository.getReferenceById(2L);
-        UserRole userRole = UserRole.of(userAccount, role);
-        userRoleRepository.save(userRole);
+                StudentAccount studentAccount = StudentAccount.ofRegister(userAccount);
+                studentRepository.save(studentAccount);
+        }
 
-        StudentAccount studentAccount = StudentAccount.of(
-                userAccount,
-                request.introduction()
-        );
-        studentRepository.save(studentAccount);
-    }
+        public void signUpStudentFromGuest(BoardPrincipal boardPrincipal) {
+                UserAccount userToUpdate = userRepository.findById(boardPrincipal.id())
+                                .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
 
-    public void signUpStudentFromGuest(BoardPrincipal boardPrincipal, GuestToStudentRequest request) {
-        UserAccount guestUser = userRepository.findById(boardPrincipal.id())
-                .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
+                userRoleRepository.deleteByUserAccount(userToUpdate);
+                userRoleRepository.flush();
 
-        guestUser.updateAccount(request.name(), request.gender(), request.birthDate(), request.phoneNumber());
+                Role studentRole = roleRepository.getReferenceById(2L);
+                UserRole userRole = UserRole.of(userToUpdate, studentRole);
+                userRoleRepository.save(userRole);
 
-        userRoleRepository.deleteByUserAccount(guestUser);
+                StudentAccount studentAccount = StudentAccount.ofRegister(userToUpdate);
+                studentRepository.save(studentAccount);
+        }
 
-        Role studentRole = roleRepository.getReferenceById(2L);
-        UserRole userRole = UserRole.of(guestUser, studentRole);
-        userRoleRepository.save(userRole);
+        // Student로 등록한 경우 Tutor 등록(계정 전환)
+        public void switchTutor(Long id) {
+                UserAccount userAccount = userRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
 
-        StudentAccount studentAccount = StudentAccount.of(
-                guestUser,
-                request.introduction()
-        );
-        studentRepository.save(studentAccount);
-    }
+                Role role = roleRepository.getReferenceById(1L);
+                UserRole userRole = UserRole.of(userAccount, role);
+                userRoleRepository.save(userRole);
 
-    public void switchTutor(BoardPrincipal boardPrincipal, TutorSwitchRequest request) {
-        UserAccount userAccount = userRepository.getReferenceById(boardPrincipal.id());
+                TutorAccount tutorAccount = TutorAccount.ofRegister(userAccount);
+                tutorsRepository.save(tutorAccount);
+        }
 
-        Role role = roleRepository.getReferenceById(1L);
-        UserRole userRole = UserRole.of(userAccount, role);
-        userRoleRepository.save(userRole);
+        public void switchStudent(Long id) {
+                UserAccount userAccount = userRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
 
-        TutorAccount tutorAccount = TutorAccount.of(
-                 userAccount,
-                 request.introduction(),
-                 request.career(),
-                 request.title(),
-                 request.content()
-         );
-         tutorsRepository.save(tutorAccount);
-    }
+                Role role = roleRepository.getReferenceById(2L);
+                UserRole userRole = UserRole.of(userAccount, role);
+                userRoleRepository.save(userRole);
 
-    public void switchStudent(BoardPrincipal boardPrincipal, StudentSwitchRequest request) {
-        UserAccount userAccount = userRepository.getReferenceById(boardPrincipal.id());
+                StudentAccount studentAccount = StudentAccount.ofRegister(userAccount);
+                studentRepository.save(studentAccount);
+        }
 
-        Role role = roleRepository.getReferenceById(2L);
-        UserRole userRole = UserRole.of(userAccount, role);
-        userRoleRepository.save(userRole);
+        @Transactional(readOnly = true)
+        public Boolean checkDuplicateId(String userId) {
+                return userRepository.existsByUserId(userId);
+        }
 
-        StudentAccount studentAccount = StudentAccount.of(
-                userAccount,
-                request.introduction()
-        );
-        studentRepository.save(studentAccount);
-    }
+        public boolean checkDuplicateEmail(String email) {
+                return userRepository.existsByEmail(email);
+        }
 }

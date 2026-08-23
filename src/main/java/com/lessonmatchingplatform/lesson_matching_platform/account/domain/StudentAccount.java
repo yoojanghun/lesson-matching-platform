@@ -28,6 +28,10 @@ public class StudentAccount extends AuditingFields {
     @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL)
     private final Set<Matching> matchingSet = new LinkedHashSet<>();
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL)
+    private final Set<LocationStudent> locationStudentSet = new LinkedHashSet<>();
+
     protected StudentAccount() {}
 
     private StudentAccount(UserAccount userAccount) {

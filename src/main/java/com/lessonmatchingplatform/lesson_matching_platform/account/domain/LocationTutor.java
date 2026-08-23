@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.util.Objects;
 
 @ToString(callSuper = true)
-@Table(uniqueConstraints = {
+@Table(uniqueConstraints = {                                            // 복합 유니크 키
         @UniqueConstraint(
                 name = "uk_location_tutor_tutor_id_location_id",
                 columnNames = {"tutor_id", "location_id"}

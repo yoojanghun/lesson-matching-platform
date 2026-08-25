@@ -1,9 +1,12 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,7 +18,10 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.util.List;
 import java.util.Optional;
 
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QLocation.location;
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QLocationTutor.locationTutor;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount.tutorAccount;
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorStyle.tutorStyle;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount.userAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategory.category;
 import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategoryTutor.categoryTutor;
@@ -90,6 +96,21 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 ).fetchOne();
 
         return Optional.ofNullable(content);
+    }
+
+    @Override
+    public List<LocationDto> findLocationDtosByTutorId(Long tutorId) {
+        return queryFactory
+                .select(
+                        Projections.constructor(LocationDto.class,
+                                location.locationId,
+                                location.name
+                        )
+                )
+                .from(locationTutor)
+                .join(locationTutor.location, location)
+                .where(locationTutor.tutorAccount.tutorId.eq(tutorId))
+                .fetch();
     }
 
     // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것

@@ -29,11 +29,11 @@ public class Location extends AuditingFields {
     private final Set<Location> children = new LinkedHashSet<>();   // Linked처럼 순서 보장, Hash처럼 조회O(1), Set처럼 중복 방지
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
     private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL)
     private final Set<LocationStudent> locationStudentSet = new LinkedHashSet<>();
 
     @Column(length = 50, nullable = false)

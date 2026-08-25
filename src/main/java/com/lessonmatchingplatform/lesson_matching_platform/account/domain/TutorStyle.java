@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.StyleType;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,18 +22,19 @@ public class TutorStyle extends AuditingFields {
     @JoinColumn(name = "student_id", nullable = false)
     private StudentAccount studentAccount;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 150)
-    private String style;
+    private StyleType styleType;
 
-    private TutorStyle (StudentAccount studentAccount, String style) {
+    private TutorStyle (StudentAccount studentAccount, StyleType styleType) {
         this.studentAccount = studentAccount;
-        this.style = style;
+        this.styleType = styleType;
     }
 
     protected TutorStyle() {}
 
-    public static TutorStyle of (StudentAccount studentAccount, String style) {
-        return new TutorStyle(studentAccount, style);
+    public static TutorStyle of (StudentAccount studentAccount, StyleType styleType) {
+        return new TutorStyle(studentAccount, styleType);
     }
 
     @Override

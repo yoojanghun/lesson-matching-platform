@@ -1,15 +1,12 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.controller;
 
-import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReviewRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorProfileUpdateRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
-import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorProfileResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorWithReviewsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.service.TutorsService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +14,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/tutors")
@@ -34,24 +30,6 @@ public class TutorsController {
             @PathVariable Long tutorId
     ) {
         return ResponseEntity.ok(tutorsService.getTutorProfile(tutorId));
-    }
-
-    // 강사 본인 프로필 상세 조회
-    @GetMapping("/me")
-    public ResponseEntity<TutorProfileResponse> getMyProfile(
-            @AuthenticationPrincipal BoardPrincipal boardPrincipal
-    ) {
-        return ResponseEntity.ok(tutorsService.getMyProfile(boardPrincipal.id()));
-    }
-
-    // 강사 본인 프로필 상세 등록 및 수정
-    @PutMapping("/me")
-    public ResponseEntity<Void> updateMyProfile(
-            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
-            @RequestBody @Valid TutorProfileUpdateRequest request
-    ) {
-        tutorsService.updateMyProfile(boardPrincipal.id(), request);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping
@@ -79,4 +57,14 @@ public class TutorsController {
     ) {
         return reviewRepository.findReviewsByTutorId(tutorId, pageable);
     }
+
+    // 카테고리 별로 캐싱된 인기 강사 10명 조회
+//    @GetMapping("/popular")
+//    public ResponseEntity<List<TutorsResponse>> getPopularTutors(
+//            @RequestParam Long categoryId
+//    ) {
+//        List<TutorsResponse> popularTutors = tutorsService.getPopuarTutors(categoryId);
+//
+//        return ResponseEntity.ok().body(popularTutors);
+//    }
 }

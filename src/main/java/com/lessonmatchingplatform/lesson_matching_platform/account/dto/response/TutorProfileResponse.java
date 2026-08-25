@@ -1,44 +1,45 @@
-package com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response;
+package com.lessonmatchingplatform.lesson_matching_platform.account.dto.response;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.CategoryTypeDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.SubjectTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.StyleType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public record TutorProfileResponse(
-        Long tutorId,
         String name,
         GenderType gender,
+        LocalDate birthDate,
         String email,
         String phoneNumber,
         String title,
         String content,
         String introduction,
         String career,
-        List<String> locations,
-        List<CategoryType> categories,
-        List<SubjectType> subjects
+        List<LocationDto> locations,
+        List<CategoryTypeDto> categories,
+        List<SubjectTypeDto> subjects,
+        List<StyleTypeDto> styles,
 ) {
 
-    public static TutorProfileResponse from(TutorAccount entity) {
-        List<String> locations = entity.getLocationTutorSet().stream()
-                .map(locationTutor -> locationTutor.getLocation().getName())
-                .toList();
-
-        List<CategoryType> categories = entity.getCategoryTutorSet().stream()
-                .map(categoryTutor -> categoryTutor.getCategory().getName())
-                .toList();
-
-        List<SubjectType> subjects = entity.getSubjectTutorSet().stream()
-                .map(subjectTutor -> subjectTutor.getSubject().getName())
-                .toList();
-
+    public static TutorProfileResponse of(
+            TutorAccount entity,
+            List<CategoryTypeDto> categories,
+            List<SubjectTypeDto> subjects,
+            List<LocationDto> locations,
+            List<StyleTypeDto> styles
+    ) {
         return new TutorProfileResponse(
-                entity.getTutorId(),
                 entity.getUserAccount().getName(),
                 entity.getUserAccount().getGender(),
+                entity.getUserAccount().getBirthDate(),
                 entity.getUserAccount().getEmail(),
                 entity.getUserAccount().getPhoneNumber(),
                 entity.getTitle(),
@@ -47,7 +48,8 @@ public record TutorProfileResponse(
                 entity.getCareer(),
                 locations,
                 categories,
-                subjects
+                subjects,
+                styles
         );
     }
 }

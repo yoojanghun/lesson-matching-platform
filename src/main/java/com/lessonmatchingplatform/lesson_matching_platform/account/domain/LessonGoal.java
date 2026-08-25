@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonGoalType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,17 +22,17 @@ public class LessonGoal {
     private StudentAccount studentAccount;
 
     @Column(nullable = false, length = 150)
-    private String goal;
+    private LessonGoalType lessonGoalType;
 
-    private LessonGoal (StudentAccount studentAccount, String goal) {
+    private LessonGoal (StudentAccount studentAccount, LessonGoalType lessonGoalType) {
         this.studentAccount = studentAccount;
-        this.goal = goal;
+        this.lessonGoalType = lessonGoalType;
     }
 
     protected LessonGoal() {}
 
-    public static LessonGoal of (StudentAccount studentAccount, String goal) {
-        return new LessonGoal(studentAccount, goal);
+    public static LessonGoal of (StudentAccount studentAccount, LessonGoalType lessonGoalType) {
+        return new LessonGoal(studentAccount, lessonGoalType);
     }
 
     @Override

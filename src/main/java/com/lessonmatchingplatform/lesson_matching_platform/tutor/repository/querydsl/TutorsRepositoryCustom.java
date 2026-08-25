@@ -1,6 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,4 +14,5 @@ public interface TutorsRepositoryCustom {
     Page<TutorAccount> searchTutors(TutorSearchCondition condition, Pageable pageable);
     List<TutorAccount> searchPopularTutors(Long categoryId);
     Optional<TutorAccount> searchTutor(Long tutorId);
+    List<LocationDto> findLocationDtosByTutorId(Long id);
 }

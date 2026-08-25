@@ -8,18 +8,20 @@ import lombok.ToString;
 import java.util.Objects;
 
 @ToString(callSuper = true)
-@Table(uniqueConstraints = {                                            // 복합 유니크 키
-        @UniqueConstraint(
-                name = "uk_location_tutor_tutor_id_location_id",
-                columnNames = {"tutor_id", "location_id"}
-        )
-})
 @Getter
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_style_tutor",
+                        columnNames = {"tutor_id", "style_id"}
+                )
+        }
+)
 @Entity
-public class LocationTutor extends AuditingFields {
+public class StyleTutor extends AuditingFields {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private Long id;
 
     @ToString.Exclude
@@ -29,24 +31,24 @@ public class LocationTutor extends AuditingFields {
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", nullable = false)
-    private Location location;
+    @JoinColumn(name = "style_id", nullable = false)
+    private TutorStyle tutorStyle;
 
-    protected LocationTutor() {}
-
-    private LocationTutor(TutorAccount tutorAccount, Location location) {
+    private StyleTutor(TutorAccount tutorAccount, TutorStyle tutorStyle) {
         this.tutorAccount = tutorAccount;
-        this.location = location;
+        this.tutorStyle = tutorStyle;
     }
 
-    public static LocationTutor of(TutorAccount tutorAccount, Location location) {
-        return new LocationTutor(tutorAccount, location);
+    protected StyleTutor() {}
+
+    public static StyleTutor of(TutorAccount tutorAccount, TutorStyle tutorStyle) {
+        return new StyleTutor(tutorAccount, tutorStyle);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LocationTutor that)) return false;
+        if (!(o instanceof StyleTutor that)) return false;
         return this.id != null && Objects.equals(this.id, that.id);
     }
 

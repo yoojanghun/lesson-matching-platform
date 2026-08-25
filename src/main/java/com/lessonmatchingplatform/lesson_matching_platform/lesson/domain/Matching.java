@@ -56,6 +56,13 @@ public class Matching extends AuditingFields {
         this.requestMsg = requestMsg;
         this.status = status;
         this.pricePerLesson = null;
+
+        if (tutorAccount != null) {
+            tutorAccount.getMatchingSet().add(this);
+        }
+        if (studentAccount != null) {
+            studentAccount.getMatchingSet().add(this);
+        }
     }
 
     public static Matching of(StudentAccount studentAccount, TutorAccount tutorAccount, String requestMsg, MatchingStatus status) {

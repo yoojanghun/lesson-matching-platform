@@ -80,12 +80,18 @@ public class UserAccount extends AuditingFields {
         return new UserAccount(userId, userPassword, name, null, null, null, email, null, null);
     }
 
+    public void updatePhoneNumber(String phoneNumber) {
+        if (phoneNumber != null && !phoneNumber.isBlank()) {
+            this.phoneNumber = phoneNumber;
+        }
+    }
+
     // 특정 객체에 접근하기 위한 것 => static X, 다른 클래스에서 사용하기 위해 public
     public void updateAccount(String name, GenderType gender, LocalDate birthDate, String phoneNumber) {
         this.name = name;
         this.gender = gender;
         this.birthDate = birthDate;
-        this.phoneNumber = phoneNumber;
+        updatePhoneNumber(phoneNumber);
     }
 
     public static UserAccount ofOAuth2(String userId, String userPassword, String name, String email, String provider, String providerId, String tempPhoneNumber, Role guestRole) {

@@ -16,23 +16,18 @@ public class LessonGoal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long goalId;
 
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private StudentAccount studentAccount;
-
-    @Column(nullable = false, length = 150)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 150, unique = true)
     private LessonGoalType lessonGoalType;
 
-    private LessonGoal (StudentAccount studentAccount, LessonGoalType lessonGoalType) {
-        this.studentAccount = studentAccount;
+    private LessonGoal (LessonGoalType lessonGoalType) {
         this.lessonGoalType = lessonGoalType;
     }
 
     protected LessonGoal() {}
 
-    public static LessonGoal of (StudentAccount studentAccount, LessonGoalType lessonGoalType) {
-        return new LessonGoal(studentAccount, lessonGoalType);
+    public static LessonGoal of (LessonGoalType lessonGoalType) {
+        return new LessonGoal(lessonGoalType);
     }
 
     @Override

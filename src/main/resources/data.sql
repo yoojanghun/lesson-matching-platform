@@ -278,3 +278,23 @@ VALUES
 (12, '뉴에이지 곡 위주로 배우고 싶었는데, 제가 딱 원하는 곡들로 커리큘럼을 짜주셔서 너무 즐거워요.', 5, NOW(), 'SYSTEM'),
 (15, '공연 준비 때문에 급하게 요청드렸는데 속주 팁을 정말 잘 알려주셨어요. 덕분에 무사히 공연 마쳤습니다!', 4, NOW(), 'SYSTEM'),
 (17, '7년 동안 독학하면서 놓쳤던 나쁜 습관들을 바로잡아 주셨습니다. 역시 전문가는 다르네요.', 5, NOW(), 'SYSTEM');
+
+INSERT IGNORE INTO tutor_style (style_type, created_at, created_by)
+VALUES
+('KIND_AND_WARM', NOW(), 'SYSTEM'),
+('STRUCTURED_AND_STRICT', NOW(), 'SYSTEM'),
+('FREE_AND_CREATIVE', NOW(), 'SYSTEM'),
+('COMMUNICATION_AND_FEEDBACK', NOW(), 'SYSTEM'),
+('RESULT_AND_SKILL', NOW(), 'SYSTEM'),
+('HUMOROUS_AND_FUN', NOW(), 'SYSTEM'),
+('THEORY_AND_PRINCIPLE', NOW(), 'SYSTEM'),
+('ANY', NOW(), 'SYSTEM');
+
+INSERT IGNORE INTO lesson_goal (lesson_goal_type)
+VALUES
+('HOBBY'),
+('BASIC'),
+('EXAM'),
+('CERTIFICATE'),
+('SHORT_TERM'),
+('CREATION');

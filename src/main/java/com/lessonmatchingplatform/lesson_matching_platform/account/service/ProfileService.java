@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.*;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentProfileResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LessonGoalRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LocationRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.TutorStyleRepository;
@@ -15,6 +16,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Subje
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class ProfileService {
     private final CategoryRepository categoryRepository;
     private final SubjectRepository subjectRepository;
     private final TutorStyleRepository tutorStyleRepository;
+    private final LessonGoalRepository lessonGoalRepository;
 
     @Transactional(readOnly = true)
     public StudentProfileResponse getMyStudentProfile(Long id) {
@@ -44,12 +47,12 @@ public class ProfileService {
                 .map(styleStudent -> StyleTypeDto.of(styleStudent.getTutorStyle()))
                 .toList();
 
-        List<InterestCategoryTypeDto> interestCategoryTypeDtos = studentAccount.getInterestCategorySet().stream()
-                .map(InterestCategoryTypeDto::of)
+        List<CategoryTypeDto> interestCategoryTypeDtos = studentAccount.getCategoryStudentSet().stream()
+                .map(categoryStudent -> CategoryTypeDto.from(categoryStudent.getCategory()))
                 .toList();
 
-        List<GoalTypeDto> goals = studentAccount.getLessonGoalSet().stream()
-                .map(GoalTypeDto::of)
+        List<GoalTypeDto> goals = studentAccount.getGoalStudentSet().stream()
+                .map(goalStudent -> GoalTypeDto.of(goalStudent.getLessonGoal()))
                 .toList();
 
         List<LocationDto> locationDtos = studentRepository.findLocationDtosByStudentId(id);
@@ -74,18 +77,23 @@ public class ProfileService {
         }
 
         // CascadeType.ALL에 의해 studentAccount 자식도 영속성 컨텍스트가 관리. Dirty Checking 이후 commit 시점에 flush 될 때, DB에 save됨
-        if (request.styles() != null) {
-            request.styles().forEach(styleType ->
-                studentAccount.getStyleStudentSet().add(StyleStudent.of(studentAccount, TutorStyle.of(studentAccount, styleType)))
-            );
+        if (request.styleIds() != null) {
+            List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+            tutorStyleList.forEach(tutorStyle -> studentAccount.getStyleStudentSet().add(
+                    StyleStudent.of(studentAccount, tutorStyle)
+            ));
         }
-        if (request.instruments() != null) {
-            request.instruments().forEach(categoryType ->
-                    studentAccount.getInterestCategorySet().add(InterestCategory.of(studentAccount, categoryType)));
+        if (request.categoryIds() != null) {
+            List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
+            categoryList.forEach(category -> studentAccount.getCategoryStudentSet().add(
+                    CategoryStudent.of(studentAccount, category)
+            ));
         }
-        if (request.goals() != null){
-            request.goals().forEach(lessonGoalType ->
-                    studentAccount.getLessonGoalSet().add(LessonGoal.of(studentAccount, lessonGoalType)));
+        if (request.goalIds() != null){
+            List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+            lessonGoalList.forEach(lessonGoal -> studentAccount.getGoalStudentSet().add(
+                    GoalStudent.of(studentAccount, lessonGoal)
+            ));
         }
         if (request.locationIds() != null && !request.locationIds().isEmpty()) {
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
@@ -105,20 +113,32 @@ public class ProfileService {
         if (request.phoneNumber() != null) {
             userAccount.updatePhoneNumber(request.phoneNumber());
         }
-
-        if (request.styles() != null) {
-            studentAccount.getStyleStudentSet().clear();
-            request.styles().forEach(styleType ->
-                    studentAccount.getStyleStudentSet().add(StyleStudent.of(studentAccount, TutorStyle.of(studentAccount, styleType)))
-            );
+        if (request.styleIds() != null) {
+            studentAccount.getStyleStudentSet().clear(); // 빈 배열([]) 요청 시에도 기존 목록 해제
+            if (!request.styleIds().isEmpty()) {
+                List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+                tutorStyleList.forEach(tutorStyle ->
+                        studentAccount.getStyleStudentSet().add(StyleStudent.of(studentAccount, tutorStyle))
+                );
+            }
         }
-        if (request.instruments() != null) {
-            studentAccount.getInterestCategorySet().clear();
-            request.instruments().forEach(categoryType -> studentAccount.getInterestCategorySet().add(InterestCategory.of(studentAccount, categoryType)));
+        if (request.categoryIds() != null) {
+            studentAccount.getCategoryStudentSet().clear();
+            if (!request.categoryIds().isEmpty()) {
+                List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
+                categoryList.forEach(category ->
+                        studentAccount.getCategoryStudentSet().add(CategoryStudent.of(studentAccount, category))
+                );
+            }
         }
-        if (request.goals() != null){
-            studentAccount.getLessonGoalSet().clear();
-            request.goals().forEach(lessonGoalType -> studentAccount.getLessonGoalSet().add(LessonGoal.of(studentAccount, lessonGoalType)));
+        if (request.goalIds() != null) {
+            studentAccount.getGoalStudentSet().clear();
+            if (!request.goalIds().isEmpty()) {
+                List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+                lessonGoalList.forEach(lessonGoal ->
+                        studentAccount.getGoalStudentSet().add(GoalStudent.of(studentAccount, lessonGoal))
+                );
+            }
         }
         if (request.locationIds() != null) {
             studentAccount.getLocationStudentSet().clear();
@@ -171,6 +191,11 @@ public class ProfileService {
                 request.career()
         );
 
+        if (request.styleIds() != null && !request.styleIds().isEmpty()) {
+            List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+            tutorStyleList.forEach(tutorStyle -> tutorAccount.addStyleTutor(StyleTutor.of(tutorAccount, tutorStyle)));
+        }
+
         if (request.categoryIds() != null && !request.categoryIds().isEmpty()) {
             List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
             categoryList.forEach(category -> tutorAccount.addCategoryTutor(CategoryTutor.of(tutorAccount, category)));
@@ -197,6 +222,12 @@ public class ProfileService {
                 request.introduction(),
                 request.career()
         );
+
+        if (request.styleIds() != null && !request.styleIds().isEmpty()) {
+            tutorAccount.getStyleTutorSet().clear();
+            List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+            tutorStyleList.forEach(tutorStyle -> tutorAccount.addStyleTutor(StyleTutor.of(tutorAccount, tutorStyle)));
+        }
 
         if (request.categoryIds() != null && !request.categoryIds().isEmpty()) {
             tutorAccount.getCategoryTutorSet().clear();

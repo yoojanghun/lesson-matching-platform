@@ -82,6 +82,10 @@ public class TutorAccount extends AuditingFields {
         this.locationTutorSet.add(locationTutor);
     }
 
+    public void addStyleTutor(StyleTutor styleTutor) {
+        this.styleTutorSet.add(styleTutor);
+    }
+
     public void updateRating(BigDecimal newRating) {
         BigDecimal totalScore = this.averageRating
                 .multiply(BigDecimal.valueOf(this.reviewCount))

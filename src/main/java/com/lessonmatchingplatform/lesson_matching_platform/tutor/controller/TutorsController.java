@@ -25,12 +25,12 @@ public class TutorsController {
     private final ReviewRepository reviewRepository;
 
     // 강사 상세 프로필 조회 (리뷰 제외, Redis 캐싱 적용)
-    @GetMapping("/{tutorId}/profile")
-    public ResponseEntity<TutorProfileResponse> getTutorProfile(
-            @PathVariable Long tutorId
-    ) {
-        return ResponseEntity.ok(tutorsService.getTutorProfile(tutorId));
-    }
+//    @GetMapping("/{tutorId}/profile")
+//    public ResponseEntity<TutorProfileResponse> getTutorProfile(
+//            @PathVariable Long tutorId
+//    ) {
+//        return ResponseEntity.ok(tutorsService.getTutorProfile(tutorId));
+//    }
 
     @GetMapping
     public Page<TutorsResponse> getTutorsList(

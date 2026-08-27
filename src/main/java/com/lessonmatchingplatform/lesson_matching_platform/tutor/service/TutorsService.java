@@ -26,14 +26,14 @@ public class TutorsService {
     private final ReviewRepository reviewRepository;
 
     // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redis 캐싱 적용
-    @Cacheable(value = "tutorDetail", key = "#tutorId")
-    @Transactional(readOnly = true)
-    public TutorProfileResponse getTutorProfile(Long tutorId) {
-        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
-
-        return TutorProfileResponse.from(tutorAccount);
-    }
+//    @Cacheable(value = "tutorDetail", key = "#tutorId")
+//    @Transactional(readOnly = true)
+//    public TutorProfileResponse getTutorProfile(Long tutorId) {
+//        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
+//                .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
+//
+//        return TutorProfileResponse.from(tutorAccount);
+//    }
 
     @Transactional(readOnly = true)
     public Page<TutorsResponse> getTutorsList(TutorSearchCondition tutorSearchCondition, Pageable pageable) {

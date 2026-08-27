@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.BudgetType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import jakarta.persistence.*;
@@ -39,17 +40,17 @@ public class StudentAccount extends AuditingFields {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<InterestCategory> interestCategorySet = new LinkedHashSet<>();
+    private final Set<CategoryStudent> categoryStudentSet = new LinkedHashSet<>();
 
     @ToString.Exclude
     @OneToMany(mappedBy = "studentAccount", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<LessonGoal> lessonGoalSet = new LinkedHashSet<>();
+    private final Set<GoalStudent> goalStudentSet = new LinkedHashSet<>();
 
     @Column(columnDefinition = "TEXT")
     private String introduction;
 
     @Column
-    private String lessonType;
+    private LessonType lessonType;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -57,14 +58,14 @@ public class StudentAccount extends AuditingFields {
 
     protected StudentAccount() {}
 
-    private StudentAccount(UserAccount userAccount, String introduction, String lessonType, BudgetType budgetType) {
+    private StudentAccount(UserAccount userAccount, String introduction, LessonType lessonType, BudgetType budgetType) {
         this.userAccount = userAccount;
         this.introduction = introduction;
         this.lessonType = lessonType;
         this.budgetType = budgetType;
     }
 
-    public static StudentAccount of(UserAccount userAccount, String introduction, String lessonType, BudgetType budgetType) {
+    public static StudentAccount of(UserAccount userAccount, String introduction, LessonType lessonType, BudgetType budgetType) {
         return new StudentAccount(userAccount, introduction, lessonType, budgetType);
     }
 
@@ -72,7 +73,7 @@ public class StudentAccount extends AuditingFields {
         return new StudentAccount(userAccount, null, null, null);
     }
 
-    public void updateStudentAccount(String introduction, String lessonType, BudgetType budgetType) {
+    public void updateStudentAccount(String introduction, LessonType lessonType, BudgetType budgetType) {
         if (introduction != null) {
             this.introduction = introduction;
         }

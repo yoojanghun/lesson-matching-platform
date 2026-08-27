@@ -1,4 +1,4 @@
-INSERT INTO category (name, display_order, created_at, created_by)
+INSERT IGNORE INTO category (name, display_order, created_at, created_by)
 VALUES
 ('PIANO', 1, NOW(), 'SYSTEM'),
 ('VIOLIN', 2, NOW(), 'SYSTEM'),
@@ -8,7 +8,7 @@ VALUES
 ('VOCAL', 6, NOW(), 'SYSTEM'),
 ('COMPOSITION', 7, NOW(), 'SYSTEM');
 
-INSERT INTO subject (category_id, name, display_order, created_at, created_by)
+INSERT IGNORE INTO subject (category_id, name, display_order, created_at, created_by)
 VALUES
 (1, 'PIANO_CLASSICAL', 1, NOW(), 'SYSTEM'),
 (1, 'PIANO_JAZZ', 2, NOW(), 'SYSTEM'),
@@ -36,7 +36,7 @@ VALUES
 (7, 'COMPOSITION_MIDI', 2, NOW(), 'SYSTEM'),
 (7, 'COMPOSITION_JAZZ', 3, NOW(), 'SYSTEM');
 
-INSERT INTO user_account (user_id, user_password, name, gender, birth_date, phone_number, email, created_at, created_by)
+INSERT IGNORE INTO user_account (user_id, user_password, name, gender, birth_date, phone_number, email, created_at, created_by)
 VALUES
 ('kim_piano', '{noop}pass1234', '김여익', 'MALE', '1990-05-15', '010-1111-2222', 'kim_piano@example.com', NOW(), 'SYSTEM'),
 ('lee_violin', '{noop}pass5678', '이지윤', 'FEMALE', '1992-08-20', '010-2222-3333', 'lee_violin@example.com', NOW(), 'SYSTEM'),
@@ -75,13 +75,13 @@ VALUES
 ('unni_piano', '{noop}pass888', '피아노언니', 'FEMALE', '1989-06-18', '010-3333-1008', 'unni@example.com', NOW(), 'SYSTEM'),
 ('mozar_k', '{noop}pass999', '모차르트', 'MALE', '2009-02-14', '010-3333-1009', 'mozar@example.com', NOW(), 'SYSTEM');
 
-INSERT INTO role (role_type, created_at, created_by)
+INSERT IGNORE INTO role (role_type, created_at, created_by)
 VALUES
 ('TUTOR', NOW(), 'SYSTEM'),
 ('STUDENT', NOW(), 'SYSTEM'),
 ('GUEST', NOW(), 'SYSTEM');
 
-INSERT INTO user_role (user_id, role_id, created_at, created_by)
+INSERT IGNORE INTO user_role (user_id, role_id, created_at, created_by)
 VALUES
 (1, 1, NOW(), 'SYSTEM'),
 (2, 1, NOW(), 'SYSTEM'),
@@ -120,7 +120,7 @@ VALUES
 (35, 2, NOW(), 'SYSTEM'),
 (36, 2, NOW(), 'SYSTEM');
 
-INSERT INTO tutor_account (tutor_id, introduction, career, title, content, average_rating, review_count, created_at, created_by)
+INSERT IGNORE INTO tutor_account (tutor_id, introduction, career, title, content, average_rating, review_count, created_at, created_by)
 VALUES
 (1, '기초부터 탄탄하게 가르치는 피아니스트 김철수입니다.', '한예종 졸업, 독일 유학 5년, 다수 콩쿠르 입상', '지루한 체르니는 그만! 뉴에이지부터 클래식까지 1:1 맞춤 레슨', '수강생의 수준에 맞춰 커리큘럼을 조정합니다. 성인 취미반 적극 환영합니다.', 0, 0, NOW(), 'SYSTEM'),
 (2, '바이올린의 아름다운 선율을 함께 만들어봐요.', '시립교향악단 단원 역임, 레슨 경력 10년', '초보자도 3개월 만에 한 곡 마스터! 바이올린 기초 완성', '정확한 자세와 활 쓰기 기법을 중심으로 지도합니다. 악기 대여 상담도 가능해요.', 0, 0, NOW(), 'SYSTEM'),
@@ -140,7 +140,7 @@ VALUES
 (16, '현악 사중주 등 앙상블 수업도 가능한 전문가입니다.', '실내악 앙상블 팀 운영, 대학 출강', '함께 연주하는 즐거움, 바이올린 앙상블 및 개인 레슨', '혼자 연주하는 것을 넘어 다른 악기와 호흡을 맞추는 방법까지 배울 수 있습니다.', 0, 0, NOW(), 'SYSTEM'),
 (17, '입시와 콩쿠르 준비를 위한 확실한 성과 중심 레슨', '국내 유명 콩쿠르 심사위원, 예고 입시 합격자 다수 배출', '확실한 실력 향상! 예중/예고/음대 입시 전문 지도', '수강생의 단점을 정확히 파악하여 단기간에 실력을 끌어올리는 전략적 레슨입니다.', 0, 0, NOW(), 'SYSTEM');
 
-INSERT INTO category_tutor (tutor_id, category_id, created_at, created_by)
+INSERT IGNORE INTO category_tutor (tutor_id, category_id, created_at, created_by)
 VALUES
 (1, 1, NOW(), 'SYSTEM'),
 (2, 2, NOW(), 'SYSTEM'),
@@ -160,7 +160,7 @@ VALUES
 (16, 2, NOW(), 'SYSTEM'),
 (17, 2, NOW(), 'SYSTEM');
 
-INSERT INTO subject_tutor (tutor_id, subject_id, created_at, created_by)
+INSERT IGNORE INTO subject_tutor (tutor_id, subject_id, created_at, created_by)
 VALUES
 (1, 1, NOW(), 'SYSTEM'), (1, 3, NOW(), 'SYSTEM'),
 (2, 6, NOW(), 'SYSTEM'),
@@ -180,7 +180,7 @@ VALUES
 (16, 6, NOW(), 'SYSTEM'), (16, 7, NOW(), 'SYSTEM'),
 (17, 6, NOW(), 'SYSTEM');
 
-INSERT INTO location (name, created_at, created_by)
+INSERT IGNORE INTO location (name, created_at, created_by)
 VALUES
 ('서울', NOW(), 'SYSTEM'),
 ('경기', NOW(), 'SYSTEM'),
@@ -200,7 +200,7 @@ VALUES
 ('경남', NOW(), 'SYSTEM'),
 ('제주', NOW(), 'SYSTEM');
 
-INSERT INTO location_tutor (tutor_id, location_id, created_at, created_by)
+INSERT IGNORE INTO location_tutor (tutor_id, location_id, created_at, created_by)
 VALUES
 (1, 1, NOW(), 'SYSTEM'),
 (2, 1, NOW(), 'SYSTEM'),
@@ -220,7 +220,7 @@ VALUES
 (16, 14, NOW(), 'SYSTEM'),
 (17, 12, NOW(), 'SYSTEM');
 
-INSERT INTO student_account (student_id, introduction, created_at, created_by)
+INSERT IGNORE INTO student_account (student_id, introduction, created_at, created_by)
 VALUES
 (18, '음악을 전공하고 싶어 기초부터 배우려는 학생입니다.', NOW(), 'SYSTEM'),
 (19, '방과 후 활동으로 바이올린을 배우고 싶은 학생입니다.', NOW(), 'SYSTEM'),
@@ -242,7 +242,7 @@ VALUES
 (35, '어릴 때 배웠던 피아노를 성인이 되어 다시 시작합니다. 뉴에이지 곡 위주로 배우고 싶어요.', NOW(), 'SYSTEM'),
 (36, '클래식 작곡과 진학을 희망하는 중학생입니다. 이론과 실기를 병행하고 싶습니다.', NOW(), 'SYSTEM');
 
-INSERT INTO matching (student_id, tutor_id, request_msg, status, price_per_lesson, created_at, created_by)
+INSERT IGNORE INTO matching (student_id, tutor_id, request_msg, status, price_per_lesson, created_at, created_by)
 VALUES
 (18, 1, '기초부터 체계적으로 배우고 싶습니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
 (20, 1, '기초부터 체계적으로 배우고 싶습니다. 주말 레슨 가능할까요?', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
@@ -263,7 +263,7 @@ VALUES
 (26, 6, '기본기부터 다시 다지고 싶은 7년 차 취미 드러머입니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'),
 (29, 3, '첼로 소리가 너무 좋아서 시작하려 합니다. 완전 초보인데 괜찮나요?', 'PENDING', 30000, NOW(), 'SYSTEM');
 
-INSERT INTO lesson_review (matching_id, content, rating, created_at, created_by)
+INSERT IGNORE INTO lesson_review (matching_id, content, rating, created_at, created_by)
 VALUES
 (1, '선생님이 정말 친절하시고 기초를 탄', 5, NOW(), 'SYSTEM'),
 (2, '선생님이 정말 친절하시고 기초를 탄탄하게 잡아주셔서 좋아요. ', 5, NOW(), 'SYSTEM'),

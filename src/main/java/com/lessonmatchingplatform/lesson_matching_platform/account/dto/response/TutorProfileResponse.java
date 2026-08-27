@@ -26,7 +26,7 @@ public record TutorProfileResponse(
         List<LocationDto> locations,
         List<CategoryTypeDto> categories,
         List<SubjectTypeDto> subjects,
-        List<StyleTypeDto> styles,
+        List<StyleTypeDto> styles
 ) {
 
     public static TutorProfileResponse of(

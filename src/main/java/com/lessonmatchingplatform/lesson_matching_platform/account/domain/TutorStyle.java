@@ -17,24 +17,18 @@ public class TutorStyle extends AuditingFields {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long styleId;
 
-    @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id", nullable = false)
-    private StudentAccount studentAccount;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 150)
+    @Column(nullable = false, length = 150, unique = true)
     private StyleType styleType;
 
-    private TutorStyle (StudentAccount studentAccount, StyleType styleType) {
-        this.studentAccount = studentAccount;
+    private TutorStyle (StyleType styleType) {
         this.styleType = styleType;
     }
 
     protected TutorStyle() {}
 
-    public static TutorStyle of (StudentAccount studentAccount, StyleType styleType) {
-        return new TutorStyle(studentAccount, styleType);
+    public static TutorStyle of (StyleType styleType) {
+        return new TutorStyle(styleType);
     }
 
     @Override

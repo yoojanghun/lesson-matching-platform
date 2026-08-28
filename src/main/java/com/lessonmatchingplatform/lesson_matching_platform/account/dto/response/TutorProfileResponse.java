@@ -5,57 +5,55 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.CategoryT
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.SubjectTypeDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
-import com.lessonmatchingplatform.lesson_matching_platform.account.type.StyleType;
-import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
-import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
-
 import java.time.LocalDate;
 import java.util.List;
 
 public record TutorProfileResponse(
-        String name,
-        GenderType gender,
-        LocalDate birthDate,
-        String email,
-        String phoneNumber,
-        Boolean isBirthDatePublic,
-        Boolean isEmailPublic,
-        Boolean isPhoneNumberPublic,
-        String title,
-        String content,
-        String introduction,
-        String career,
-        List<LocationDto> locations,
-        List<CategoryTypeDto> categories,
-        List<SubjectTypeDto> subjects,
-        List<StyleTypeDto> styles
-) {
+                String name,
+                GenderType gender,
+                LocalDate birthDate,
+                String email,
+                String phoneNumber,
+                Boolean isBirthDatePublic,
+                Boolean isEmailPublic,
+                Boolean isPhoneNumberPublic,
+                String title,
+                String content,
+                String introduction,
+                String career,
+                List<LocationDto> locations,
+                List<CategoryTypeDto> categories,
+                List<SubjectTypeDto> subjects,
+                List<StyleTypeDto> styles,
+                List<TutorLessonPriceDto> prices) {
 
-    public static TutorProfileResponse of(
-            TutorAccount entity,
-            List<CategoryTypeDto> categories,
-            List<SubjectTypeDto> subjects,
-            List<LocationDto> locations,
-            List<StyleTypeDto> styles
-    ) {
-        return new TutorProfileResponse(
-                entity.getUserAccount().getName(),
-                entity.getUserAccount().getGender(),
-                entity.getUserAccount().getBirthDate(),
-                entity.getUserAccount().getEmail(),
-                entity.getUserAccount().getPhoneNumber(),
-                entity.getIsBirthDatePublic(),
-                entity.getIsEmailPublic(),
-                entity.getIsPhoneNumberPublic(),
-                entity.getTitle(),
-                entity.getContent(),
-                entity.getIntroduction(),
-                entity.getCareer(),
-                locations,
-                categories,
-                subjects,
-                styles
-        );
-    }
+        public static TutorProfileResponse of(
+                        TutorAccount entity,
+                        List<CategoryTypeDto> categories,
+                        List<SubjectTypeDto> subjects,
+                        List<LocationDto> locations,
+                        List<StyleTypeDto> styles,
+                        List<TutorLessonPriceDto> prices) {
+                return new TutorProfileResponse(
+                                entity.getUserAccount().getName(),
+                                entity.getUserAccount().getGender(),
+                                entity.getUserAccount().getBirthDate(),
+                                entity.getUserAccount().getEmail(),
+                                entity.getUserAccount().getPhoneNumber(),
+                                entity.getIsBirthDatePublic(),
+                                entity.getIsEmailPublic(),
+                                entity.getIsPhoneNumberPublic(),
+                                entity.getTitle(),
+                                entity.getContent(),
+                                entity.getIntroduction(),
+                                entity.getCareer(),
+                                locations,
+                                categories,
+                                subjects,
+                                styles,
+                                prices
+                );
+        }
 }

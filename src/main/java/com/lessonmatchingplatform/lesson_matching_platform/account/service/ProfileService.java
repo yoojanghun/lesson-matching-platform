@@ -5,6 +5,8 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.*;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentProfileResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorLessonPrice;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LessonGoalRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LocationRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
@@ -170,12 +172,17 @@ public class ProfileService {
                 .map(styleTutor -> StyleTypeDto.of(styleTutor.getTutorStyle()))
                 .toList();
 
+        List<TutorLessonPriceDto> prices = tutorAccount.getTutorLessonPriceSet().stream()
+                .map(TutorLessonPriceDto::from)
+                .toList();
+
         return TutorProfileResponse.of(
                 tutorAccount,
                 categoryTypeDtos,
                 subjectTypeDtos,
                 locationDtos,
-                styleTypeDtos
+                styleTypeDtos,
+                prices
         );
     }
 
@@ -225,6 +232,12 @@ public class ProfileService {
         if (request.locationIds() != null && !request.locationIds().isEmpty()) {
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.prices() != null) {
+            request.prices().forEach(priceDto -> 
+                tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
+            );
         }
     }
 
@@ -278,6 +291,13 @@ public class ProfileService {
             tutorAccount.getLocationTutorSet().clear();
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.prices() != null) {
+            tutorAccount.getTutorLessonPriceSet().clear();
+            request.prices().forEach(priceDto -> 
+                tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
+            );
         }
     }
 }

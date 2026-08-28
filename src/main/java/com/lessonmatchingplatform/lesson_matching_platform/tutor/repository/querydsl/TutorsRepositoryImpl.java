@@ -2,7 +2,6 @@ package com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.que
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
@@ -21,7 +20,6 @@ import java.util.Optional;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QLocation.location;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QLocationTutor.locationTutor;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount.tutorAccount;
-import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorStyle.tutorStyle;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount.userAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategory.category;
 import static com.lessonmatchingplatform.lesson_matching_platform.category.domain.QCategoryTutor.categoryTutor;
@@ -31,95 +29,91 @@ import static com.lessonmatchingplatform.lesson_matching_platform.category.domai
 @RequiredArgsConstructor
 public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
 
-    private final JPAQueryFactory queryFactory;
+        private final JPAQueryFactory queryFactory;
 
-    @Override
-    public Page<TutorAccount> searchTutors(TutorSearchCondition condition, Pageable pageable) {
+        @Override
+        public Page<TutorAccount> searchTutors(TutorSearchCondition condition, Pageable pageable) {
 
-        // 실제 데이터 조회
-        List<TutorAccount> content = queryFactory
-                .selectFrom(tutorAccount).distinct()
-                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
-                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)         // 여기서 leftJoin은 필터링 용(데이터 가져오기 X)
-                .leftJoin(categoryTutor.category, category)                     // proxy 객체가 채워짐. 나중에 필요할 때 query 발생
-                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
-                .leftJoin(subjectTutor.subject, subject)
-                .where(
-                        categoryEq(condition.category()),
-                        subjectEq(condition.subject())
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(tutorAccount.createdAt.desc())     // 최신순 정렬, 별점순과 같은 필터 추가 시 OrderSpecifier를 사용해 메서드로 분리
-                .fetch();
+                // 실제 데이터 조회
+                List<TutorAccount> content = queryFactory
+                                .selectFrom(tutorAccount).distinct()
+                                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor) // 여기서 leftJoin은 필터링 용(데이터 가져오기
+                                                                                        // X)
+                                .leftJoin(categoryTutor.category, category) // proxy 객체가 채워짐. 나중에 필요할 때 query 발생
+                                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
+                                .leftJoin(subjectTutor.subject, subject)
+                                .where(
+                                                categoryEq(condition.category()),
+                                                subjectEq(condition.subject()))
+                                .offset(pageable.getOffset())
+                                .limit(pageable.getPageSize())
+                                .orderBy(tutorAccount.createdAt.desc()) // 최신순 정렬, 별점순과 같은 필터 추가 시 OrderSpecifier를 사용해
+                                                                        // 메서드로 분리
+                                .fetch();
 
-        // 페이징 용 카운트 쿼리(사용자가 보는 리스트가 전체 몇 페이지까지 있는지)
-        JPAQuery<Long> countQuery = queryFactory
-                .select(tutorAccount.countDistinct())
-                .from(tutorAccount)
-                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
-                .leftJoin(categoryTutor.category, category)
-                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
-                .leftJoin(subjectTutor.subject, subject)
-                .where(
-                        categoryEq(condition.category()),
-                        subjectEq(condition.subject())
-                );
+                // 페이징 용 카운트 쿼리(사용자가 보는 리스트가 전체 몇 페이지까지 있는지)
+                JPAQuery<Long> countQuery = queryFactory
+                                .select(tutorAccount.countDistinct())
+                                .from(tutorAccount)
+                                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
+                                .leftJoin(categoryTutor.category, category)
+                                .leftJoin(tutorAccount.subjectTutorSet, subjectTutor)
+                                .leftJoin(subjectTutor.subject, subject)
+                                .where(
+                                                categoryEq(condition.category()),
+                                                subjectEq(condition.subject()));
 
-        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-    }
+                return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+        }
 
-    @Override
-    public List<TutorAccount> searchPopularTutors(Long categoryId) {
-        return queryFactory
-                .selectFrom(tutorAccount).distinct()
-                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
-                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
-                .where(
-                        categoryTutor.category.categoryId.eq(categoryId)
-                )
-                .orderBy(
-                        tutorAccount.averageRating.desc(),
-                        tutorAccount.reviewCount.desc()
-                )
-                .limit(8)
-                .fetch();
-    }
+        @Override
+        public List<TutorAccount> searchPopularTutors(Long categoryId) {
+                return queryFactory
+                                .selectFrom(tutorAccount).distinct()
+                                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                                .leftJoin(tutorAccount.categoryTutorSet, categoryTutor)
+                                .where(
+                                                categoryTutor.category.categoryId.eq(categoryId))
+                                .orderBy(
+                                                tutorAccount.averageRating.desc(),
+                                                tutorAccount.reviewCount.desc())
+                                .limit(8)
+                                .fetch();
+        }
 
-    @Override
-    public Optional<TutorAccount> searchTutor(Long tutorId) {
-        TutorAccount content = queryFactory
-                .selectFrom(tutorAccount)
-                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
-                .where(
-                        tutorAccount.tutorId.eq(tutorId)
-                ).fetchOne();
+        @Override
+        public Optional<TutorAccount> searchTutor(Long tutorId) {
+                TutorAccount content = queryFactory
+                                .selectFrom(tutorAccount)
+                                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
+                                .where(
+                                                tutorAccount.tutorId.eq(tutorId))
+                                .fetchOne();
 
-        return Optional.ofNullable(content);
-    }
+                return Optional.ofNullable(content);
+        }
 
-    @Override
-    public List<LocationDto> findLocationDtosByTutorId(Long tutorId) {
-        return queryFactory
-                .select(
-                        Projections.constructor(LocationDto.class,
-                                location.locationId,
-                                location.name
-                        )
-                )
-                .from(locationTutor)
-                .join(locationTutor.location, location)
-                .where(locationTutor.tutorAccount.tutorId.eq(tutorId))
-                .fetch();
-    }
+        @Override
+        public List<LocationDto> findLocationDtosByTutorId(Long tutorId) {
+                return queryFactory
+                                .select(
+                                                Projections.constructor(LocationDto.class,
+                                                                location.locationId,
+                                                                location.name))
+                                .from(locationTutor)
+                                .join(locationTutor.location, location)
+                                .where(locationTutor.tutorAccount.tutorId.eq(tutorId))
+                                .fetch();
+        }
 
-    // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것
-    private BooleanExpression categoryEq(CategoryType categoryType) {
-        return categoryType != null ? category.name.eq(categoryType) : null;
-    }
+        // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것
+        private BooleanExpression categoryEq(CategoryType categoryType) {
+                return categoryType != null ? category.name.eq(categoryType) : null;
+        }
 
-    private BooleanExpression subjectEq(SubjectType subjectType) {
-        return subjectType != null ? subject.name.eq(subjectType) : null;
-    }
+        private BooleanExpression subjectEq(SubjectType subjectType) {
+                return subjectType != null ? subject.name.eq(subjectType) : null;
+        }
 
 }

@@ -6,11 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -22,7 +20,6 @@ import java.util.*;
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
-    private final UserDetailsService userDetailsService;        // 회원가입한 유저의 정보를 DB에서 찾아주는 조회원(Fetcher)
 
     // 서명 키 생성
     private SecretKey getSigningKey() {

@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.main.controller;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.response.CategoriesAndTutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.main.service.MainPageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,4 +19,5 @@ public class MainPageController {
     public CategoriesAndTutorsResponse getCategoriesAndTutors() {
         return mainPageService.getCategoriesAndTutors();
     }
+
 }

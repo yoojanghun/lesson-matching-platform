@@ -170,12 +170,22 @@ public class ProfileService {
                 .map(styleTutor -> StyleTypeDto.of(styleTutor.getTutorStyle()))
                 .toList();
 
+        List<GoalTypeDto> goals = tutorAccount.getGoalTutorSet().stream()
+                .map(goalTutor -> GoalTypeDto.of(goalTutor.getLessonGoal()))
+                .toList();
+
+        List<TutorLessonPriceDto> prices = tutorAccount.getTutorLessonPriceSet().stream()
+                .map(TutorLessonPriceDto::from)
+                .toList();
+
         return TutorProfileResponse.of(
                 tutorAccount,
                 categoryTypeDtos,
                 subjectTypeDtos,
                 locationDtos,
-                styleTypeDtos
+                styleTypeDtos,
+                goals,
+                prices
         );
     }
 
@@ -225,6 +235,17 @@ public class ProfileService {
         if (request.locationIds() != null && !request.locationIds().isEmpty()) {
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.goalIds() != null && !request.goalIds().isEmpty()) {
+            List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+            lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
+        }
+
+        if (request.prices() != null) {
+            request.prices().forEach(priceDto -> 
+                tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
+            );
         }
     }
 
@@ -278,6 +299,19 @@ public class ProfileService {
             tutorAccount.getLocationTutorSet().clear();
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.goalIds() != null && !request.goalIds().isEmpty()) {
+            tutorAccount.getGoalTutorSet().clear();
+            List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+            lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
+        }
+
+        if (request.prices() != null) {
+            tutorAccount.getTutorLessonPriceSet().clear();
+            request.prices().forEach(priceDto -> 
+                tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
+            );
         }
     }
 }

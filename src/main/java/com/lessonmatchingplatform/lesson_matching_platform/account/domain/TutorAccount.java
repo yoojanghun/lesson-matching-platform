@@ -75,9 +75,24 @@ public class TutorAccount extends AuditingFields {
     private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
 
     @ToString.Exclude
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<GoalTutor> goalTutorSet = new LinkedHashSet<>();
+
+    @ToString.Exclude
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
     private final Set<Matching> matchingSet = new LinkedHashSet<>();
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<TutorLessonPrice> tutorLessonPriceSet = new LinkedHashSet<>();
+
+    public void addTutorLessonPrice(TutorLessonPrice tutorLessonPrice) {
+        if (this.tutorLessonPriceSet.size() >= 3) {
+            throw new IllegalArgumentException("레슨 가격은 최대 3개까지만 설정할 수 있습니다.");
+        }
+        this.tutorLessonPriceSet.add(tutorLessonPrice);
+    }
 
     public void addCategoryTutor(CategoryTutor categoryTutor) {
         this.categoryTutorSet.add(categoryTutor);
@@ -89,6 +104,10 @@ public class TutorAccount extends AuditingFields {
 
     public void addLocationTutor(LocationTutor locationTutor) {
         this.locationTutorSet.add(locationTutor);
+    }
+
+    public void addGoalTutor(GoalTutor goalTutor) {
+        this.goalTutorSet.add(goalTutor);
     }
 
     public void addStyleTutor(StyleTutor styleTutor) {

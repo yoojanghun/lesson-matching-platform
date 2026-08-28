@@ -16,7 +16,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Subje
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public StudentProfileResponse getMyStudentProfile(Long id) {
-        StudentAccount studentAccount = studentRepository.findByUserAccount_IdWithUserAccount(id)
+        StudentAccount studentAccount = studentRepository.findProfileById(id)
                 .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));
 
         List<StyleTypeDto> styles = studentAccount.getStyleStudentSet().stream()
@@ -67,7 +66,7 @@ public class ProfileService {
     }
 
     public void postMyStudentProfile(Long id, StudentProfileRequest request) {
-        StudentAccount studentAccount = studentRepository.findByUserAccount_IdWithUserAccount(id)
+        StudentAccount studentAccount = studentRepository.findProfileById(id)
                 .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));      // 영속성 컨텍스트에 StudentAccount 스냅샷 저장
 
         UserAccount userAccount = studentAccount.getUserAccount();
@@ -105,7 +104,7 @@ public class ProfileService {
     }
 
     public void putMyStudentProfile(Long id, StudentProfileRequest request) {
-        StudentAccount studentAccount = studentRepository.findByUserAccount_IdWithUserAccount(id)
+        StudentAccount studentAccount = studentRepository.findProfileById(id)
                 .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));
 
         UserAccount userAccount = studentAccount.getUserAccount();
@@ -181,14 +180,31 @@ public class ProfileService {
     }
 
     public void postMyTutorProfile(Long tutorId, TutorProfileRequest request) {
-        TutorAccount tutorAccount = tutorsRepository.findById(tutorId)
+        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
+
+        UserAccount userAccount = tutorAccount.getUserAccount();
+        if (request.name() != null) {
+            userAccount.updateName(request.name());
+        }
+        if (request.phoneNumber() != null) {
+            userAccount.updatePhoneNumber(request.phoneNumber());
+        }
+        if (request.birthDate() != null) {
+            userAccount.updateBirthDate(request.birthDate());
+        }
+        if (request.email() != null) {
+            userAccount.updateEmail(request.email());
+        }
 
         tutorAccount.updateProfile(
                 request.title(),
                 request.content(),
                 request.introduction(),
-                request.career()
+                request.career(),
+                request.isBirthDatePublic(),
+                request.isEmailPublic(),
+                request.isPhoneNumberPublic()
         );
 
         if (request.styleIds() != null && !request.styleIds().isEmpty()) {
@@ -213,14 +229,31 @@ public class ProfileService {
     }
 
     public void putMyTutorProfile(Long tutorId, TutorProfileRequest request) {
-        TutorAccount tutorAccount = tutorsRepository.findById(tutorId)
+        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
+
+        UserAccount userAccount = tutorAccount.getUserAccount();
+        if (request.name() != null) {
+            userAccount.updateName(request.name());
+        }
+        if (request.phoneNumber() != null) {
+            userAccount.updatePhoneNumber(request.phoneNumber());
+        }
+        if (request.birthDate() != null) {
+            userAccount.updateBirthDate(request.birthDate());
+        }
+        if (request.email() != null) {
+            userAccount.updateEmail(request.email());
+        }
 
         tutorAccount.updateProfile(
                 request.title(),
                 request.content(),
                 request.introduction(),
-                request.career()
+                request.career(),
+                request.isBirthDatePublic(),
+                request.isEmailPublic(),
+                request.isPhoneNumberPublic()
         );
 
         if (request.styleIds() != null && !request.styleIds().isEmpty()) {

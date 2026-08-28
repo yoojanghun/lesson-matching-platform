@@ -49,6 +49,15 @@ public class TutorAccount extends AuditingFields {
     @Column(nullable = false)
     private Integer reviewCount = 0;
 
+    @Column(nullable = false)
+    private Boolean isBirthDatePublic = false;
+
+    @Column(nullable = false)
+    private Boolean isEmailPublic = false;
+
+    @Column(nullable = false)
+    private Boolean isPhoneNumberPublic = false;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
     private final Set<CategoryTutor> categoryTutorSet = new LinkedHashSet<>();
@@ -100,7 +109,7 @@ public class TutorAccount extends AuditingFields {
         );
     }
 
-    public void updateProfile(String title, String content, String introduction, String career) {
+    public void updateProfile(String title, String content, String introduction, String career, Boolean isBirthDatePublic, Boolean isEmailPublic, Boolean isPhoneNumberPublic) {
         if (title != null) {
             this.title = title;
         }
@@ -112,6 +121,15 @@ public class TutorAccount extends AuditingFields {
         }
         if (career != null) {
             this.career = career;
+        }
+        if (isBirthDatePublic != null) {
+            this.isBirthDatePublic = isBirthDatePublic;
+        }
+        if (isEmailPublic != null) {
+            this.isEmailPublic = isEmailPublic;
+        }
+        if (isPhoneNumberPublic != null) {
+            this.isPhoneNumberPublic = isPhoneNumberPublic;
         }
     }
 

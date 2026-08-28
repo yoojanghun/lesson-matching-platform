@@ -293,7 +293,7 @@ VALUES
 INSERT IGNORE INTO lesson_goal (lesson_goal_type)
 VALUES
 ('HOBBY'),
-('BASIC'),
+('COMPETITION'),
 ('EXAM'),
 ('CERTIFICATE'),
 ('SHORT_TERM'),

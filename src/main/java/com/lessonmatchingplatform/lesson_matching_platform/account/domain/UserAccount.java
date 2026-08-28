@@ -86,6 +86,24 @@ public class UserAccount extends AuditingFields {
         }
     }
 
+    public void updateName(String name) {
+        if (name != null && !name.isBlank()) {
+            this.name = name;
+        }
+    }
+
+    public void updateBirthDate(LocalDate birthDate) {
+        if (birthDate != null) {
+            this.birthDate = birthDate;
+        }
+    }
+
+    public void updateEmail(String email) {
+        if (email != null && !email.isBlank()) {
+            this.email = email;
+        }
+    }
+
     // 특정 객체에 접근하기 위한 것 => static X, 다른 클래스에서 사용하기 위해 public
     public void updateAccount(String name, GenderType gender, LocalDate birthDate, String phoneNumber) {
         this.name = name;

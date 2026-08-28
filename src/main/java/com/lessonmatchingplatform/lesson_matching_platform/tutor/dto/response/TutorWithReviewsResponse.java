@@ -48,7 +48,7 @@ public record TutorWithReviewsResponse(
                 entity.getTutorId(),
                 userAccount.getName(),
                 userAccount.getGender(),
-                userAccount.getEmail(),
+                Boolean.TRUE.equals(entity.getIsEmailPublic()) ? userAccount.getEmail() : null,
                 entity.getIntroduction(),
                 entity.getCareer(),
                 entity.getTitle(),

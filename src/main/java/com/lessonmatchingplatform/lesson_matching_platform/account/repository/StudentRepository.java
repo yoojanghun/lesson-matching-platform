@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<StudentAccount, Long>, StudentRepositoryCustom {
 
     @Query("select s from StudentAccount s join fetch s.userAccount where s.studentId = :id")
-    Optional<StudentAccount> findByUserAccount_IdWithUserAccount(Long id);
+    Optional<StudentAccount> findProfileById(Long id);
 }

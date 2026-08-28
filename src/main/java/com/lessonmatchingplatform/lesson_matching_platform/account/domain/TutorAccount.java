@@ -75,6 +75,10 @@ public class TutorAccount extends AuditingFields {
     private final Set<LocationTutor> locationTutorSet = new LinkedHashSet<>();
 
     @ToString.Exclude
+    @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final Set<GoalTutor> goalTutorSet = new LinkedHashSet<>();
+
+    @ToString.Exclude
     @OrderBy("createdAt DESC")
     @OneToMany(mappedBy = "tutorAccount", cascade = CascadeType.ALL)
     private final Set<Matching> matchingSet = new LinkedHashSet<>();
@@ -100,6 +104,10 @@ public class TutorAccount extends AuditingFields {
 
     public void addLocationTutor(LocationTutor locationTutor) {
         this.locationTutorSet.add(locationTutor);
+    }
+
+    public void addGoalTutor(GoalTutor goalTutor) {
+        this.goalTutorSet.add(goalTutor);
     }
 
     public void addStyleTutor(StyleTutor styleTutor) {

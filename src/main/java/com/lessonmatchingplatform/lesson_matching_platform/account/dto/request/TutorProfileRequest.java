@@ -24,6 +24,7 @@ public record TutorProfileRequest(
         List<TutorLessonPriceDto> prices,
         
         List<Long> styleIds,
+        List<Long> goalIds,
         List<Long> categoryIds,
         List<Long> subjectIds,
         List<Long> locationIds,

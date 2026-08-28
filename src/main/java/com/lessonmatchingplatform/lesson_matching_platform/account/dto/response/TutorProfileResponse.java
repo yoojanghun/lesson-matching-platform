@@ -2,6 +2,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.account.dto.response
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.CategoryTypeDto;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.GoalTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.SubjectTypeDto;
@@ -27,6 +28,7 @@ public record TutorProfileResponse(
                 List<CategoryTypeDto> categories,
                 List<SubjectTypeDto> subjects,
                 List<StyleTypeDto> styles,
+                List<GoalTypeDto> goals,
                 List<TutorLessonPriceDto> prices) {
 
         public static TutorProfileResponse of(
@@ -35,6 +37,7 @@ public record TutorProfileResponse(
                         List<SubjectTypeDto> subjects,
                         List<LocationDto> locations,
                         List<StyleTypeDto> styles,
+                        List<GoalTypeDto> goals,
                         List<TutorLessonPriceDto> prices) {
                 return new TutorProfileResponse(
                                 entity.getUserAccount().getName(),
@@ -53,6 +56,7 @@ public record TutorProfileResponse(
                                 categories,
                                 subjects,
                                 styles,
+                                goals,
                                 prices
                 );
         }

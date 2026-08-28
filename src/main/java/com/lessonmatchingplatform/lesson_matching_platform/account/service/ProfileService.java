@@ -5,8 +5,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.*;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentProfileResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorLessonPrice;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LessonGoalRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LocationRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
@@ -172,6 +170,10 @@ public class ProfileService {
                 .map(styleTutor -> StyleTypeDto.of(styleTutor.getTutorStyle()))
                 .toList();
 
+        List<GoalTypeDto> goals = tutorAccount.getGoalTutorSet().stream()
+                .map(goalTutor -> GoalTypeDto.of(goalTutor.getLessonGoal()))
+                .toList();
+
         List<TutorLessonPriceDto> prices = tutorAccount.getTutorLessonPriceSet().stream()
                 .map(TutorLessonPriceDto::from)
                 .toList();
@@ -182,6 +184,7 @@ public class ProfileService {
                 subjectTypeDtos,
                 locationDtos,
                 styleTypeDtos,
+                goals,
                 prices
         );
     }
@@ -232,6 +235,11 @@ public class ProfileService {
         if (request.locationIds() != null && !request.locationIds().isEmpty()) {
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.goalIds() != null && !request.goalIds().isEmpty()) {
+            List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+            lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
         }
 
         if (request.prices() != null) {
@@ -291,6 +299,12 @@ public class ProfileService {
             tutorAccount.getLocationTutorSet().clear();
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.goalIds() != null && !request.goalIds().isEmpty()) {
+            tutorAccount.getGoalTutorSet().clear();
+            List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+            lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
         }
 
         if (request.prices() != null) {

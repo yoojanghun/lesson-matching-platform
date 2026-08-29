@@ -9,9 +9,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.converter.StringListJsonConverter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -36,13 +39,13 @@ public class TutorAccount extends AuditingFields {
     @Column(columnDefinition = "TEXT")
     private String introduction;            // 소개글
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String education;               // 학력
+    @Convert(converter = StringListJsonConverter.class)
+    @Column(columnDefinition = "json")
+    private List<String> educations = new ArrayList<>(); // 학력
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String career;                  // 경력
+    @Convert(converter = StringListJsonConverter.class)
+    @Column(columnDefinition = "json")
+    private List<String> experiences = new ArrayList<>(); // 경력
 
     @Column(precision = 2, scale = 1, nullable = false)
     private BigDecimal averageRating = BigDecimal.ZERO;
@@ -140,18 +143,18 @@ public class TutorAccount extends AuditingFields {
         this.matchingCount++;
     }
 
-    public void updateProfile(String title, String education, String introduction, String career, Boolean isBirthDatePublic, Boolean isEmailPublic, Boolean isPhoneNumberPublic) {
+    public void updateProfile(String title, List<String> educations, String introduction, List<String> experiences, Boolean isBirthDatePublic, Boolean isEmailPublic, Boolean isPhoneNumberPublic) {
         if (title != null) {
             this.title = title;
         }
-        if (education != null) {
-            this.education = education;
+        if (educations != null) {
+            this.educations = educations;
         }
         if (introduction != null) {
             this.introduction = introduction;
         }
-        if (career != null) {
-            this.career = career;
+        if (experiences != null) {
+            this.experiences = experiences;
         }
         if (isBirthDatePublic != null) {
             this.isBirthDatePublic = isBirthDatePublic;
@@ -163,20 +166,31 @@ public class TutorAccount extends AuditingFields {
             this.isPhoneNumberPublic = isPhoneNumberPublic;
         }
     }
+
+    public void updateProfileCompletionStatus() {
+        if (this.title != null && this.introduction != null && 
+            this.getUserAccount().getName() != null && !this.getUserAccount().getName().isBlank() && 
+            this.getGoalTutorSet() != null && !this.getGoalTutorSet().isEmpty()
+        ) {
+            this.profileStatus = ProfileStatus.COMPLETED;
+        } else {
+            this.profileStatus = ProfileStatus.INCOMPLETE;
+        }
     }
 
     protected TutorAccount() {}
 
-    private TutorAccount(UserAccount userAccount, String introduction, String career, String title, String education) {
+    private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations) {
         this.userAccount = userAccount;
         this.introduction = introduction;
-        this.career = career;
+        this.experiences = experiences != null ? experiences : new ArrayList<>();
         this.title = title;
-        this.education = education;
+        this.educations = educations != null ? educations : new ArrayList<>();
+        this.profileStatus = ProfileStatus.INCOMPLETE;
     }
 
-    public static TutorAccount of(UserAccount userAccount, String introduction, String career, String title, String education) {
-        return new TutorAccount(userAccount, introduction, career, title, education);
+    public static TutorAccount of(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations) {
+        return new TutorAccount(userAccount, introduction, experiences, title, educations);
     }
 
     public static TutorAccount ofRegister(UserAccount userAccount) {

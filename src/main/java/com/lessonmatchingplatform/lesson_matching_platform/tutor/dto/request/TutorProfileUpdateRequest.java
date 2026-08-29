@@ -7,11 +7,11 @@ public record TutorProfileUpdateRequest(
         @NotBlank(message = "제목은 필수 입력 항목입니다.")
         String title,
 
-        String education,
+        List<String> educations,
 
         String introduction,
 
-        String career,
+        List<String> experiences,
 
         List<Long> categoryIds,
 

@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.type.Categor
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,9 +15,9 @@ public record TutorResponse(
     GenderType gender,
     String email,
     String introduction,
-    String career,
+    List<String> experiences,
     String title,
-    String education,
+    List<String> educations,
     Set<String> locations,
     Set<CategoryType> categories,
     Set<SubjectType> subjects
@@ -45,9 +46,9 @@ public record TutorResponse(
                 entity.getUserAccount().getGender(),
                 entity.getUserAccount().getEmail(),
                 entity.getIntroduction(),
-                entity.getCareer(),
+                entity.getExperiences(),
                 entity.getTitle(),
-                entity.getEducation(),
+                entity.getEducations(),
                 locations,
                 categories,
                 subjects

@@ -29,8 +29,8 @@ public record TutorProfileRequest(
         List<Long> subjectIds,
         List<Long> locationIds,
         String title,
-        String career,
-        String education,
+        List<String> experiences,
+        List<String> educations,
         String introduction
 ) {
 }

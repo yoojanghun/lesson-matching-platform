@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.ProfileStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.category.domain.SubjectTutor;
@@ -28,26 +29,33 @@ public class TutorAccount extends AuditingFields {
     @JoinColumn(name = "tutor_id")
     private UserAccount userAccount;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String introduction;
-
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String career;
-
     @Column(length = 100)
-    private String title;
+    private String title;                   // 소개글 제목
 
     @Lob
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String introduction;            // 소개글
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String education;               // 학력
+
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String career;                  // 경력
 
     @Column(precision = 2, scale = 1, nullable = false)
     private BigDecimal averageRating = BigDecimal.ZERO;
 
     @Column(nullable = false)
     private Integer reviewCount = 0;
+
+    @Column(nullable = false)
+    private Integer matchingCount = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProfileStatus profileStatus;
 
     @Column(nullable = false)
     private Boolean isBirthDatePublic = false;
@@ -128,12 +136,16 @@ public class TutorAccount extends AuditingFields {
         );
     }
 
-    public void updateProfile(String title, String content, String introduction, String career, Boolean isBirthDatePublic, Boolean isEmailPublic, Boolean isPhoneNumberPublic) {
+    public void increaseMatchingCount() {
+        this.matchingCount++;
+    }
+
+    public void updateProfile(String title, String education, String introduction, String career, Boolean isBirthDatePublic, Boolean isEmailPublic, Boolean isPhoneNumberPublic) {
         if (title != null) {
             this.title = title;
         }
-        if (content != null) {
-            this.content = content;
+        if (education != null) {
+            this.education = education;
         }
         if (introduction != null) {
             this.introduction = introduction;
@@ -151,19 +163,20 @@ public class TutorAccount extends AuditingFields {
             this.isPhoneNumberPublic = isPhoneNumberPublic;
         }
     }
+    }
 
     protected TutorAccount() {}
 
-    private TutorAccount(UserAccount userAccount, String introduction, String career, String title, String content) {
+    private TutorAccount(UserAccount userAccount, String introduction, String career, String title, String education) {
         this.userAccount = userAccount;
         this.introduction = introduction;
         this.career = career;
         this.title = title;
-        this.content = content;
+        this.education = education;
     }
 
-    public static TutorAccount of(UserAccount userAccount, String introduction, String career, String title, String content) {
-        return new TutorAccount(userAccount, introduction, career, title, content);
+    public static TutorAccount of(UserAccount userAccount, String introduction, String career, String title, String education) {
+        return new TutorAccount(userAccount, introduction, career, title, education);
     }
 
     public static TutorAccount ofRegister(UserAccount userAccount) {

@@ -209,7 +209,7 @@ public class ProfileService {
 
         tutorAccount.updateProfile(
                 request.title(),
-                request.content(),
+                request.education(),
                 request.introduction(),
                 request.career(),
                 request.isBirthDatePublic(),
@@ -269,7 +269,7 @@ public class ProfileService {
 
         tutorAccount.updateProfile(
                 request.title(),
-                request.content(),
+                request.education(),
                 request.introduction(),
                 request.career(),
                 request.isBirthDatePublic(),

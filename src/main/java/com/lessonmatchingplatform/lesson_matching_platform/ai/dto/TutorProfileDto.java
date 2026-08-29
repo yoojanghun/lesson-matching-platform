@@ -14,7 +14,7 @@ public record TutorProfileDto(
         String introduction,
         String career,
         String title,
-        String content,
+        String education,
         Set<String> locations,
         Set<CategoryType> categories,
         Set<String> subjects
@@ -42,9 +42,9 @@ public record TutorProfileDto(
                 - 레슨 가능 지역: %s
                 - 카테고리/분야: %s
                 - 상세 과목: %s
+                - 학력: %s
                 - 주요 경력: %s
                 - 한줄 소개: %s
-                - 상세 설명/수업 방식: %s
                 """,
                 tutorId,
                 name,
@@ -53,9 +53,9 @@ public record TutorProfileDto(
                 locationsText,
                 categoriesText,
                 subjectsText,
+                education != null ? education : "",
                 career != null ? career : "",
-                introduction != null ? introduction : "",
-                content != null ? content : ""
+                introduction != null ? introduction : ""
         );
     }
 }

@@ -30,7 +30,7 @@ public record TutorProfileRequest(
         List<Long> locationIds,
         String title,
         String career,
-        String content,
+        String education,
         String introduction
 ) {
 }

@@ -16,7 +16,7 @@ public record TutorResponse(
     String introduction,
     String career,
     String title,
-    String content,
+    String education,
     Set<String> locations,
     Set<CategoryType> categories,
     Set<SubjectType> subjects
@@ -47,7 +47,7 @@ public record TutorResponse(
                 entity.getIntroduction(),
                 entity.getCareer(),
                 entity.getTitle(),
-                entity.getContent(),
+                entity.getEducation(),
                 locations,
                 categories,
                 subjects

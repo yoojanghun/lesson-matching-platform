@@ -148,13 +148,13 @@ public class TutorAccount extends AuditingFields {
             this.title = title;
         }
         if (educations != null) {
-            this.educations = educations;
+            this.educations = new ArrayList<>(educations);
         }
         if (introduction != null) {
             this.introduction = introduction;
         }
         if (experiences != null) {
-            this.experiences = experiences;
+            this.experiences = new ArrayList<>(experiences);;
         }
         if (isBirthDatePublic != null) {
             this.isBirthDatePublic = isBirthDatePublic;
@@ -180,21 +180,21 @@ public class TutorAccount extends AuditingFields {
 
     protected TutorAccount() {}
 
-    private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations) {
+    private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus) {
         this.userAccount = userAccount;
         this.introduction = introduction;
         this.experiences = experiences != null ? experiences : new ArrayList<>();
         this.title = title;
         this.educations = educations != null ? educations : new ArrayList<>();
-        this.profileStatus = ProfileStatus.INCOMPLETE;
+        this.profileStatus = profileStatus;
     }
 
-    public static TutorAccount of(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations) {
-        return new TutorAccount(userAccount, introduction, experiences, title, educations);
+    public static TutorAccount of(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus) {
+        return new TutorAccount(userAccount, introduction, experiences, title, educations, profileStatus);
     }
 
     public static TutorAccount ofRegister(UserAccount userAccount) {
-        return new TutorAccount(userAccount, null, null, null, null);
+        return new TutorAccount(userAccount, null, new ArrayList<>(), null, new ArrayList<>(), ProfileStatus.INCOMPLETE);
     }
 
     @Override

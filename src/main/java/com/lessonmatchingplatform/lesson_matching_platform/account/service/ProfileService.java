@@ -99,7 +99,7 @@ public class ProfileService {
                     LocationStudent.of(studentAccount, location)
             ));
         }
-        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.budgetType());
+        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.minBudget(), request.maxBudget());
     }
 
     public void putMyStudentProfile(Long id, StudentProfileRequest request) {
@@ -107,12 +107,10 @@ public class ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));
 
         UserAccount userAccount = studentAccount.getUserAccount();
+        userAccount.updatePhoneNumber(request.phoneNumber());
 
-        if (request.phoneNumber() != null) {
-            userAccount.updatePhoneNumber(request.phoneNumber());
-        }
         if (request.styleIds() != null) {
-            studentAccount.getStyleStudentSet().clear(); // 빈 배열([]) 요청 시에도 기존 목록 해제
+            studentAccount.getStyleStudentSet().clear();        // 빈 배열([]) 요청 시에도 기존 목록 해제
             if (!request.styleIds().isEmpty()) {
                 List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
                 tutorStyleList.forEach(tutorStyle ->
@@ -147,7 +145,53 @@ public class ProfileService {
                 );
             }
         }
-        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.budgetType());
+        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.minBudget(), request.maxBudget());
+    }
+
+    public void patchMyStudentProfile(Long id, StudentProfilePatchRequest request) {
+        StudentAccount studentAccount = studentRepository.findProfileById(id)
+                .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));
+
+        UserAccount userAccount = studentAccount.getUserAccount();
+        userAccount.updatePhoneNumber(request.phoneNumber());
+
+        if (request.styleIds() != null) {
+            studentAccount.getStyleStudentSet().clear();        // 빈 배열([]) 요청 시에도 기존 목록 해제
+            if (!request.styleIds().isEmpty()) {
+                List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+                tutorStyleList.forEach(tutorStyle ->
+                        studentAccount.getStyleStudentSet().add(StyleStudent.of(studentAccount, tutorStyle))
+                );
+            }
+        }
+        if (request.categoryIds() != null) {
+            studentAccount.getCategoryStudentSet().clear();
+            if (!request.categoryIds().isEmpty()) {
+                List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
+                categoryList.forEach(category ->
+                        studentAccount.getCategoryStudentSet().add(CategoryStudent.of(studentAccount, category))
+                );
+            }
+        }
+        if (request.goalIds() != null) {
+            studentAccount.getGoalStudentSet().clear();
+            if (!request.goalIds().isEmpty()) {
+                List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+                lessonGoalList.forEach(lessonGoal ->
+                        studentAccount.getGoalStudentSet().add(GoalStudent.of(studentAccount, lessonGoal))
+                );
+            }
+        }
+        if (request.locationIds() != null) {
+            studentAccount.getLocationStudentSet().clear();
+            if (!request.locationIds().isEmpty()) {
+                List<Location> locationList = locationRepository.findAllById(request.locationIds());
+                locationList.forEach(location ->
+                        studentAccount.getLocationStudentSet().add(LocationStudent.of(studentAccount, location))
+                );
+            }
+        }
+        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.minBudget(), request.maxBudget());
     }
 
     @Transactional(readOnly = true)

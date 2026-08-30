@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public record StudentProfileRequest(
+public record StudentProfilePatchRequest(
         @Pattern(
                 regexp = "^$|^01[016789]-\\d{3,4}-\\d{4}$",
                 message = "전화번호는 010-XXXX-XXXX 형식의 하이픈 포함 올바른 번호여야 합니다."

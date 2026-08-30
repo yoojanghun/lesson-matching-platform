@@ -1,6 +1,5 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
-import com.lessonmatchingplatform.lesson_matching_platform.account.type.BudgetType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
@@ -52,36 +51,42 @@ public class StudentAccount extends AuditingFields {
     @Column
     private LessonType lessonType;
 
-    @Enumerated(EnumType.STRING)
     @Column
-    private BudgetType budgetType;
+    private Integer minBudget; // 예: 50000
+
+    @Column
+    private Integer maxBudget; // 예: 100000
 
     protected StudentAccount() {}
 
-    private StudentAccount(UserAccount userAccount, String introduction, LessonType lessonType, BudgetType budgetType) {
+    private StudentAccount(UserAccount userAccount, String introduction, LessonType lessonType, Integer minBudget, Integer maxBudget) {
         this.userAccount = userAccount;
         this.introduction = introduction;
         this.lessonType = lessonType;
-        this.budgetType = budgetType;
+        this.minBudget = minBudget;
+        this.maxBudget = maxBudget;
     }
 
-    public static StudentAccount of(UserAccount userAccount, String introduction, LessonType lessonType, BudgetType budgetType) {
-        return new StudentAccount(userAccount, introduction, lessonType, budgetType);
+    public static StudentAccount of(UserAccount userAccount, String introduction, LessonType lessonType, Integer minBudget, Integer maxBudget) {
+        return new StudentAccount(userAccount, introduction, lessonType, minBudget, maxBudget);
     }
 
     public static StudentAccount ofRegister(UserAccount userAccount) {
-        return new StudentAccount(userAccount, null, null, null);
+        return new StudentAccount(userAccount, null, null, null, null);
     }
 
-    public void updateStudentAccount(String introduction, LessonType lessonType, BudgetType budgetType) {
+    public void updateStudentAccount(String introduction, LessonType lessonType, Integer minBudget, Integer maxBudget) {
         if (introduction != null) {
             this.introduction = introduction;
         }
         if (lessonType != null) {
             this.lessonType = lessonType;
         }
-        if (budgetType != null) {
-            this.budgetType = budgetType;
+        if (minBudget != null) {
+            this.minBudget = minBudget;
+        }
+        if (maxBudget != null) {
+            this.maxBudget = maxBudget;
         }
     }
 

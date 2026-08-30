@@ -19,6 +19,8 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -53,6 +55,7 @@ public class RedisConfig {
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(24))                             // 캐시 만료 시간 설정 (예: 24시간)
+                .disableCachingNullValues()                                 // null 값은 캐싱하지 않음
                 .serializeKeysWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())     // Key는 String으로 저장
                 )
@@ -60,8 +63,13 @@ public class RedisConfig {
                         RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())   // Value는 JSON 구조로 저장
                 );
 
+        Map<String, RedisCacheConfiguration> configurationMap = new HashMap<>();
+        configurationMap.put("trendingTutors", config.entryTtl(Duration.ofMinutes(30)));
+        configurationMap.put("rookieTutors", config.entryTtl(Duration.ofMinutes(20)));
+
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
+                .withInitialCacheConfigurations(configurationMap)
                 .build();
     }
 

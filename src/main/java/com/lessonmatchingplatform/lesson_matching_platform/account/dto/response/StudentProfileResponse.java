@@ -6,7 +6,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.CategoryT
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.GoalTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.LocationDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.StyleTypeDto;
-import com.lessonmatchingplatform.lesson_matching_platform.account.type.BudgetType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
 
@@ -25,7 +24,8 @@ public record StudentProfileResponse(
         List<LocationDto> locations,
         String introduction,
         LessonType lessonType,
-        BudgetType budgetType
+        Integer minBudget,
+        Integer maxBudget
 ) {
 
     public static StudentProfileResponse of(
@@ -49,7 +49,8 @@ public record StudentProfileResponse(
                 locations,
                 studentAccount.getIntroduction(),
                 studentAccount.getLessonType(),
-                studentAccount.getBudgetType()
+                studentAccount.getMinBudget(),
+                studentAccount.getMaxBudget()
         );
     }
 }

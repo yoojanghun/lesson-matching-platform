@@ -2,7 +2,9 @@ package com.lessonmatchingplatform.lesson_matching_platform.account.service;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.*;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.*;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfilePatchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfileRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfilePatchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.LessonGoalRepository;
@@ -70,10 +72,7 @@ public class ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));      // 영속성 컨텍스트에 StudentAccount 스냅샷 저장
 
         UserAccount userAccount = studentAccount.getUserAccount();
-
-        if (request.phoneNumber() != null) {
-            userAccount.updatePhoneNumber(request.phoneNumber());
-        }
+        userAccount.updatePhoneNumber(request.phoneNumber());
 
         // CascadeType.ALL에 의해 studentAccount 자식도 영속성 컨텍스트가 관리. Dirty Checking 이후 commit 시점에 flush 될 때, DB에 save됨
         if (request.styleIds() != null) {
@@ -100,7 +99,7 @@ public class ProfileService {
                     LocationStudent.of(studentAccount, location)
             ));
         }
-        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.budgetType());
+        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.minBudget(), request.maxBudget());
     }
 
     public void putMyStudentProfile(Long id, StudentProfileRequest request) {
@@ -108,12 +107,10 @@ public class ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));
 
         UserAccount userAccount = studentAccount.getUserAccount();
+        userAccount.updatePhoneNumber(request.phoneNumber());
 
-        if (request.phoneNumber() != null) {
-            userAccount.updatePhoneNumber(request.phoneNumber());
-        }
         if (request.styleIds() != null) {
-            studentAccount.getStyleStudentSet().clear(); // 빈 배열([]) 요청 시에도 기존 목록 해제
+            studentAccount.getStyleStudentSet().clear();        // 빈 배열([]) 요청 시에도 기존 목록 해제
             if (!request.styleIds().isEmpty()) {
                 List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
                 tutorStyleList.forEach(tutorStyle ->
@@ -148,7 +145,53 @@ public class ProfileService {
                 );
             }
         }
-        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.budgetType());
+        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.minBudget(), request.maxBudget());
+    }
+
+    public void patchMyStudentProfile(Long id, StudentProfilePatchRequest request) {
+        StudentAccount studentAccount = studentRepository.findProfileById(id)
+                .orElseThrow(() -> new EntityNotFoundException("학생 프로필을 찾을 수 없습니다."));
+
+        UserAccount userAccount = studentAccount.getUserAccount();
+        userAccount.updatePhoneNumber(request.phoneNumber());
+
+        if (request.styleIds() != null) {
+            studentAccount.getStyleStudentSet().clear();        // 빈 배열([]) 요청 시에도 기존 목록 해제
+            if (!request.styleIds().isEmpty()) {
+                List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+                tutorStyleList.forEach(tutorStyle ->
+                        studentAccount.getStyleStudentSet().add(StyleStudent.of(studentAccount, tutorStyle))
+                );
+            }
+        }
+        if (request.categoryIds() != null) {
+            studentAccount.getCategoryStudentSet().clear();
+            if (!request.categoryIds().isEmpty()) {
+                List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
+                categoryList.forEach(category ->
+                        studentAccount.getCategoryStudentSet().add(CategoryStudent.of(studentAccount, category))
+                );
+            }
+        }
+        if (request.goalIds() != null) {
+            studentAccount.getGoalStudentSet().clear();
+            if (!request.goalIds().isEmpty()) {
+                List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+                lessonGoalList.forEach(lessonGoal ->
+                        studentAccount.getGoalStudentSet().add(GoalStudent.of(studentAccount, lessonGoal))
+                );
+            }
+        }
+        if (request.locationIds() != null) {
+            studentAccount.getLocationStudentSet().clear();
+            if (!request.locationIds().isEmpty()) {
+                List<Location> locationList = locationRepository.findAllById(request.locationIds());
+                locationList.forEach(location ->
+                        studentAccount.getLocationStudentSet().add(LocationStudent.of(studentAccount, location))
+                );
+            }
+        }
+        studentAccount.updateStudentAccount(request.introduction(), request.lessonType(), request.minBudget(), request.maxBudget());
     }
 
     @Transactional(readOnly = true)
@@ -194,24 +237,16 @@ public class ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
 
         UserAccount userAccount = tutorAccount.getUserAccount();
-        if (request.name() != null) {
-            userAccount.updateName(request.name());
-        }
-        if (request.phoneNumber() != null) {
-            userAccount.updatePhoneNumber(request.phoneNumber());
-        }
-        if (request.birthDate() != null) {
-            userAccount.updateBirthDate(request.birthDate());
-        }
-        if (request.email() != null) {
-            userAccount.updateEmail(request.email());
-        }
+        userAccount.updateName(request.name());
+        userAccount.updateBirthDate(request.birthDate());
+        userAccount.updateEmail(request.email());
+        userAccount.updatePhoneNumber(request.phoneNumber());
 
         tutorAccount.updateProfile(
                 request.title(),
-                request.content(),
+                request.educations(),
                 request.introduction(),
-                request.career(),
+                request.experiences(),
                 request.isBirthDatePublic(),
                 request.isEmailPublic(),
                 request.isPhoneNumberPublic()
@@ -247,6 +282,8 @@ public class ProfileService {
                 tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
             );
         }
+
+        tutorAccount.updateProfileCompletionStatus();
     }
 
     public void putMyTutorProfile(Long tutorId, TutorProfileRequest request) {
@@ -254,24 +291,16 @@ public class ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
 
         UserAccount userAccount = tutorAccount.getUserAccount();
-        if (request.name() != null) {
-            userAccount.updateName(request.name());
-        }
-        if (request.phoneNumber() != null) {
-            userAccount.updatePhoneNumber(request.phoneNumber());
-        }
-        if (request.birthDate() != null) {
-            userAccount.updateBirthDate(request.birthDate());
-        }
-        if (request.email() != null) {
-            userAccount.updateEmail(request.email());
-        }
+        userAccount.updateName(request.name());
+        userAccount.updateBirthDate(request.birthDate());
+        userAccount.updateEmail(request.email());
+        userAccount.updatePhoneNumber(request.phoneNumber());
 
         tutorAccount.updateProfile(
                 request.title(),
-                request.content(),
+                request.educations(),
                 request.introduction(),
-                request.career(),
+                request.experiences(),
                 request.isBirthDatePublic(),
                 request.isEmailPublic(),
                 request.isPhoneNumberPublic()
@@ -313,5 +342,68 @@ public class ProfileService {
                 tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
             );
         }
+
+        tutorAccount.updateProfileCompletionStatus();
     }
+
+    public void patchMyTutorProfile(Long tutorId, TutorProfilePatchRequest request) {
+        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
+
+        UserAccount userAccount = tutorAccount.getUserAccount();
+        userAccount.updateName(request.name());
+        userAccount.updateBirthDate(request.birthDate());
+        userAccount.updateEmail(request.email());
+        userAccount.updatePhoneNumber(request.phoneNumber());
+
+        tutorAccount.updateProfile(
+                request.title(),
+                request.educations(),
+                request.introduction(),
+                request.experiences(),
+                request.isBirthDatePublic(),
+                request.isEmailPublic(),
+                request.isPhoneNumberPublic()
+        );
+
+        if (request.styleIds() != null) {
+            tutorAccount.getStyleTutorSet().clear();
+            List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
+            tutorStyleList.forEach(tutorStyle -> tutorAccount.addStyleTutor(StyleTutor.of(tutorAccount, tutorStyle)));
+        }
+
+        if (request.categoryIds() != null) {
+            tutorAccount.getCategoryTutorSet().clear();
+            List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
+            categoryList.forEach(category -> tutorAccount.addCategoryTutor(CategoryTutor.of(tutorAccount, category)));
+        }
+
+        if (request.subjectIds() != null) {
+            tutorAccount.getSubjectTutorSet().clear();
+            List<Subject> subjectList = subjectRepository.findAllById(request.subjectIds());
+            subjectList.forEach(subject -> tutorAccount.addSubjectTutor(SubjectTutor.of(tutorAccount, subject)));
+        }
+
+        if (request.locationIds() != null) {
+            tutorAccount.getLocationTutorSet().clear();
+            List<Location> locationList = locationRepository.findAllById(request.locationIds());
+            locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
+        }
+
+        if (request.goalIds() != null) {
+            tutorAccount.getGoalTutorSet().clear();
+            List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
+            lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
+        }
+
+        if (request.prices() != null) {
+            tutorAccount.getTutorLessonPriceSet().clear();
+            request.prices().forEach(priceDto ->
+                    tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
+            );
+        }
+
+        tutorAccount.updateProfileCompletionStatus();
+    }
+
 }

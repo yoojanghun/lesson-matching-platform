@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.ai.dto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,9 +13,9 @@ public record TutorProfileDto(
         GenderType gender,
         String email,
         String introduction,
-        String career,
+        List<String> experiences,
         String title,
-        String content,
+        List<String> educations,
         Set<String> locations,
         Set<CategoryType> categories,
         Set<String> subjects
@@ -42,9 +43,9 @@ public record TutorProfileDto(
                 - 레슨 가능 지역: %s
                 - 카테고리/분야: %s
                 - 상세 과목: %s
+                - 학력: %s
                 - 주요 경력: %s
                 - 한줄 소개: %s
-                - 상세 설명/수업 방식: %s
                 """,
                 tutorId,
                 name,
@@ -53,9 +54,9 @@ public record TutorProfileDto(
                 locationsText,
                 categoriesText,
                 subjectsText,
-                career != null ? career : "",
-                introduction != null ? introduction : "",
-                content != null ? content : ""
+                educations != null ? String.join(", ", educations) : "",
+                experiences != null ? String.join(", ", experiences) : "",
+                introduction != null ? introduction : ""
         );
     }
 }

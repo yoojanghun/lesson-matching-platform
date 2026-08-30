@@ -4,13 +4,11 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorA
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReviewRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorWithReviewsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

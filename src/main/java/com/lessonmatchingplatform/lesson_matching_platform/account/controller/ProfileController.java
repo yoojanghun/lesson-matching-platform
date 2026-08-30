@@ -1,6 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.controller;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfilePatchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.StudentProfileRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfilePatchRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.request.TutorProfileRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.StudentProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.account.service.ProfileService;
@@ -56,6 +58,18 @@ public class ProfileController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('STUDENT')")
+    @PatchMapping("/student/me")
+    public ResponseEntity<Void> patchMyStudentProfile(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody @Valid StudentProfilePatchRequest request
+    ) {
+        Long id = boardPrincipal.id();
+        profileService.patchMyStudentProfile(id, request);
+
+        return ResponseEntity.ok().build();
+    }
+
     @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/tutor/me")
     public ResponseEntity<TutorProfileResponse> getMyTutorProfile(
@@ -87,6 +101,18 @@ public class ProfileController {
     ) {
         Long id = boardPrincipal.id();
         profileService.putMyTutorProfile(id, request);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('TUTOR')")
+    @PatchMapping("/tutor/me")
+    public ResponseEntity<Void> patchMyTutorProfile(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody @Valid TutorProfilePatchRequest request
+    ) {
+        Long id = boardPrincipal.id();
+        profileService.patchMyTutorProfile(id, request);
 
         return ResponseEntity.ok().build();
     }

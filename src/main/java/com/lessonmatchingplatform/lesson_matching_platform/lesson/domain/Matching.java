@@ -59,6 +59,7 @@ public class Matching extends AuditingFields {
 
         if (tutorAccount != null) {
             tutorAccount.getMatchingSet().add(this);
+            tutorAccount.increaseMatchingCount();
         }
         if (studentAccount != null) {
             studentAccount.getMatchingSet().add(this);

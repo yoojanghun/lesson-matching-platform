@@ -15,6 +15,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.repository.C
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectTutorRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorCardDto;
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorLessonPriceRangeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.response.MainHomeResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import lombok.RequiredArgsConstructor;
@@ -129,12 +130,12 @@ public class MainPageService {
                 ));
 
         List<TutorLessonPrice> tutorLessonPriceList = tutorLessonPriceRepository.findAllByTutorAccount_TutorIdIn(tutorIds);
-        Map<Long, List<TutorLessonPriceDto>> tutorLessonPriceMap = tutorLessonPriceList.stream()
+        Map<Long, TutorLessonPriceRangeDto> tutorLessonPriceMap = tutorLessonPriceList.stream()
                 .collect(Collectors.groupingBy(
                         tutorLessonPrice -> tutorLessonPrice.getTutorAccount().getTutorId(),
-                        Collectors.mapping(
-                                TutorLessonPriceDto::from,
-                                Collectors.toList()
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                TutorLessonPriceRangeDto::from
                         )
                 ));
 
@@ -144,7 +145,7 @@ public class MainPageService {
                         goalTypeMap.getOrDefault(tutorAccount.getTutorId(), List.of()),
                         categoryTypeMap.getOrDefault(tutorAccount.getTutorId(), List.of()),
                         subjectTypeMap.getOrDefault(tutorAccount.getTutorId(), List.of()),
-                        tutorLessonPriceMap.getOrDefault(tutorAccount.getTutorId(), List.of())
+                        tutorLessonPriceMap.getOrDefault(tutorAccount.getTutorId(), TutorLessonPriceRangeDto.from(List.of()))
                 ))
                 .toList();
     }

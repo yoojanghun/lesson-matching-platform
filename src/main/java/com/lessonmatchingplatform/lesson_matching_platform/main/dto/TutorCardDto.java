@@ -4,12 +4,12 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorA
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.CategoryTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.GoalTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.SubjectTypeDto;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public record TutorCardDto(
+        Long tutorId,
         String name,
         String title,
         List<GoalTypeDto> goalTypeDtoList,
@@ -27,6 +27,7 @@ public record TutorCardDto(
             TutorLessonPriceRangeDto priceRange
     ) {
         return new TutorCardDto(
+                tutorAccount.getTutorId(),
                 tutorAccount.getUserAccount().getName(),
                 tutorAccount.getTitle(),
                 goalTypeDtoList,

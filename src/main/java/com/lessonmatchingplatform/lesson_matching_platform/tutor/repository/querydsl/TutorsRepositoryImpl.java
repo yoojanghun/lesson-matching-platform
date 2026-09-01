@@ -136,7 +136,7 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 .leftJoin(tutorAccount.matchingSet, matching)               // matching으로 한 tutorId에 여러 matching 생김
                 .on(matching.createdAt.goe(fifteenDaysAgo))
                 .where(
-                        categoryTutor.category.categoryId.eq(categoryId),
+                        eqCategoryId(categoryId),
                         tutorAccount.profileStatus.eq(ProfileStatus.COMPLETED)
                 )
                 .groupBy(tutorAccount.tutorId, userAccount.userId)          // 집계함수 count 사용으로 인해 groupBy 필요
@@ -157,7 +157,7 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 .join(tutorAccount.categoryTutorSet, categoryTutor)
                 .join(tutorAccount.userAccount, userAccount).fetchJoin()
                 .where(
-                        categoryTutor.category.categoryId.eq(categoryId),
+                        eqCategoryId(categoryId),
                         tutorAccount.profileStatus.eq(ProfileStatus.COMPLETED)
                 )
                 .orderBy(tutorAccount.createdAt.desc())
@@ -165,13 +165,20 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                 .fetch();
     }
 
-    // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것
+        // BooleanExpression: 참 또는 거짓을 판단하는 SQL의 조건절을 자바 객체로 만든 것
         private BooleanExpression categoryEq(CategoryType categoryType) {
-                return categoryType != null ? category.name.eq(categoryType) : null;
+            return categoryType != null ? category.name.eq(categoryType) : null;
         }
 
         private BooleanExpression subjectEq(SubjectType subjectType) {
                 return subjectType != null ? subject.name.eq(subjectType) : null;
         }
+
+        private BooleanExpression eqCategoryId(Long categoryId) {
+            return (categoryId != null && categoryId > 0)
+                    ? categoryTutor.category.categoryId.eq(categoryId)
+                    : null;
+        }
+
 
 }

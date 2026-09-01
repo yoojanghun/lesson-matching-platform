@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.domain;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.ProfileStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryTutor;
@@ -55,6 +56,10 @@ public class TutorAccount extends AuditingFields {
 
     @Column(nullable = false)
     private Integer matchingCount = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private LessonType lessonType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -180,21 +185,22 @@ public class TutorAccount extends AuditingFields {
 
     protected TutorAccount() {}
 
-    private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus) {
+    private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus, LessonType lessonType) {
         this.userAccount = userAccount;
         this.introduction = introduction;
         this.experiences = experiences != null ? experiences : new ArrayList<>();
         this.title = title;
         this.educations = educations != null ? educations : new ArrayList<>();
+        this.lessonType = lessonType;
         this.profileStatus = profileStatus;
     }
 
-    public static TutorAccount of(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus) {
-        return new TutorAccount(userAccount, introduction, experiences, title, educations, profileStatus);
+    public static TutorAccount of(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus, LessonType lessonType) {
+        return new TutorAccount(userAccount, introduction, experiences, title, educations, profileStatus, lessonType);
     }
 
     public static TutorAccount ofRegister(UserAccount userAccount) {
-        return new TutorAccount(userAccount, null, new ArrayList<>(), null, new ArrayList<>(), ProfileStatus.INCOMPLETE);
+        return new TutorAccount(userAccount, null, new ArrayList<>(), null, new ArrayList<>(), ProfileStatus.INCOMPLETE, null);
     }
 
     @Override

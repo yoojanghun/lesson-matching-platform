@@ -1,12 +1,19 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request;
 
-import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
-import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.type.TutorSortType;
 
-// TODO: 나중에 검색 조건 추가되면 수정
+import java.util.List;
+
 public record TutorSearchCondition(
-        CategoryType category,
-        SubjectType subject
+        List<Long> categoryIds,
+        List<Long> subjectIds,
+        List<Long> goalIds,
+        List<Long> styleIds,
+        List<Long> locationIds,
+        LessonType lessonType,
+        TutorSortType tutorSortType,
+        Integer minPrice,
+        Integer maxPrice
 ) {
-
 }

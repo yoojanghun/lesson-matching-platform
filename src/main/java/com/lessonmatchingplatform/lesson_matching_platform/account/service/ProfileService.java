@@ -21,6 +21,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -232,6 +233,7 @@ public class ProfileService {
         );
     }
 
+    @CacheEvict(value = "tutorDetail", key = "#tutorId")
     public void postMyTutorProfile(Long tutorId, TutorProfileRequest request) {
         TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
@@ -286,6 +288,7 @@ public class ProfileService {
         tutorAccount.updateProfileCompletionStatus();
     }
 
+    @CacheEvict(value = "tutorDetail", key = "#tutorId")
     public void putMyTutorProfile(Long tutorId, TutorProfileRequest request) {
         TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
@@ -346,6 +349,7 @@ public class ProfileService {
         tutorAccount.updateProfileCompletionStatus();
     }
 
+    @CacheEvict(value = "tutorDetail", key = "#tutorId")
     public void patchMyTutorProfile(Long tutorId, TutorProfilePatchRequest request) {
         TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));

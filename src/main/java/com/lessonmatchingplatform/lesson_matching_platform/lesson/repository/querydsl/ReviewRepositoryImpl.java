@@ -1,6 +1,4 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QLessonReview;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QMatching;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
 import com.querydsl.core.types.Projections;
@@ -13,6 +11,8 @@ import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QStudentAccount.studentAccount;
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount.userAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QLessonReview.lessonReview;
 import static com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QMatching.matching;
 
@@ -26,26 +26,30 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         List<ReviewResponse> content = queryFactory
                 .select(Projections.constructor(
                         ReviewResponse.class,
+                        lessonReview.commentId,
                         lessonReview.content,
                         lessonReview.rating,
                         new CaseBuilder()
                                 .when(lessonReview.isAnonymous.isTrue()).then("익명")
-                                .otherwise(lessonReview.createdBy)
+                                .otherwise(userAccount.name),
+                        lessonReview.createdAt
                 ))
                 .from(lessonReview)
                 .join(lessonReview.matching, matching)
+                .join(matching.studentAccount, studentAccount)         // 학생 계정 조인
+                .join(studentAccount.userAccount, userAccount)
                 .where(
                         matching.tutorAccount.tutorId.eq(tutorId)
                 )
                 .orderBy(lessonReview.createdAt.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1)      // 6개가 가져와짐 -> hasNext 보여줌
+                .limit(pageable.getPageSize() + 1)                      // 6개가 가져와짐 -> hasNext 보여줌
                 .fetch();
 
         boolean hasNext = false;
         if(content.size() > pageable.getPageSize()) {
-            content.remove(pageable.getPageSize());     // +1로 가져온 마지막 항목 제거
             hasNext = true;
+            content = content.subList(0, pageable.getPageSize());       // subList를 활용하여 불변성 문제 예방 및 마지막 항목 제거
         }
 
         return new SliceImpl<>(content, pageable, hasNext);

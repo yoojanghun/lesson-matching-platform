@@ -21,22 +21,22 @@ public class MainPageController {
 
     @GetMapping("/home")
     public ResponseEntity<MainHomeResponse> getPopularTutorsList(
-            @RequestParam(defaultValue = "1") Long categoryId
+            @RequestParam(required = false) Long categoryId
     ) {
         return ResponseEntity.ok(mainPageService.getMainHomeData(categoryId));
     }
 
     @GetMapping("/trending")
     public ResponseEntity<List<TutorCardDto>> getTrendingTutors(
-            @RequestParam Long categoryId
+            @RequestParam(required = false) Long categoryId
     ) {
         List<TutorCardDto> trendingTutors = mainPageService.getTrendingTutorsByCategory(categoryId);
         return ResponseEntity.ok(trendingTutors);
     }
 
-    @GetMapping("rookie")
+    @GetMapping("/rookie")
     public ResponseEntity<List<TutorCardDto>> getRookieTutors(
-            @RequestParam Long categoryId
+            @RequestParam(required = false) Long categoryId
     ) {
         List<TutorCardDto> rookieTutors = mainPageService.getRookieTutorsByCategory(categoryId);
         return ResponseEntity.ok(rookieTutors);

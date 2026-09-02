@@ -6,7 +6,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorL
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.CategoryTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.GoalTypeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.SubjectTypeDto;
-import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.GoalTutorRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.TutorLessonPriceRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.category.domain.CategoryTutor;
@@ -42,7 +41,7 @@ public class MainPageService {
 
     @Transactional(readOnly = true)
     public MainHomeResponse getMainHomeData(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
+        if (categoryId != null && categoryId > 0 && !categoryRepository.existsById(categoryId)) {
             throw new IllegalArgumentException("존재하지 않는 카테고리 ID입니다. categoryId: " + categoryId);
         }
 
@@ -63,10 +62,10 @@ public class MainPageService {
         );
     }
 
-    @Cacheable(value = "trendingTutors", key = "#categoryId")
+    @Cacheable(value = "trendingTutors", key = "#categoryId != null ? #categoryId : 'ALL'")
     @Transactional(readOnly = true)
     public List<TutorCardDto> getTrendingTutorsByCategory(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
+        if (categoryId != null && categoryId > 0 && !categoryRepository.existsById(categoryId)) {
             throw new IllegalArgumentException("존재하지 않는 카테고리 ID입니다. categoryId: " + categoryId);
         }
 
@@ -80,10 +79,10 @@ public class MainPageService {
     }
 
     // 카테고리별로 가장 최신에 등록한 선생님 조회
-    @Cacheable(value = "rookieTutors", key = "#categoryId")
+    @Cacheable(value = "rookieTutors", key = "#categoryId != null ? #categoryId : 'ALL'")
     @Transactional(readOnly = true)
     public List<TutorCardDto> getRookieTutorsByCategory(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
+        if (categoryId != null && categoryId > 0 && !categoryRepository.existsById(categoryId)) {
             throw new IllegalArgumentException("존재하지 않는 카테고리 ID입니다. categoryId: " + categoryId);
         }
 

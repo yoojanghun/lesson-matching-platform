@@ -45,3 +45,6 @@ mysql_data/
 
 # MongoDB Data Directory
 mongo_data/
+
+# Elasticsearch Local Data (Docker Volume)
+es_data/

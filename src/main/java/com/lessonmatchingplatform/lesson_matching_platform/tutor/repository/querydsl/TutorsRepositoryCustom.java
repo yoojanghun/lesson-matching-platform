@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface TutorsRepositoryCustom {
     Page<TutorAccount> searchTutors(TutorSearchCondition condition, Pageable pageable);
 
-    Optional<TutorAccount> searchTutor(Long tutorId);
-
     List<LocationDto> findLocationDtosByTutorId(Long id);
 
     List<TutorAccount> findTop8ByCategoryIdOrderByMatchingCountDesc(Long categoryId);

@@ -1,6 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.search.event;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorLessonPrice;
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.ProfileStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.document.TutorDocument;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.repository.TutorSearchRepository;
@@ -39,6 +41,12 @@ public class TutorSyncEventListener {
         }
 
         tutorsRepository.findById(event.tutorId()).ifPresent(tutorAccount -> {
+            if (tutorAccount.getProfileStatus() != ProfileStatus.COMPLETED) {
+                tutorSearchRepository.deleteById(event.tutorId());
+                log.info("TutorAccount profile is incomplete. Deleted/skipped from Elasticsearch. tutorId: {}", event.tutorId());
+                return;
+            }
+
             List<String> categories = tutorAccount.getCategoryTutorSet().stream()
                     .map(ct -> ct.getCategory().getName().name())
                     .collect(Collectors.toList());
@@ -57,8 +65,8 @@ public class TutorSyncEventListener {
             List<Long> goalIds = tutorAccount.getGoalTutorSet().stream().map(gt -> gt.getLessonGoal().getGoalId()).collect(Collectors.toList());
             List<Long> styleIds = tutorAccount.getStyleTutorSet().stream().map(st -> st.getTutorStyle().getStyleId()).collect(Collectors.toList());
 
-            Integer minPrice = tutorAccount.getTutorLessonPriceSet().stream().map(p -> p.getPrice()).min(Integer::compareTo).orElse(null);
-            Integer maxPrice = tutorAccount.getTutorLessonPriceSet().stream().map(p -> p.getPrice()).max(Integer::compareTo).orElse(null);
+            Integer minPrice = tutorAccount.getTutorLessonPriceSet().stream().map(TutorLessonPrice::getPrice).min(Integer::compareTo).orElse(null);
+            Integer maxPrice = tutorAccount.getTutorLessonPriceSet().stream().map(TutorLessonPrice::getPrice).max(Integer::compareTo).orElse(null);
             String lessonTypeStr = tutorAccount.getLessonType() != null ? tutorAccount.getLessonType().name() : null;
 
             Double totalScore = calculateTotalScore(tutorAccount);

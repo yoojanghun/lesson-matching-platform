@@ -18,7 +18,6 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.Rev
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorCardDto;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorLessonPriceRangeDto;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
-import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.response.TutorWithReviewsResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import org.springframework.cache.annotation.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
@@ -54,19 +53,6 @@ public class TutorsService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
 
         return categoryTutorRepository.findProfileResponseById(tutorId);
-    }
-
-    // 선생님 조회 필터로 선생님 리스트 조회
-    @Transactional(readOnly = true)
-    public Page<TutorCardDto> getTutorsList(TutorSearchCondition tutorSearchCondition, Pageable pageable) {
-        Page<TutorAccount> tutorAccountPage = tutorsRepository.searchTutors(tutorSearchCondition, pageable);
-        if (tutorAccountPage.isEmpty()) {
-            return new PageImpl<>(List.of(), pageable, 0);
-        }
-
-        List<TutorCardDto> tutorCardDtoList = mapTutorCardDetails(tutorAccountPage.getContent());
-
-        return new PageImpl<>(tutorCardDtoList, pageable, tutorAccountPage.getTotalElements());
     }
 
     @Transactional(readOnly = true)
@@ -126,5 +112,18 @@ public class TutorsService {
                         tutorLessonPriceMap.getOrDefault(tutorAccount.getTutorId(), TutorLessonPriceRangeDto.from(List.of()))
                 ))
                 .toList();
+    }
+
+    // 선생님 조회 필터로 선생님 리스트 조회(백업용)
+    @Transactional(readOnly = true)
+    public Page<TutorCardDto> getTutorsList(TutorSearchCondition tutorSearchCondition, Pageable pageable) {
+        Page<TutorAccount> tutorAccountPage = tutorsRepository.searchTutors(tutorSearchCondition, pageable);
+        if (tutorAccountPage.isEmpty()) {
+            return new PageImpl<>(List.of(), pageable, 0);
+        }
+
+        List<TutorCardDto> tutorCardDtoList = mapTutorCardDetails(tutorAccountPage.getContent());
+
+        return new PageImpl<>(tutorCardDtoList, pageable, tutorAccountPage.getTotalElements());
     }
 }

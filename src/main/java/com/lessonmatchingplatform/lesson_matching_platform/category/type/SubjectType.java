@@ -43,4 +43,14 @@ public enum SubjectType {
         this.categoryType = categoryType;
         this.description = description;
     }
+
+    public static SubjectType fromNullable(String name) {
+        if (name == null) return null;
+        for (SubjectType type : SubjectType.values()) {
+            if (type.name().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

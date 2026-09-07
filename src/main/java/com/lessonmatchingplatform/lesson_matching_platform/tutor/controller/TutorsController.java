@@ -6,6 +6,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorCardDto
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.service.TutorsService;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class TutorsController {
 
     private final TutorsService tutorsService;
+    private final TutorSearchService tutorSearchService;
     private final ReviewRepository reviewRepository;
 
     // 강사 상세 프로필 조회 (리뷰 제외, Redis 캐싱 적용)
@@ -38,6 +40,18 @@ public class TutorsController {
     ) {
         Page<TutorCardDto> tutorCardDtoPage = tutorsService.getTutorsList(tutorSearchCondition, pageable);
         return ResponseEntity.ok(tutorCardDtoPage);
+    }
+
+    // Elasticsearch 기반 선생님 검색 (키워드 및 필터 조건)
+    @GetMapping("/search")
+    public ResponseEntity<Page<TutorCardDto>> searchTutors(
+            @RequestParam(required = false) String keyword,         // 검색어
+            @ModelAttribute TutorSearchCondition condition,         // 검색 조건
+            @PageableDefault(size = 8) Pageable pageable
+    ) {
+        Page<TutorCardDto> searchResult = tutorSearchService.searchTutors(keyword, condition, pageable)
+                .map(TutorCardDto::from);
+        return ResponseEntity.ok(searchResult);
     }
 
     // 선생님의 레슨 페이지에서 리뷰 보여주기

@@ -52,6 +52,9 @@ public class TutorDocument {
     @Field(type = FieldType.Keyword)
     private List<String> locations;
 
+    @Field(type = FieldType.Keyword)
+    private List<String> goals;
+
     // 필터링용 ID 필드들
     @Field(type = FieldType.Keyword)
     private List<Long> categoryIds;

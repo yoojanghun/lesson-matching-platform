@@ -40,6 +40,7 @@ public class ProfileService {
     private final SubjectRepository subjectRepository;
     private final TutorStyleRepository tutorStyleRepository;
     private final LessonGoalRepository lessonGoalRepository;
+    private final TutorSyncEventPublisher tutorSyncEventPublisher;
 
     @Transactional(readOnly = true)
     public StudentProfileResponse getMyStudentProfile(Long id) {
@@ -287,6 +288,7 @@ public class ProfileService {
         }
 
         tutorAccount.updateProfileCompletionStatus();
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
     }
 
     @CacheEvict(value = "tutorDetail", key = "#tutorId")
@@ -348,6 +350,7 @@ public class ProfileService {
         }
 
         tutorAccount.updateProfileCompletionStatus();
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
     }
 
     @CacheEvict(value = "tutorDetail", key = "#tutorId")

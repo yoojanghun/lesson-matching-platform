@@ -20,7 +20,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QGoalTutor.goalTutor;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QLocation.location;
@@ -117,18 +116,6 @@ public class TutorsRepositoryImpl implements TutorsRepositoryCustom {
                                                 tutorAccount.lessonType.eq(LessonType.BOTH));
                         }
                 }
-        }
-
-        @Override
-        public Optional<TutorAccount> searchTutor(Long tutorId) {
-                TutorAccount content = queryFactory
-                                .selectFrom(tutorAccount)
-                                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
-                                .where(
-                                                tutorAccount.tutorId.eq(tutorId))
-                                .fetchOne();
-
-                return Optional.ofNullable(content);
         }
 
         @Override

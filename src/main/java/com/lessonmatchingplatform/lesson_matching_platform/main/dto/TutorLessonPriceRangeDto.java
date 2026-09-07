@@ -26,4 +26,29 @@ public record TutorLessonPriceRangeDto(
                 priceDisplay
         );
     }
+
+    public static TutorLessonPriceRangeDto of(Integer minPrice, Integer maxPrice) {
+        if (minPrice == null && maxPrice == null) {
+            return new TutorLessonPriceRangeDto(0, 0, "가격 협의");
+        }
+        int min = minPrice != null ? minPrice : 0;
+        int max = maxPrice != null ? maxPrice : 0;
+
+        String priceDisplay;
+        if (minPrice != null && maxPrice != null) {
+            priceDisplay = min == max
+                    ? String.format("%,d원", min)
+                    : String.format("%,d~%,d원", min, max);
+        } else if (minPrice != null) {
+            priceDisplay = String.format("%,d원~", min);
+        } else {
+            priceDisplay = String.format("~%,d원", max);
+        }
+
+        return new TutorLessonPriceRangeDto(
+                min,
+                max,
+                priceDisplay
+        );
+    }
 }

@@ -24,13 +24,15 @@ spring:
     init:
       mode: always
 
-  # Redis
+  # NoSQL (Redis, MongoDB, Elasticsearch)
   data:
     redis:
       host: localhost
       port: 6379
     mongodb:
       uri: mongodb://localhost:27017/lesson_chat
+    elasticsearch:
+      uris: localhost:9200
 
   # Security OAuth2
   security:

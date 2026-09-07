@@ -16,4 +16,14 @@ public enum CategoryType {
 
     private final String description;
     private final String icon;
+
+    public static CategoryType fromNullable(String name) {
+        if (name == null) return null;
+        for (CategoryType type : CategoryType.values()) {
+            if (type.name().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

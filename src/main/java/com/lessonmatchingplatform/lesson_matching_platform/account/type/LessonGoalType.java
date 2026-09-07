@@ -16,5 +16,15 @@ public enum LessonGoalType {
     LessonGoalType(String description) {
         this.description = description;
     }
+
+    public static LessonGoalType fromNullable(String name) {
+        if (name == null) return null;
+        for (LessonGoalType type : LessonGoalType.values()) {
+            if (type.name().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }
 

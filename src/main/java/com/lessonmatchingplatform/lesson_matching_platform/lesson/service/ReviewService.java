@@ -12,6 +12,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.Tuto
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.event.TutorSyncEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final MatchingRepository matchingRepository;
     private final TutorsRepository tutorsRepository;
+    private final TutorSyncEventPublisher tutorSyncEventPublisher;
 
     public ReviewResponse postReview(BoardPrincipal boardPrincipal, ReviewRequest request, Long tutorId) {
         if(matchingRepository.hasAlreadyReviewedTutor(tutorId, boardPrincipal.id())) {
@@ -41,6 +43,8 @@ public class ReviewService {
 
         LessonReview lessonReview = LessonReview.of(matching, request.content(), request.rating(), request.isAnonymous());
 
-        return ReviewResponse.from(reviewRepository.save(lessonReview));
+        ReviewResponse response = ReviewResponse.from(reviewRepository.save(lessonReview));
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
+        return response;
     }
 }

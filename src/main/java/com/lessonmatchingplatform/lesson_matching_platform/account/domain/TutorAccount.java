@@ -183,6 +183,24 @@ public class TutorAccount extends AuditingFields {
         }
     }
 
+    public void resetProfile() {
+        this.title = null;
+        this.introduction = null;
+        this.educations.clear();
+        this.experiences.clear();
+        this.lessonType = null;
+        this.isBirthDatePublic = false;
+        this.isEmailPublic = false;
+        this.isPhoneNumberPublic = false;
+        this.categoryTutorSet.clear();
+        this.subjectTutorSet.clear();
+        this.styleTutorSet.clear();
+        this.locationTutorSet.clear();
+        this.goalTutorSet.clear();
+        this.tutorLessonPriceSet.clear();
+        this.profileStatus = ProfileStatus.INCOMPLETE;
+    }
+
     protected TutorAccount() {}
 
     private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus, LessonType lessonType) {

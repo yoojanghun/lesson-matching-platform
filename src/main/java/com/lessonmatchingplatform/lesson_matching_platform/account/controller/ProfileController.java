@@ -116,4 +116,15 @@ public class ProfileController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("hasRole('TUTOR')")
+    @DeleteMapping("/tutor/me")
+    public ResponseEntity<Void> deleteMyTutorProfile(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal
+    ) {
+        Long id = boardPrincipal.id();
+        profileService.deleteMyTutorProfile(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -19,6 +19,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.repository.C
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.event.TutorSyncEventPublisher;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -39,6 +40,7 @@ public class ProfileService {
     private final SubjectRepository subjectRepository;
     private final TutorStyleRepository tutorStyleRepository;
     private final LessonGoalRepository lessonGoalRepository;
+    private final TutorSyncEventPublisher tutorSyncEventPublisher;
 
     @Transactional(readOnly = true)
     public StudentProfileResponse getMyStudentProfile(Long id) {
@@ -286,6 +288,7 @@ public class ProfileService {
         }
 
         tutorAccount.updateProfileCompletionStatus();
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
     }
 
     @CacheEvict(value = "tutorDetail", key = "#tutorId")
@@ -347,6 +350,7 @@ public class ProfileService {
         }
 
         tutorAccount.updateProfileCompletionStatus();
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
     }
 
     @CacheEvict(value = "tutorDetail", key = "#tutorId")
@@ -408,6 +412,16 @@ public class ProfileService {
         }
 
         tutorAccount.updateProfileCompletionStatus();
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
+    }
+
+    @CacheEvict(value = "tutorDetail", key = "#tutorId")
+    public void deleteMyTutorProfile(Long tutorId) {
+        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
+
+        tutorAccount.resetProfile();
+        tutorSyncEventPublisher.publishDeleteEvent(tutorId);
     }
 
 }

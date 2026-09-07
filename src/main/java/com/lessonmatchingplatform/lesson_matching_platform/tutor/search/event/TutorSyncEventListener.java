@@ -18,7 +18,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -49,21 +48,25 @@ public class TutorSyncEventListener {
 
             List<String> categories = tutorAccount.getCategoryTutorSet().stream()
                     .map(ct -> ct.getCategory().getName().name())
-                    .collect(Collectors.toList());
+                    .toList();
 
             List<String> subjects = tutorAccount.getSubjectTutorSet().stream()
                     .map(st -> st.getSubject().getName().name())
-                    .collect(Collectors.toList());
+                    .toList();
 
             List<String> locations = tutorAccount.getLocationTutorSet().stream()
                     .map(lt -> lt.getLocation().getName())
-                    .collect(Collectors.toList());
+                    .toList();
 
-            List<Long> categoryIds = tutorAccount.getCategoryTutorSet().stream().map(ct -> ct.getCategory().getCategoryId()).collect(Collectors.toList());
-            List<Long> subjectIds = tutorAccount.getSubjectTutorSet().stream().map(st -> st.getSubject().getSubjectId()).collect(Collectors.toList());
-            List<Long> locationIds = tutorAccount.getLocationTutorSet().stream().map(lt -> lt.getLocation().getLocationId()).collect(Collectors.toList());
-            List<Long> goalIds = tutorAccount.getGoalTutorSet().stream().map(gt -> gt.getLessonGoal().getGoalId()).collect(Collectors.toList());
-            List<Long> styleIds = tutorAccount.getStyleTutorSet().stream().map(st -> st.getTutorStyle().getStyleId()).collect(Collectors.toList());
+            List<String> goals = tutorAccount.getGoalTutorSet().stream()
+                    .map(gt -> gt.getLessonGoal().getLessonGoalType().name())
+                    .toList();
+
+            List<Long> categoryIds = tutorAccount.getCategoryTutorSet().stream().map(ct -> ct.getCategory().getCategoryId()).toList();
+            List<Long> subjectIds = tutorAccount.getSubjectTutorSet().stream().map(st -> st.getSubject().getSubjectId()).toList();
+            List<Long> locationIds = tutorAccount.getLocationTutorSet().stream().map(lt -> lt.getLocation().getLocationId()).toList();
+            List<Long> goalIds = tutorAccount.getGoalTutorSet().stream().map(gt -> gt.getLessonGoal().getGoalId()).toList();
+            List<Long> styleIds = tutorAccount.getStyleTutorSet().stream().map(st -> st.getTutorStyle().getStyleId()).toList();
 
             Integer minPrice = tutorAccount.getTutorLessonPriceSet().stream().map(TutorLessonPrice::getPrice).min(Integer::compareTo).orElse(null);
             Integer maxPrice = tutorAccount.getTutorLessonPriceSet().stream().map(TutorLessonPrice::getPrice).max(Integer::compareTo).orElse(null);
@@ -79,6 +82,7 @@ public class TutorSyncEventListener {
                     .categories(categories)
                     .subjects(subjects)
                     .locations(locations)
+                    .goals(goals)
                     .categoryIds(categoryIds)
                     .subjectIds(subjectIds)
                     .locationIds(locationIds)

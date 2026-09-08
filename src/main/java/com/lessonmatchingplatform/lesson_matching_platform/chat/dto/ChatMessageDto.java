@@ -1,23 +1,27 @@
 package com.lessonmatchingplatform.lesson_matching_platform.chat.dto;
 
+import com.lessonmatchingplatform.lesson_matching_platform.chat.domain.ChatMessageDocument;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.type.MessageType;
 import lombok.Builder;
+
+import java.time.LocalDateTime;
 
 @Builder
 public record ChatMessageDto(
         String mongoId,             // Mongo Object Id
-        MessageType type,
+        MessageType type,           // ENTER, TALK, LEAVE
         Long matchingId,            // 신청 전 문의는 null, 매칭 진행 중엔 matchingId 값 들어옴
         Long studentId,             // 발신자/수신자 식별용
         Long tutorId,               // 발신자/수신자 식별용
         Long senderId,              // 발신자 Id
-        String senderName,          // 발신자 이름/닉네임
+        String senderName,          // 발신자 이름 / 닉네임
         String message,
-        boolean isRead              // 읽음 여부
+        boolean isRead,             // 읽음 여부
+        LocalDateTime createdAt
 ) {
 
     // senderId, senderName, isRead만 새로운 값으로 바꿈
-    public ChatMessageDto withSender(String mongoId, Long senderId, String senderName, boolean isRead) {
+    public ChatMessageDto withSender(String mongoId, Long senderId, String senderName, boolean isRead, LocalDateTime createdAt) {
         return new ChatMessageDto(
                 mongoId,
                 this.type,
@@ -27,7 +31,23 @@ public record ChatMessageDto(
                 senderId,
                 senderName,
                 this.message,
-                isRead
+                isRead,
+                createdAt
+        );
+    }
+
+    public static ChatMessageDto fromDocument(ChatMessageDocument document) {
+        return new ChatMessageDto(
+                document.getId(),
+                document.getType(),
+                document.getMatchingId(),
+                document.getStudentId(),
+                document.getTutorId(),
+                document.getSenderId(),
+                document.getSenderName(),
+                document.getMessage(),
+                document.isRead(),
+                document.getCreatedAt()
         );
     }
 

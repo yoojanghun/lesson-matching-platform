@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -66,9 +68,12 @@ public class RedisSubscriber {
         Long recipientId = getRecipientId(chatMessage);
 
         // 수신자 온라인 여부 확인
-        boolean isRecipientActive = sessionManager.isUserActiveInRoom(channelPath, recipientId);
-        if (!isRecipientActive) {
-            sessionManager.incrementUnreadCount(channelPath, recipientId);
+        boolean isRecipientActive = false;
+        if (recipientId != null) {
+            isRecipientActive = sessionManager.isUserActiveInRoom(channelPath, recipientId);
+            if (!isRecipientActive) {
+                sessionManager.incrementUnreadCount(channelPath, recipientId);
+            }
         }
 
         // 1. MongoDB 저장 (실패해도 WebSocket 전파 보장)
@@ -79,21 +84,29 @@ public class RedisSubscriber {
             log.error("MongoDB 채팅 메시지 저장 실패: {}", e.getMessage(), e);
         }
 
-        // 2. WebSocket 메시지 푸시 (mongoId 반영)
+        // 2. WebSocket 메시지 푸시 (mongoId 및 createdAt 반영)
+        LocalDateTime createdAt = savedDocument != null ? savedDocument.getCreatedAt() : chatMessage.createdAt();
         ChatMessageDto pushMessage = chatMessage.withSender(
                 savedDocument != null ? savedDocument.getId() : null,
                 chatMessage.senderId(),
                 chatMessage.senderName(),
-                isRecipientActive
+                isRecipientActive,
+                createdAt
         );
         messagingTemplate.convertAndSend(destination, pushMessage);
         log.info("WebSocket Push 성공 - Destination: {}", destination);
     }
 
     private Long getRecipientId(ChatMessageDto chatMessage) {
-        return chatMessage.senderId().equals(chatMessage.studentId())
-                ? chatMessage.tutorId()
-                : chatMessage.studentId();
+        if (chatMessage.senderId() == null) {
+            return null;
+        }
+        if (chatMessage.senderId().equals(chatMessage.studentId())) {
+            return chatMessage.tutorId();
+        } else if (chatMessage.senderId().equals(chatMessage.tutorId())) {
+            return chatMessage.studentId();
+        }
+        return null;
     }
 
     private ChatMessageDocument saveMessageToMongo(ChatMessageDto dto, boolean isRead) {

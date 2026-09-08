@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.chat.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.chat.domain.ChatMessageDocument;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.ChatMessageDto;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.repository.ChatMessageMongoRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class ChatHistoryController {
     private final ChatMessageMongoRepository chatMessageMongoRepository;
 
     @GetMapping("/history")
-    public ResponseEntity<Slice<ChatMessageDocument>> getChatHistory(
+    public ResponseEntity<Slice<ChatMessageDto>> getChatHistory(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestParam(required = false) Long matchingId,
             @RequestParam Long studentId,
@@ -30,23 +31,30 @@ public class ChatHistoryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        if (boardPrincipal != null && !boardPrincipal.id().equals(studentId) && !boardPrincipal.id().equals(tutorId)) {
+        if (boardPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long currentUserId = boardPrincipal.id();
+        if (!currentUserId.equals(studentId) && !currentUserId.equals(tutorId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         PageRequest pageable = PageRequest.of(page, size);
 
         Slice<ChatMessageDocument> history;
-        if (matchingId != null) {
-            // 매칭 확정건 채팅 내역
-            history = chatMessageMongoRepository.findByMatchingIdOrderByCreatedAtDesc(matchingId, pageable);
-        } else {
-            // 사전 문의 채팅 내역
+        if (matchingId != null) {           // 매칭 확정건 채팅 내역
+            history = chatMessageMongoRepository.findByMatchingIdAndStudentIdAndTutorIdOrderByCreatedAtDesc(
+                    matchingId, studentId, tutorId, pageable
+            );
+        } else {                            // 사전 문의 채팅 내역
             history = chatMessageMongoRepository.findByStudentIdAndTutorIdAndMatchingIdIsNullOrderByCreatedAtDesc(
                     studentId, tutorId, pageable
             );
         }
 
-        return ResponseEntity.ok(history);
+        Slice<ChatMessageDto> historyDto = history.map(ChatMessageDto::fromDocument);
+
+        return ResponseEntity.ok(historyDto);
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public interface ChatMessageMongoRepository extends MongoRepository<ChatMessageDocument, String> {
 
     // 1. 매칭 확정건 채팅 내역 조회 (최신순 페이징)
-    Slice<ChatMessageDocument> findByMatchingIdOrderByCreatedAtDesc(Long matchingId, Pageable pageable);
+    Slice<ChatMessageDocument> findByMatchingIdAndStudentIdAndTutorIdOrderByCreatedAtDesc(Long matchingId, Long studentId, Long tutorId, Pageable pageable);
 
     // 2. 신청 전 사전 문의 채팅 내역 조회 (최신순 페이징)
     Slice<ChatMessageDocument> findByStudentIdAndTutorIdAndMatchingIdIsNullOrderByCreatedAtDesc(

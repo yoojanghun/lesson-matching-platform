@@ -4,6 +4,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.request.Chat
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.service.ChatReadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,9 +24,17 @@ public class ChatReadController {
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody ChatReadRequest request
     ) {
-        Long currentUserId = boardPrincipal.id();
-        chatReadService.markMessagesAsRead(request, currentUserId);
+        if (boardPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
+        Long currentUserId = boardPrincipal.id();
+        if (request.studentId() != null && request.tutorId() != null &&
+                !currentUserId.equals(request.studentId()) && !currentUserId.equals(request.tutorId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        chatReadService.markMessagesAsRead(request, currentUserId);
         return ResponseEntity.ok().build();
     }
 
@@ -34,9 +43,17 @@ public class ChatReadController {
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @RequestBody ChatReadRequest request
     ) {
-        Long currentUserId = boardPrincipal.id();
-        chatReadService.leaveRoom(request, currentUserId);
+        if (boardPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
+        Long currentUserId = boardPrincipal.id();
+        if (request.studentId() != null && request.tutorId() != null &&
+                !currentUserId.equals(request.studentId()) && !currentUserId.equals(request.tutorId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        chatReadService.leaveRoom(request, currentUserId);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.domain;
 
+import com.lessonmatchingplatform.lesson_matching_platform.payment.exception.TossPaymentException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,13 @@ public class GlobalExceptionHandler {
         // 상황에 따라 400(Bad Request) 혹은 409(Conflict)로 내려주면 적절
         CustomErrorResponse response = new CustomErrorResponse(e.getMessage(), HttpStatus.CONFLICT.value());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    // PG 결제 승인 실패 시 (400 Bad Request 및 상세 PG 에러 메시지 반환)
+    @ExceptionHandler(TossPaymentException.class)
+    public ResponseEntity<CustomErrorResponse> handleTossPaymentException(TossPaymentException e) {
+        CustomErrorResponse response = new CustomErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     // 예측하지 못한 심각한 서버 에러 발생 시 (500 Internal Server Error)

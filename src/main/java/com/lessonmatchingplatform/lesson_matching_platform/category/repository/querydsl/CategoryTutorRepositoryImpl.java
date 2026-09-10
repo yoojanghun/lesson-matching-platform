@@ -24,11 +24,193 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class CategoryTutorRepositoryImpl implements CategoryTutorRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<TutorProfileResponse> findProfileResponseByIds(List<Long> tutorIds) {
+        if (tutorIds == null || tutorIds.isEmpty()) {
+            return List.of();
+        }
+
+        // 1. 강사 계정 기본 정보 IN 쿼리 (단 1번)
+        List<TutorAccount> accounts = queryFactory
+                .selectFrom(tutorAccount)
+                .join(tutorAccount.userAccount, userAccount).fetchJoin()
+                .where(
+                        tutorAccount.tutorId.in(tutorIds),
+                        tutorAccount.profileStatus.eq(ProfileStatus.COMPLETED)
+                )
+                .fetch();
+
+        if (accounts.isEmpty()) {
+            return List.of();
+        }
+
+        // 2. 각 연관 데이터 IN 쿼리 (단 1번씩)
+
+        // Category Map
+        Map<Long, List<CategoryTypeDto>> categoryMap = queryFactory
+                .select(
+                        categoryTutor.tutorAccount.tutorId,
+                        Projections.constructor(
+                                CategoryTypeDto.class,
+                                category.categoryId,
+                                category.name
+                        )
+                )
+                .from(categoryTutor)
+                .join(categoryTutor.category, category)
+                .where(categoryTutor.tutorAccount.tutorId.in(tutorIds))
+                .fetch()
+                .stream()
+                .filter(tuple -> tuple != null && tuple.get(0, Long.class) != null)
+                .collect(Collectors.groupingBy(
+                        tuple -> Objects.requireNonNull(tuple.get(0, Long.class)),
+                        Collectors.mapping(
+                                tuple -> Objects.requireNonNull(tuple.get(1, CategoryTypeDto.class)),
+                                Collectors.toList()
+                        )
+                ));
+
+        // Subject Map
+        Map<Long, List<SubjectTypeDto>> subjectMap = queryFactory
+                .select(
+                        subjectTutor.tutorAccount.tutorId,
+                        Projections.constructor(
+                                SubjectTypeDto.class,
+                                subject.subjectId,
+                                subject.name
+                        )
+                )
+                .from(subjectTutor)
+                .join(subjectTutor.subject, subject)
+                .where(subjectTutor.tutorAccount.tutorId.in(tutorIds))
+                .fetch()
+                .stream()
+                .filter(tuple -> tuple != null && tuple.get(0, Long.class) != null)
+                .collect(Collectors.groupingBy(
+                        tuple -> Objects.requireNonNull(tuple.get(0, Long.class)),
+                        Collectors.mapping(
+                                tuple -> Objects.requireNonNull(tuple.get(1, SubjectTypeDto.class)),
+                                Collectors.toList()
+                        )
+                ));
+
+        // Location Map
+        Map<Long, List<LocationDto>> locationMap = queryFactory
+                .select(
+                        locationTutor.tutorAccount.tutorId,
+                        Projections.constructor(
+                                LocationDto.class,
+                                location.locationId,
+                                location.name
+                        )
+                )
+                .from(locationTutor)
+                .join(locationTutor.location, location)
+                .where(locationTutor.tutorAccount.tutorId.in(tutorIds))
+                .fetch()
+                .stream()
+                .filter(tuple -> tuple != null && tuple.get(0, Long.class) != null)
+                .collect(Collectors.groupingBy(
+                        tuple -> Objects.requireNonNull(tuple.get(0, Long.class)),
+                        Collectors.mapping(
+                                tuple -> Objects.requireNonNull(tuple.get(1, LocationDto.class)),
+                                Collectors.toList()
+                        )
+                ));
+
+        // Style Map
+        Map<Long, List<StyleTypeDto>> styleMap = queryFactory
+                .select(
+                        styleTutor.tutorAccount.tutorId,
+                        Projections.constructor(
+                                StyleTypeDto.class,
+                                tutorStyle.styleId,
+                                tutorStyle.styleType.stringValue()
+                        )
+                )
+                .from(styleTutor)
+                .join(styleTutor.tutorStyle, tutorStyle)
+                .where(styleTutor.tutorAccount.tutorId.in(tutorIds))
+                .fetch()
+                .stream()
+                .filter(tuple -> tuple != null && tuple.get(0, Long.class) != null)
+                .collect(Collectors.groupingBy(
+                        tuple -> Objects.requireNonNull(tuple.get(0, Long.class)),
+                        Collectors.mapping(
+                                tuple -> Objects.requireNonNull(tuple.get(1, StyleTypeDto.class)),
+                                Collectors.toList()
+                        )
+                ));
+
+        // Goal Map
+        Map<Long, List<GoalTypeDto>> goalMap = queryFactory
+                .select(
+                        goalTutor.tutorAccount.tutorId,
+                        Projections.constructor(
+                                GoalTypeDto.class,
+                                lessonGoal.goalId,
+                                lessonGoal.lessonGoalType
+                        )
+                )
+                .from(goalTutor)
+                .join(goalTutor.lessonGoal, lessonGoal)
+                .where(goalTutor.tutorAccount.tutorId.in(tutorIds))
+                .fetch()
+                .stream()
+                .filter(tuple -> tuple != null && tuple.get(0, Long.class) != null)
+                .collect(Collectors.groupingBy(
+                        tuple -> Objects.requireNonNull(tuple.get(0, Long.class)),
+                        Collectors.mapping(
+                                tuple -> Objects.requireNonNull(tuple.get(1, GoalTypeDto.class)),
+                                Collectors.toList()
+                        )
+                ));
+
+        // Price Map
+        Map<Long, List<TutorLessonPriceDto>> priceMap = queryFactory
+                .select(
+                        tutorLessonPrice.tutorAccount.tutorId,
+                        Projections.constructor(
+                                TutorLessonPriceDto.class,
+                                tutorLessonPrice.className,
+                                tutorLessonPrice.price
+                        )
+                )
+                .from(tutorLessonPrice)
+                .where(tutorLessonPrice.tutorAccount.tutorId.in(tutorIds))
+                .fetch()
+                .stream()
+                .filter(tuple -> tuple != null && tuple.get(0, Long.class) != null)
+                .collect(Collectors.groupingBy(
+                        tuple -> Objects.requireNonNull(tuple.get(0, Long.class)),
+                        Collectors.mapping(
+                                tuple -> Objects.requireNonNull(tuple.get(1, TutorLessonPriceDto.class)),
+                                Collectors.toList()
+                        )
+                ));
+
+        // 3. 자바 메모리 단에서 최종 DTO 조립
+        return accounts.stream()
+                .map(account -> TutorProfileResponse.of(
+                        account,
+                        categoryMap.getOrDefault(account.getTutorId(), List.of()),
+                        subjectMap.getOrDefault(account.getTutorId(), List.of()),
+                        locationMap.getOrDefault(account.getTutorId(), List.of()),
+                        styleMap.getOrDefault(account.getTutorId(), List.of()),
+                        goalMap.getOrDefault(account.getTutorId(), List.of()),
+                        priceMap.getOrDefault(account.getTutorId(), List.of())
+                ))
+                .toList();
+    }
 
     @Override
     public TutorProfileResponse findProfileResponseById(Long tutorId) {

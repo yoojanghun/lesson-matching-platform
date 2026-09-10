@@ -13,4 +13,5 @@ public interface CategoryTutorRepository extends JpaRepository<CategoryTutor, Lo
 
     @Query("SELECT ct FROM CategoryTutor ct JOIN FETCH ct.category c WHERE ct.tutorAccount.tutorId IN :tutorIds")
     List<CategoryTutor> findAllByTutorAccount_TutorIdIn(List<Long> tutorIds);
+
 }

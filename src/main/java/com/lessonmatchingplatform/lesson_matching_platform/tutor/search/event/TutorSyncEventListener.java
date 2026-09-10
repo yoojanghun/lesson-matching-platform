@@ -1,6 +1,8 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.search.event;
 
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.ProfileStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.TutorProfileDto;
+import com.lessonmatchingplatform.lesson_matching_platform.ai.service.TutorVectorService;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.document.TutorDocument;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.repository.TutorSearchRepository;
@@ -23,6 +25,7 @@ public class TutorSyncEventListener {
     private final TutorsRepository tutorsRepository;
     private final TutorSearchRepository tutorSearchRepository;
     private final TutorSyncService tutorSyncService;
+    private final TutorVectorService tutorVectorService;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -32,20 +35,26 @@ public class TutorSyncEventListener {
 
         if (event.eventType() == EventType.DELETED) {
             tutorSearchRepository.deleteById(event.tutorId());
-            log.info("Successfully deleted TutorDocument from Elasticsearch. tutorId: {}", event.tutorId());
+            tutorVectorService.deleteTutorProfile(event.tutorId());
+            log.info("Successfully deleted TutorDocument and Vector for tutorId: {}", event.tutorId());
             return;
         }
 
         tutorsRepository.findById(event.tutorId()).ifPresent(tutorAccount -> {
             if (tutorAccount.getProfileStatus() != ProfileStatus.COMPLETED) {
                 tutorSearchRepository.deleteById(event.tutorId());
-                log.info("TutorAccount profile is incomplete. Deleted/skipped from Elasticsearch. tutorId: {}", event.tutorId());
+                tutorVectorService.deleteTutorProfile(event.tutorId());
+                log.info("TutorAccount profile is incomplete. Deleted/skipped from Elasticsearch and Vector DB. tutorId: {}", event.tutorId());
                 return;
             }
 
             TutorDocument document = tutorSyncService.toDocument(tutorAccount);
             tutorSearchRepository.save(document);
-            log.info("Successfully synced TutorAccount to Elasticsearch. tutorId: {}", event.tutorId());
+
+            TutorProfileDto profileDto = TutorProfileDto.from(tutorAccount);
+            tutorVectorService.indexTutorProfile(profileDto);
+
+            log.info("Successfully synced TutorAccount to Elasticsearch and Vector DB. tutorId: {}", event.tutorId());
         });
     }
 }

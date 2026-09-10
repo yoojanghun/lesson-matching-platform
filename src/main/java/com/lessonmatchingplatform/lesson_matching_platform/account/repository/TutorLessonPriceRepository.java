@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface TutorLessonPriceRepository extends JpaRepository<Long, TutorLessonPrice> {
+public interface TutorLessonPriceRepository extends JpaRepository<TutorLessonPrice, Long> {
     List<TutorLessonPrice> findAllByTutorAccount_TutorIdIn(List<Long> tutorIds);
 }

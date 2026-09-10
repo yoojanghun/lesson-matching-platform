@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryTutorRepositoryImpl implements CategoryTutorRepositoryCustom{
 
-    private JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public TutorProfileResponse findProfileResponseById(Long tutorId) {

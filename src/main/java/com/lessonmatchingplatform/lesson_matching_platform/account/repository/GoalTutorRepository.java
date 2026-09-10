@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface GoalTutorRepository extends JpaRepository<GoalTutor, Long> {
 
-    @Query("SELECT gt FROM GoalTutor gt JOIN FETCH gt.LessonGoal lg WHERE gt.tutorAccount.tutorId IN :tutorsId")
+    @Query("SELECT gt FROM GoalTutor gt JOIN FETCH gt.lessonGoal lg WHERE gt.tutorAccount.tutorId IN :tutorsId")
     List<GoalTutor> findAllByTutorIdIn(List<Long> tutorsId);
 }

@@ -38,7 +38,6 @@ public class TutorDocument {
                     @InnerField(suffix = "analyzed", type = FieldType.Text, analyzer = "nori_analyzer")
             }
     )
-    @Field(type = FieldType.Keyword)
     private List<String> categories;
 
     @MultiField(

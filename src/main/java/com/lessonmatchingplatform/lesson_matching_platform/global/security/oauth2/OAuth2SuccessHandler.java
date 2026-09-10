@@ -34,16 +34,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        String userId = oAuth2User.getUserId();                                 // UserAccount's userId
+
+        Long id = oAuth2User.getId();                   // DB PK (Long) → JWT userId claim
+        String username = oAuth2User.getUserId();       // 로그인 ID (String) → JWT subject
         List<String> roles = oAuth2User.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        String accessToken = jwtTokenProvider.createAccessToken(userId, roles);
-        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
+        String accessToken = jwtTokenProvider.createAccessToken(id, username, roles);
+        String refreshToken = jwtTokenProvider.createRefreshToken(username);
 
         redisTemplate.opsForValue().set(
-                REFRESH_TOKEN_PREFIX + userId,
+                REFRESH_TOKEN_PREFIX + username,
                 refreshToken,
                 jwtProperties.getRefreshTokenExpiration(),
                 TimeUnit.MILLISECONDS

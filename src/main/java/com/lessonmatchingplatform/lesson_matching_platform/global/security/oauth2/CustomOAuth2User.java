@@ -12,12 +12,14 @@ import java.util.Map;
 @Getter
 public class CustomOAuth2User implements OAuth2User {
 
-    private final String userId; // UserAccount's userId
+    private final Long id;          // UserAccount의 DB PK (Long) — JWT userId claim용
+    private final String userId;    // UserAccount의 로그인 ID (String) — JWT subject용
     private final Collection<? extends GrantedAuthority> authorities;           // ? extends는 Read에서만 사용
     private final Map<String, Object> attributes;
     private final String nameAttributeKey;
 
-    private CustomOAuth2User(String userId, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
+    private CustomOAuth2User(Long id, String userId, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey) {
+        this.id = id;
         this.userId = userId;
         this.authorities = authorities;
         this.attributes = attributes;
@@ -30,7 +32,8 @@ public class CustomOAuth2User implements OAuth2User {
                 .toList();
 
         return new CustomOAuth2User(
-                user.getUserId(),
+                user.getId(),           // DB PK (Long)
+                user.getUserId(),       // 로그인 ID (String)
                 authorities,
                 oAuth2Attribute.attributes(),
                 oAuth2Attribute.nameAttributeKey()

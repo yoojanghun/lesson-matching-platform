@@ -43,7 +43,9 @@ public class AuthService {
         List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
-        String accessToken = jwtTokenProvider.createAccessToken(username, roles);
+        UserAccount userAccount = userRepository.findByUserId(username)
+            .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다. id=" + username));
+        String accessToken = jwtTokenProvider.createAccessToken(userAccount.getId(), username, roles);
         String refreshToken = jwtTokenProvider.createRefreshToken(username);
 
         saveRefreshToken(username, refreshToken);
@@ -73,7 +75,7 @@ public class AuthService {
                 .map(userRole -> "ROLE_" + userRole.getRole().getRoleType().toString())
                 .toList();
 
-        String newAccessToken = jwtTokenProvider.createAccessToken(username, role);
+        String newAccessToken = jwtTokenProvider.createAccessToken(userAccount.getId(), username, role);
         String newRefreshToken = jwtTokenProvider.createRefreshToken(username);
 
         saveRefreshToken(username, newRefreshToken);
@@ -88,7 +90,7 @@ public class AuthService {
                 .map(userRole -> "ROLE_" + userRole.getRole().getRoleType().toString())
                 .toList();
 
-        String accessToken = jwtTokenProvider.createAccessToken(username, roles);
+        String accessToken = jwtTokenProvider.createAccessToken(userAccount.getId(), username, roles);
         String refreshToken = jwtTokenProvider.createRefreshToken(username);
 
         saveRefreshToken(username, refreshToken);

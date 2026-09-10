@@ -28,12 +28,13 @@ public class JwtTokenProvider {
     }
 
     // Access Token 생성
-    public String createAccessToken(String username, List<String> roles) {
+    public String createAccessToken(Long userId, String username, List<String> roles) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtProperties.getAccessTokenExpiration());
 
         return Jwts.builder()
                 .subject(username)
+                .claim("userId", userId)
                 .claim("roles", roles) // JWT Payload에 role 추가
                 .issuedAt(now)
                 .expiration(expiry)

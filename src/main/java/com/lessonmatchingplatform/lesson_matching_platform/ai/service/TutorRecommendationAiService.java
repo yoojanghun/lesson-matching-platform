@@ -1,6 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.ai.service;
 
-import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.response.TutorRecommendationResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.response.TutorAiMatch;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
@@ -25,7 +25,7 @@ public interface TutorRecommendationAiService {
             {{studentRequirement}}
             """)
 
-    List<TutorRecommendationResponse> recommendTutors(
+    List<TutorAiMatch> recommendTutors(
             @V("tutorList") String tutorList,
             @V("studentRequirement") String studentRequirement
     );

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record TutorProfileResponse(
+                Long tutorId,
                 String name,
                 GenderType gender,
                 LocalDate birthDate,
@@ -41,6 +42,7 @@ public record TutorProfileResponse(
                         List<GoalTypeDto> goals,
                         List<TutorLessonPriceDto> prices) {
                 return new TutorProfileResponse(
+                                entity.getTutorId(),
                                 entity.getUserAccount().getName(),
                                 entity.getUserAccount().getGender(),
                                 entity.getUserAccount().getBirthDate(),

@@ -166,23 +166,11 @@ public class LessonMatchingService {
 
     // Tutor가 자신이 받은 레슨 리스트 확인
     @Transactional(readOnly = true)
-    public List<MyMatchingResponseAsTutor> myMatchingsAsTutor(Long tutorId) {
-        return matchingRepository.findAllByTutorId(tutorId);
-    }
-
-    @Transactional(readOnly = true)
     public Page<MyMatchingResponseAsTutor> myMatchingsAsTutor(Long tutorId, Pageable pageable) {
         return matchingRepository.findMatchingsByTutorId(tutorId, pageable);
     }
 
     // Student가 자신이 보낸 Matching 리스트 확인
-    @Transactional(readOnly = true)
-    public List<MyMatchingResponseAsStudent> myMatchingsAsStudent(Long studentId) {
-        List<Matching> myMatchings = matchingRepository.findAllByStudentId(studentId);
-
-        return myMatchings.stream().map(MyMatchingResponseAsStudent::from).toList();
-    }
-
     @Transactional(readOnly = true)
     public Page<MyMatchingResponseAsStudent> myMatchingsAsStudent(Long studentId, Pageable pageable) {
         return matchingRepository.findMatchingsByStudentId(studentId, pageable)

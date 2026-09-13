@@ -25,7 +25,6 @@ public class TutorsController {
     private final TutorsService tutorsService;
     private final TutorSearchService tutorSearchService;
     private final TutorSyncService tutorSyncService;
-    private final ReviewRepository reviewRepository;
 
     // 강사 상세 프로필 조회 (리뷰 제외, Redis 캐싱 적용)
     @GetMapping("/{tutorId}/profile")
@@ -34,8 +33,6 @@ public class TutorsController {
     ) {
         return ResponseEntity.ok(tutorsService.getTutorProfile(tutorId));
     }
-
-
 
     // Elasticsearch 기반 선생님 검색 (키워드 및 필터 조건)
     @GetMapping("/search")

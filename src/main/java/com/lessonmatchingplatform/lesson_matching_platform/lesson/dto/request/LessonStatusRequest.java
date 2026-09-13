@@ -10,7 +10,7 @@ public record LessonStatusRequest(
 ) {
     public LessonStatusRequest {
         // NPE 방지를 위해 status != null 선행 체크
-        if (status != null && status == MatchingStatus.PENDING) {
+        if (status == MatchingStatus.PENDING) {
             throw new IllegalArgumentException("상태값으로 PENDING을 지정할 수 없습니다.");
         }
     }

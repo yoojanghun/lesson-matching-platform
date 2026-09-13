@@ -12,7 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public record MyMatchingResponseAsStudent(
-        Long MatchingId,
+        Long matchingId,
+        Long tutorId,
         String tutorName,
         Set<CategoryType> category,
         Set<SubjectType> subject,
@@ -36,6 +37,7 @@ public record MyMatchingResponseAsStudent(
 
         return new MyMatchingResponseAsStudent(
                 entity.getMatchingId(),
+                tutorAccount.getTutorId(),
                 userAccount.getName(),
                 categories,
                 subjects,

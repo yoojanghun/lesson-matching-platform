@@ -79,3 +79,32 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+
+  # ─────────────────────────────────────────────
+  # nGrinder 부하 테스트 인프라
+  # Controller: http://localhost:8000  (admin / admin)
+  # ─────────────────────────────────────────────
+  ngrinder-controller:
+    image: ngrinder/controller:3.5.9
+    container_name: lesson-ngrinder-controller
+    restart: always
+    ports:
+      - "8000:80"                     # nGrinder 웹 UI (컴퓨터 접근 포트 8080 -> Docker container port 8080)
+      - "16001:16001"                 # Agent 통신 포트
+      - "12000-12009:12000-12009"     # 부하 테스트 실행 포트
+    volumes:
+      - ./ngrinder-controller-home:/opt/ngrinder-controller
+    environment:
+      - JAVA_OPTS=-Xmx512m
+
+  ngrinder-agent:
+    image: ngrinder/agent:3.5.9
+    container_name: lesson-ngrinder-agent
+    restart: always
+    depends_on:
+      - ngrinder-controller
+    links:
+      - ngrinder-controller:ngrinder-controller
+    environment:
+      - JAVA_OPTS=-Xmx512m
+    command: ["ngrinder-controller:80"]

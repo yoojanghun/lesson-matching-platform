@@ -48,3 +48,6 @@ mongo_data/
 
 # Elasticsearch Local Data (Docker Volume)
 es_data/
+
+# nGrinder Controller Home (테스트 결과 및 캐시 — git 제외)
+ngrinder-controller-home/

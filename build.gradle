@@ -66,6 +66,10 @@ dependencies {
     implementation 'dev.langchain4j:langchain4j-spring-boot-starter:0.35.0'
     implementation 'dev.langchain4j:langchain4j-mongodb-atlas:0.35.0'
 
+    // Local Embedding Model (nGrinder 부하 테스트용 — OpenAI Rate Limit 및 비용 우회)
+    // CPU/메모리 기반 ONNX AllMiniLmL6V2 모델: 외부 API 호출 없이 384차원 벡터 생성
+    implementation 'dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:0.35.0'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'

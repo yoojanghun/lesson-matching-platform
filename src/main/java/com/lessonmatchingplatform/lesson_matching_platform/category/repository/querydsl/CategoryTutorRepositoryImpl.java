@@ -134,6 +134,7 @@ public class CategoryTutorRepositoryImpl implements CategoryTutorRepositoryCusto
                         Projections.constructor(
                                 StyleTypeDto.class,
                                 tutorStyle.styleId,
+                                tutorStyle.styleType,
                                 tutorStyle.styleType.stringValue()
                         )
                 )
@@ -249,7 +250,13 @@ public class CategoryTutorRepositoryImpl implements CategoryTutorRepositoryCusto
                 .fetch();
 
         List<StyleTypeDto> styleTypeDtoList = queryFactory
-                .select(Projections.constructor(StyleTypeDto.class, tutorStyle.styleId, tutorStyle.styleType.stringValue()))
+                .select(Projections.constructor(
+                        StyleTypeDto.class,
+                        tutorStyle.styleId,
+                        tutorStyle.styleType,
+                        tutorStyle.styleType.stringValue()
+                        )
+                )
                 .from(styleTutor)
                 .join(styleTutor.tutorStyle, tutorStyle)
                 .where(styleTutor.tutorAccount.tutorId.eq(tutorId))

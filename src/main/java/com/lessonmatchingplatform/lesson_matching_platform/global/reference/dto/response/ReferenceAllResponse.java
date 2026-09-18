@@ -11,14 +11,18 @@ public record ReferenceAllResponse(
         List<LocationDto> locations,
         List<CategoryTypeDto> categories,
         List<StyleTypeDto> tutorStyles,
-        List<GoalTypeDto> lessonGoals
+        List<GoalTypeDto> lessonGoals,
+        List<EnumReferenceDto> lessonTypes,
+        List<EnumReferenceDto> sortTypes
 ) {
     public static ReferenceAllResponse of(
             List<LocationDto> locations,
             List<CategoryTypeDto> categories,
             List<StyleTypeDto> tutorStyles,
-            List<GoalTypeDto> lessonGoals
+            List<GoalTypeDto> lessonGoals,
+            List<EnumReferenceDto> lessonTypes,
+            List<EnumReferenceDto> sortTypes
     ) {
-        return new ReferenceAllResponse(locations, categories, tutorStyles, lessonGoals);
+        return new ReferenceAllResponse(locations, categories, tutorStyles, lessonGoals, lessonTypes, sortTypes);
     }
 }

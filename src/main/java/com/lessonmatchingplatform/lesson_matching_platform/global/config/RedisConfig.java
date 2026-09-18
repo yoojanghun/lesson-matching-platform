@@ -1,5 +1,11 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.service.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -15,11 +21,9 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -27,14 +31,34 @@ import java.util.Map;
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
-    private String host;                    // redis 서버 주소(localhost)
+    private String host;
 
     @Value("${spring.data.redis.port}")
-    private int port;                       // redis 포트 번호(port)
+    private int port;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(host, port);
+    }
+
+    private ObjectMapper createRedisObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // PolymorphicTypeValidator로 허용 타입 범위 지정
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .build();
+
+        // JSON 저장 시 "@class": "com.package.TutorCardDto" 속성을 필수 포함하도록 설정
+        objectMapper.activateDefaultTyping(
+                typeValidator,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
+        );
+
+        return objectMapper;
     }
 
     @Bean
@@ -42,29 +66,35 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(RedisSerializer.json());
+        GenericJackson2JsonRedisSerializer serializer =
+                new GenericJackson2JsonRedisSerializer(createRedisObjectMapper());
 
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(serializer);
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(RedisSerializer.json());
+        redisTemplate.setHashValueSerializer(serializer);
 
         return redisTemplate;
     }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+        GenericJackson2JsonRedisSerializer serializer =
+                new GenericJackson2JsonRedisSerializer(createRedisObjectMapper());
+
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(24))                             // 캐시 만료 시간 설정 (예: 24시간)
+                .entryTtl(Duration.ofHours(24))
                 .serializeKeysWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())     // Key는 String으로 저장
+                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())
                 )
                 .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())   // Value는 JSON 구조로 저장
+                        RedisSerializationContext.SerializationPair.fromSerializer(serializer)
                 );
 
-        Map<String, RedisCacheConfiguration> configurationMap = new HashMap<>();
-        configurationMap.put("trendingTutors", config.entryTtl(Duration.ofMinutes(30)));
-        configurationMap.put("rookieTutors", config.entryTtl(Duration.ofMinutes(20)));
+        Map<String, RedisCacheConfiguration> configurationMap = Map.of(
+                "trendingTutors", config.entryTtl(Duration.ofMinutes(30)),
+                "rookieTutors", config.entryTtl(Duration.ofMinutes(20))
+        );
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
@@ -72,11 +102,6 @@ public class RedisConfig {
                 .build();
     }
 
-    /**
-     * Redis Pub/Sub: 메시지 리스너 컨테이너
-     * - RedisSubscriber가 채널을 구독하면, 발행된 메시지를 여기서 수신해 처리합니다.
-     * - 채널 등록은 ChatService 등에서 동적으로 추가할 수 있습니다.
-     */
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,
@@ -84,18 +109,10 @@ public class RedisConfig {
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-
-        // "chat:room:*" 패턴의 모든 Redis 채널 구독 (채팅 메시지 + 읽음 이벤트 모두 수신)
         container.addMessageListener(messageListenerAdapter, new PatternTopic("chat:room:*"));
-
         return container;
     }
 
-    /**
-     * Redis Pub/Sub: 메시지 리스너 어댑터
-       Redis 메시지 감시탑(Container)이 신호를 받아왔을 때,
-       내가 만든 자바 객체(RedisSubscriber)의 sendMessage 메서드를 자동으로 실행하도록 연결해 주는 스위치(어댑터)
-     */
     @Bean
     public MessageListenerAdapter messageListenerAdapter(RedisSubscriber redisSubscriber) {
         return new MessageListenerAdapter(redisSubscriber, "sendMessage");

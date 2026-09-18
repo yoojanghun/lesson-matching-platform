@@ -127,8 +127,9 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
         JPAQuery<Long> countQuery = queryFactory
                 .select(reservation.count())
                 .from(reservation)
+                .join(reservation.matching, matching)
                 .where(
-                        reservation.matching.studentAccount.studentId.eq(studentId),
+                        matching.studentAccount.studentId.eq(studentId),
                         eqState(status)
                 );
 

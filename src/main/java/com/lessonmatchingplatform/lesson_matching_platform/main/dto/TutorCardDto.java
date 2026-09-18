@@ -54,7 +54,7 @@ public record TutorCardDto(
             for (int i = 0; i < size; i++) {
                 LessonGoalType type = LessonGoalType.fromNullable(doc.getGoals().get(i));
                 if (type != null) {
-                    goalDtos.add(new GoalTypeDto(doc.getGoalIds().get(i), type));
+                    goalDtos.add(new GoalTypeDto(doc.getGoalIds().get(i), type, type.getDescription()));
                 } else {
                     log.warn("매핑 실패한 GoalTypeDto: {}", doc.getGoals().get(i));
                 }

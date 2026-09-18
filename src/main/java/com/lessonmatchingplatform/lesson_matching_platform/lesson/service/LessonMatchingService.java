@@ -9,6 +9,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.Reservati
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.ExceptionType;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.*;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.*;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.StudentReservationResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;
@@ -282,6 +283,13 @@ public class LessonMatchingService {
     }
 
     // 선생님이 학생에게 받은 Reservation(레슨 시간 요청)에 대한 상태 변경
+    
+    // STUDENT는 자신이 신청한 Reservation들을 Page 형태로 확인할 수 있도록 해야 함.
+    @Transactional(readOnly = true)
+    public Page<StudentReservationResponse> getStudentReservations(Long studentId, ReservationStatus status, Pageable pageable) {
+        return reservationRepository.findStudentReservations(studentId, status, pageable);
+    }
+
     public void updateLessonScheduleStatus(Long tutorId, Long reservationId, LessonScheduleStatusRequest request) {
         Reservation reservation = reservationRepository.findByReservationIdAndTutorAccount_TutorId(reservationId, tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));

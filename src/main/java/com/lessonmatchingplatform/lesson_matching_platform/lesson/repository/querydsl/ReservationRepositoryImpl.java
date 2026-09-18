@@ -3,12 +3,14 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.qu
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReservationResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.StudentReservationResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QStudentAccount.studentAccount;
+import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QTutorAccount.tutorAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.account.domain.QUserAccount.userAccount;
 import static com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QMatching.matching;
 import static com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.QReservation.reservation;
@@ -87,6 +89,46 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                 .from(reservation)
                 .where(
                         reservation.tutorAccount.tutorId.eq(tutorId),
+                        eqState(status)
+                );
+
+        return PageableExecutionUtils.getPage(reservations, pageable, countQuery::fetchOne);
+    }
+
+    
+    @Override
+    public Page<StudentReservationResponse> findStudentReservations(Long studentId, ReservationStatus status, Pageable pageable) {
+        List<StudentReservationResponse> reservations = queryFactory
+                .select(Projections.constructor(
+                        StudentReservationResponse.class,
+                        reservation.reservationId,
+                        tutorAccount.tutorId,
+                        userAccount.name,
+                        reservation.lessonDate,
+                        reservation.startTime,
+                        reservation.endTime,
+                        reservation.reservationStatus,
+                        reservation.createdAt
+                        )
+                )
+                .from(reservation)
+                .join(reservation.matching, matching)
+                .join(reservation.tutorAccount, tutorAccount)
+                .join(tutorAccount.userAccount, userAccount)
+                .where(
+                        matching.studentAccount.studentId.eq(studentId),
+                        eqState(status)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(reservation.createdAt.desc())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(reservation.count())
+                .from(reservation)
+                .where(
+                        reservation.matching.studentAccount.studentId.eq(studentId),
                         eqState(status)
                 );
 

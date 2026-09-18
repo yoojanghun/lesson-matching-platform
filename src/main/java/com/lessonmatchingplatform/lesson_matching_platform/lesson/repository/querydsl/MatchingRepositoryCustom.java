@@ -9,11 +9,7 @@ import java.util.List;
 
 public interface MatchingRepositoryCustom {
 
-    List<MyMatchingResponseAsTutor> findAllByTutorId(Long tutorId);
-
     Page<MyMatchingResponseAsTutor> findMatchingsByTutorId(Long tutorId, Pageable pageable);
-
-    List<Matching> findAllByStudentId(Long studentId);
 
     Page<Matching> findMatchingsByStudentId(Long studentId, Pageable pageable);
 

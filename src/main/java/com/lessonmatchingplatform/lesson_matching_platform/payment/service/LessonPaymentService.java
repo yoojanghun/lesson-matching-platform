@@ -17,6 +17,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentListResponse;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -96,6 +99,12 @@ public class LessonPaymentService {
         Payment paidPayment = paymentTransactionHandler.completePaymentSuccess(orderId, paymentKey, tossResponse);
 
         return PaymentConfirmResponse.of(paidPayment);
+    }
+
+    
+    @Transactional(readOnly = true)
+    public Page<PaymentListResponse> getStudentPayments(Long studentId, Pageable pageable) {
+        return paymentRepository.findStudentPayments(studentId, pageable);
     }
 
     private String generateOrderId() {

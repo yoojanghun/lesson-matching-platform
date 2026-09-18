@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.global.jwt.JwtTokenPr
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,11 +48,18 @@ public class SecurityConfig {
                                 "/api/auth/refresh",     // 토큰 재발급
                                 "/api/sign-up/**",       // 회원가입
                                 "/api/categories/**",    // 카테고리 조회 (비로그인 허용)
+                                "/api/reference/**",     // 지역/목표/스타일 등 참조 데이터 (비로그인 허용)
+                                "/api/tutors/search",    // 튜터 검색 (비로그인 허용)
+                                "/api/tutors/*/profile", // 튜터 공개 프로필 (비로그인 허용)
+                                "/api/tutors/*/reviews", // 튜터 리뷰 조회 (비로그인 허용)
+                                "/api/main/**",           // 홈 튜터 목록 (비로그인 허용)
                                 "/ws-chat/**",           // WebSocket 핸드셰이크 (JWT 인증은 StompJwtInterceptor에서 처리)
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/tutors/*/profile").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/tutors/*/reviews").permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))

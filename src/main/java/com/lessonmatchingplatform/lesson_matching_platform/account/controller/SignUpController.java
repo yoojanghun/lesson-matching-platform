@@ -26,19 +26,12 @@ public class SignUpController {
 
         // Tutor로 처음 sign up 할 때
         @PostMapping("/tutor")
-        public ResponseEntity<TokenResponse> signUpTutor(
-                        @Valid @RequestBody TutorSignUpRequest request, HttpServletResponse response) {
-                signUpService.signUpTutor(request);
+        public ResponseEntity<Void> signUpTutor(
+                @Valid @RequestBody TutorSignUpRequest request
+        ) {
+            signUpService.signUpTutor(request);
 
-                LoginRequest loginRequest = LoginRequest.of(request.userId(), request.userPassword());
-                AuthTokens tokens = authService.login(loginRequest);
-
-                ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-                TokenResponse tokenResponse = TokenResponse.of(tokens.accessToken(), tokens.expiresIn());
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(tokenResponse);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
 
         // GUEST 계정에서 TUTOR로 확정지을 때
@@ -59,19 +52,12 @@ public class SignUpController {
 
         // Student로 처음 sign up 할 때
         @PostMapping("/student")
-        public ResponseEntity<TokenResponse> signUpStudent(
-                        @Valid @RequestBody StudentSignupRequest request,
-                        HttpServletResponse response) {
-                signUpService.signUpStudent(request);
-                LoginRequest loginRequest = LoginRequest.of(request.userId(), request.userPassword());
+        public ResponseEntity<Void> signUpStudent(
+                @Valid @RequestBody StudentSignupRequest request
+        ) {
+            signUpService.signUpStudent(request);
 
-                AuthTokens tokens = authService.login(loginRequest);
-                ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
-                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-                TokenResponse tokenResponse = TokenResponse.of(tokens.accessToken(), tokens.expiresIn());
-                return ResponseEntity.status(HttpStatus.CREATED)
-                                .body(tokenResponse);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
 
         // GUEST 계정에서 STUDENT로 확정지을 때

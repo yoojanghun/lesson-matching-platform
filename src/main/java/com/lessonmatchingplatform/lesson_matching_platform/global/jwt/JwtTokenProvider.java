@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.jwt;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -86,9 +87,8 @@ public class JwtTokenProvider {
     // 토큰으로 Authentication(인증 토큰 신분증) 객체 반환
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
+        Long userId = claims.get("userId", Long.class);
         String username = claims.getSubject();
-
-        // Claims에서 roles 리스트 추출
         List<?> rawRoles = claims.get("roles", List.class);
 
         List<SimpleGrantedAuthority> authorities = Collections.emptyList();
@@ -99,10 +99,9 @@ public class JwtTokenProvider {
                     .toList();
         }
 
-        // UserDetails 구현체인 Spring Security 기본 User 객체 생성
-        UserDetails principal = new User(username, "", authorities);
+        BoardPrincipal principal = BoardPrincipal.of(userId, username, authorities);
 
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
     // 토큰 비밀 키로 검증한 후, payload 반환

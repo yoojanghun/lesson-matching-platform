@@ -43,6 +43,20 @@ public record BoardPrincipal(
         );
     }
 
+    public static BoardPrincipal of(Long userId, String username, Collection<? extends GrantedAuthority> authorities) {
+        return new BoardPrincipal(
+                userId,
+                username,
+                "",          // JWT 인증 방식이므로 비밀번호는 빈 값
+                authorities,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
     @Override public Collection<? extends GrantedAuthority> getAuthorities() {return authorities;}
     @Override public String getPassword() {return password;}
     @Override public String getUsername() {return username;}

@@ -41,8 +41,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        String accessToken = jwtTokenProvider.createAccessToken(id, username, roles);
-        String refreshToken = jwtTokenProvider.createRefreshToken(username);
+        // GUEST가 아닌 첫 번째 역할을 activeRole로 설정 (신규 소셜 가입 시 ROLE_GUEST)
+        String activeRole = roles.stream()
+                .filter(role -> !role.equalsIgnoreCase("ROLE_GUEST"))
+                .findFirst()
+                .orElseGet(() -> roles.isEmpty() ? "ROLE_GUEST" : roles.getFirst());
+
+        String accessToken  = jwtTokenProvider.createAccessToken(id, username, roles, activeRole);
+        String refreshToken = jwtTokenProvider.createRefreshToken(username, activeRole);
 
         redisTemplate.opsForValue().set(
                 REFRESH_TOKEN_PREFIX + username,
@@ -62,8 +68,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        boolean isGuest = authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_GUEST"));
+        boolean isGuest = roles.stream().anyMatch(role -> role.equals("ROLE_GUEST"));
 
         // Access Token + isGuest만 URL에 담기 (Refresh Token 제거)
         String targetUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL)

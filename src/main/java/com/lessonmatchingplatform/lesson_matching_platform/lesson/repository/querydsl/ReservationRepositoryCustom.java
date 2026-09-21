@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.querydsl;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.StudentReservationResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReservationResponse;
 import org.springframework.data.domain.Page;
@@ -16,4 +17,6 @@ public interface ReservationRepositoryCustom {
     List<Reservation> findActiveReservationsByTutorIdAndDateRange(Long tutorId, LocalDate startDate, LocalDate endDate);
 
     Page<ReservationResponse> findTutorReservations(Long tutorId, ReservationStatus status, Pageable pageable);
+
+    Page<StudentReservationResponse> findStudentReservations(Long studentId, ReservationStatus status, Pageable pageable);
 }

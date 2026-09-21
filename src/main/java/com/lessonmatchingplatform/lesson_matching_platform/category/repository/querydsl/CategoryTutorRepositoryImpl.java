@@ -134,8 +134,7 @@ public class CategoryTutorRepositoryImpl implements CategoryTutorRepositoryCusto
                         Projections.constructor(
                                 StyleTypeDto.class,
                                 tutorStyle.styleId,
-                                tutorStyle.styleType,
-                                tutorStyle.styleType.stringValue()
+                                tutorStyle.styleType
                         )
                 )
                 .from(styleTutor)
@@ -253,8 +252,7 @@ public class CategoryTutorRepositoryImpl implements CategoryTutorRepositoryCusto
                 .select(Projections.constructor(
                         StyleTypeDto.class,
                         tutorStyle.styleId,
-                        tutorStyle.styleType,
-                        tutorStyle.styleType.stringValue()
+                        tutorStyle.styleType
                         )
                 )
                 .from(styleTutor)

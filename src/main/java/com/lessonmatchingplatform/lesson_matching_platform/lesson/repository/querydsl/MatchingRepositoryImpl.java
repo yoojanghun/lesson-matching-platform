@@ -25,31 +25,6 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<MyMatchingResponseAsTutor> findAllByTutorId(Long tutorId) {
-        return jpaQueryFactory
-                .select(Projections.constructor(
-                        MyMatchingResponseAsTutor.class,
-                        matching.matchingId,
-                        matching.requestMsg,
-                        matching.status,
-                        userAccount.name,
-                        userAccount.gender,
-                        userAccount.birthDate,
-                        userAccount.phoneNumber,
-                        userAccount.email,
-                        matching.createdAt
-                ))
-                .from(matching).distinct()
-                .leftJoin(matching.studentAccount, studentAccount)
-                .leftJoin(studentAccount.userAccount, userAccount)
-                .where(
-                        matching.tutorAccount.tutorId.eq(tutorId)
-                )
-                .orderBy(matching.createdAt.desc())         // 최신순 정렬
-                .fetch();
-    }
-
-    @Override
     public Page<MyMatchingResponseAsTutor> findMatchingsByTutorId(Long tutorId, Pageable pageable) {
         List<MyMatchingResponseAsTutor> content = jpaQueryFactory
                 .select(Projections.constructor(
@@ -83,19 +58,6 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
-    }
-
-    @Override
-    public List<Matching> findAllByStudentId(Long studentId) {
-        return jpaQueryFactory
-                .selectFrom(matching).distinct()
-                .leftJoin(matching.tutorAccount, tutorAccount).fetchJoin()
-                .leftJoin(tutorAccount.userAccount, userAccount).fetchJoin()
-                .where(
-                        matching.studentAccount.studentId.eq(studentId)
-                )
-                .orderBy(matching.createdAt.desc())         // 최신순 정렬
-                .fetch();
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.Le
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonScheduleStatusRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.TutorDirectReservationRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReservationResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.StudentReservationResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import jakarta.validation.Valid;
@@ -71,6 +72,21 @@ public class ReservationController {
     }
 
     // 학생이 특정 시간에 레슨 신청하면 강사가 해당 레슨을 취소, 거절, 승인 등을 처리
+    
+    // STUDENT는 자신이 신청한 Reservation들을 Page 형태로 확인할 수 있음
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/student/my")
+    public ResponseEntity<Page<StudentReservationResponse>> getStudentReservations(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestParam(required = false) ReservationStatus status,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Long studentId = boardPrincipal.id();
+        Page<StudentReservationResponse> reservations = lessonMatchingService.getStudentReservations(studentId, status, pageable);
+
+        return ResponseEntity.ok().body(reservations);
+    }
+
     @PreAuthorize("hasRole('TUTOR')")
     @PatchMapping("/{reservationId}/status")
     public ResponseEntity<Void> updateLessonScheduleStatus(

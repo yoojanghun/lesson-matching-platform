@@ -14,8 +14,7 @@ import java.util.Set;
 @ToString(callSuper = true)
 @Getter
 @Table(indexes = {
-        @Index(columnList = "name"),
-        @Index(columnList = "birthDate"),
+        @Index(columnList = "name")
 })
 @Entity
 public class UserAccount extends AuditingFields {

@@ -45,7 +45,7 @@ public class Matching extends AuditingFields {
     @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL)
     private LessonReview lessonReview;
 
-    @Column(nullable = false)
+    @Column
     private Integer pricePerLesson;
 
     protected Matching() {}

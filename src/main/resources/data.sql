@@ -36,51 +36,47 @@ VALUES
 (7, 'COMPOSITION_MIDI', 2, NOW(), 'SYSTEM'),
 (7, 'COMPOSITION_JAZZ', 3, NOW(), 'SYSTEM');
 
-DELETE FROM user_account WHERE user_id LIKE 'student%@test.com';
+DELETE FROM user_account WHERE user_id LIKE 'student%@test.com' OR user_id LIKE 'tutor%@test.com';
 
+-- 모두 비밀번호는: testaccount123
 INSERT INTO user_account (user_id, user_password, name, gender, birth_date, phone_number, email, created_at, created_by)
 VALUES
-('kim_piano', '{noop}pass1234', '김여익', 'MALE', '1990-05-15', '010-1111-2222', 'kim_piano@example.com', NOW(), 'SYSTEM'),
-('lee_violin', '{noop}pass5678', '이지윤', 'FEMALE', '1992-08-20', '010-2222-3333', 'lee_violin@example.com', NOW(), 'SYSTEM'),
-('park_cello', '{noop}pw9999', '박정헥', 'MALE', '1988-12-01', '010-3333-4444', 'park_cello@example.com', NOW(), 'SYSTEM'),
-('jung_guitar', '{noop}gtr777', '정발산', 'MALE', '1991-07-22', '010-5555-6666', 'jung_gtr@example.com', NOW(), 'SYSTEM'),
-('kang_vocal', '{noop}vocal000', '강희은', 'FEMALE', '1993-11-05', '010-6666-7777', 'kang_vocal@example.com', NOW(), 'SYSTEM'),
-('yoon_drum', '{noop}drummer1', '윤희재', 'MALE', '1989-01-30', '010-7777-8888', 'yoon_drum@example.com', NOW(), 'SYSTEM'),
-('lim_bass', '{noop}bassline2', '임재연', 'FEMALE', '1994-06-14', '010-8888-9999', 'lim_bass@example.com', NOW(), 'SYSTEM'),
-('piano_master', '{noop}pass123', '마스터', 'FEMALE', '1991-03-22', '010-1111-0001', 'master_p@example.com', NOW(), 'SYSTEM'),
-('jazz_piano_lee', '{noop}pass456', '이지혁', 'MALE', '1993-12-10', '010-1111-0002', 'jazz_lee@example.com', NOW(), 'SYSTEM'),
-('classic_park', '{noop}pass789', '박남정', 'FEMALE', '1989-05-30', '010-1111-0003', 'classic_p@example.com', NOW(), 'SYSTEM'),
-('piano_teacher_choi', '{noop}pass101', '최태민', 'MALE', '1994-07-15', '010-1111-0004', 'choi_edu@example.com', NOW(), 'SYSTEM'),
-('emotion_piano', '{noop}pass202', '김감성', 'FEMALE', '1992-02-28', '010-1111-0005', 'emotion_p@example.com', NOW(), 'SYSTEM'),
-('violin_strad', '{noop}vpass1', '스트라', 'MALE', '1990-11-11', '010-2222-0001', 'strad_v@example.com', NOW(), 'SYSTEM'),
-('bowing_queen', '{noop}vpass2', '보우퀸', 'FEMALE', '1995-06-20', '010-2222-0002', 'bow_queen@example.com', NOW(), 'SYSTEM'),
-('violin_kim_v', '{noop}vpass3', '김바이', 'MALE', '1988-08-05', '010-2222-0003', 'kim_v@example.com', NOW(), 'SYSTEM'),
-('string_expert', '{noop}vpass4', '현전문', 'FEMALE', '1991-04-12', '010-2222-0004', 'string_e@example.com', NOW(), 'SYSTEM'),
-('violin_lesson_pro', '{noop}vpass5', '프로바이', 'MALE', '1993-01-25', '010-2222-0005', 'v_pro@example.com', NOW(), 'SYSTEM'),
-('student_aa', '{noop}stud123', '안소희', 'MALE', '2005-04-12', '010-1234-1111', 'aa_stud@example.com', NOW(), 'SYSTEM'),
-('student_bb', '{noop}stud456', '배수지', 'FEMALE', '2007-09-21', '010-2345-2222', 'bb_stud@example.com', NOW(), 'SYSTEM'),
-('music_lover', '{noop}love888', '사랑해', 'MALE', '1998-12-30', '010-3456-3333', 'lover@example.com', NOW(), 'SYSTEM'),
-('hobby_piano', '{noop}pnpn99', '취미생', 'FEMALE', '1992-05-05', '010-4567-4444', 'hobby_p@example.com', NOW(), 'SYSTEM'),
-('beginner_v', '{noop}begin1', '초보자', 'MALE', '2001-08-15', '010-5678-5555', 'begin_v@example.com', NOW(), 'SYSTEM'),
-('star_dust', '{noop}star77', '별가루', 'FEMALE', '2003-01-11', '010-6789-6666', 'star_d@example.com', NOW(), 'SYSTEM'),
-('blue_note', '{noop}blue00', '블루노', 'MALE', '1995-10-22', '010-7890-7777', 'blue_n@example.com', NOW(), 'SYSTEM'),
-('classic_fan', '{noop}fan123', '클래식팬', 'FEMALE', '1988-07-07', '010-8901-8888', 'classic_f@example.com', NOW(), 'SYSTEM'),
-('jazz_man', '{noop}jazzman1', '재즈맨', 'MALE', '1990-11-11', '010-9012-9999', 'jazz_m@example.com', NOW(), 'SYSTEM'),
-('dreamer_99', '{noop}dream99', '꿈나무', 'FEMALE', '1999-03-03', '010-0123-0000', 'dreamer@example.com', NOW(), 'SYSTEM'),
-('highschool_p', '{noop}pass111', '고딩이', 'MALE', '2008-05-15', '010-3333-1001', 'student_h@example.com', NOW(), 'SYSTEM'),
-('cello_beginner', '{noop}pass222', '첼린이', 'FEMALE', '1996-11-02', '010-3333-1002', 'cello_b@example.com', NOW(), 'SYSTEM'),
-('winter_sonata', '{noop}pass333', '겨울연가', 'FEMALE', '1985-01-20', '010-3333-1003', 'winter@example.com', NOW(), 'SYSTEM'),
-('rock_spirit', '{noop}pass444', '락스피릿', 'MALE', '2002-07-07', '010-3333-1004', 'rocker@example.com', NOW(), 'SYSTEM'),
-('melody_maker', '{noop}pass555', '멜로디', 'FEMALE', '1994-03-30', '010-3333-1005', 'melody@example.com', NOW(), 'SYSTEM'),
-('daily_music', '{noop}pass666', '데일리', 'MALE', '1991-09-12', '010-3333-1006', 'daily@example.com', NOW(), 'SYSTEM'),
-('vocal_dream', '{noop}pass777', '보컬꿈', 'FEMALE', '2006-12-25', '010-3333-1007', 'v_dream@example.com', NOW(), 'SYSTEM'),
-('unni_piano', '{noop}pass888', '피아노언니', 'FEMALE', '1989-06-18', '010-3333-1008', 'unni@example.com', NOW(), 'SYSTEM'),
-('mozar_k', '{noop}pass999', '모차르트', 'MALE', '2009-02-14', '010-3333-1009', 'mozar@example.com', NOW(), 'SYSTEM'),
-('student1@test.com', '{noop}password123', '테스트학생1', 'MALE',   '1995-01-01', '010-0001-0001', 'student1@test.com', NOW(), 'SYSTEM'),
-('student2@test.com', '{noop}password123', '테스트학생2', 'FEMALE', '1996-02-02', '010-0002-0002', 'student2@test.com', NOW(), 'SYSTEM'),
-('student3@test.com', '{noop}password123', '테스트학생3', 'MALE',   '1997-03-03', '010-0003-0003', 'student3@test.com', NOW(), 'SYSTEM'),
-('student4@test.com', '{noop}password123', '테스트학생4', 'FEMALE', '1998-04-04', '010-0004-0004', 'student4@test.com', NOW(), 'SYSTEM'),
-('student5@test.com', '{noop}password123', '테스트학생5', 'MALE',   '1999-05-05', '010-0005-0005', 'student5@test.com', NOW(), 'SYSTEM');
+('tutor1@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터1',  'MALE',   '1995-01-01', '010-1001-0001', 'tutor1@test.com',  NOW(), 'SYSTEM'),
+('tutor2@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터2',  'FEMALE', '1996-02-02', '010-1002-0002', 'tutor2@test.com',  NOW(), 'SYSTEM'),
+('tutor3@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터3',  'MALE',   '1997-03-03', '010-1003-0003', 'tutor3@test.com',  NOW(), 'SYSTEM'),
+('tutor4@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터4',  'FEMALE', '1998-04-04', '010-1004-0004', 'tutor4@test.com',  NOW(), 'SYSTEM'),
+('tutor5@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터5',  'MALE',   '1999-05-05', '010-1005-0005', 'tutor5@test.com',  NOW(), 'SYSTEM'),
+('tutor6@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터6',  'MALE',   '1995-01-01', '010-1006-0006', 'tutor6@test.com',  NOW(), 'SYSTEM'),
+('tutor7@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터7',  'FEMALE', '1996-02-02', '010-1007-0007', 'tutor7@test.com',  NOW(), 'SYSTEM'),
+('tutor8@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터8',  'MALE',   '1997-03-03', '010-1008-0008', 'tutor8@test.com',  NOW(), 'SYSTEM'),
+('tutor9@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터9',  'FEMALE', '1998-04-04', '010-1009-0009', 'tutor9@test.com',  NOW(), 'SYSTEM'),
+('tutor10@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터10', 'MALE',   '1999-05-05', '010-1010-0010', 'tutor10@test.com', NOW(), 'SYSTEM'),
+('tutor11@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터11', 'MALE',   '1995-01-01', '010-1011-0011', 'tutor11@test.com', NOW(), 'SYSTEM'),
+('tutor12@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터12', 'FEMALE', '1996-02-02', '010-1012-0012', 'tutor12@test.com', NOW(), 'SYSTEM'),
+('tutor13@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터13', 'MALE',   '1997-03-03', '010-1013-0013', 'tutor13@test.com', NOW(), 'SYSTEM'),
+('tutor14@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터14', 'FEMALE', '1998-04-04', '010-1014-0014', 'tutor14@test.com', NOW(), 'SYSTEM'),
+('tutor15@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터15', 'MALE',   '1999-05-05', '010-1015-0015', 'tutor15@test.com', NOW(), 'SYSTEM'),
+('tutor16@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터16', 'MALE',   '1995-01-01', '010-1016-0016', 'tutor16@test.com', NOW(), 'SYSTEM'),
+('tutor17@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트튜터17', 'FEMALE', '1996-02-02', '010-1017-0017', 'tutor17@test.com', NOW(), 'SYSTEM'),
+('student1@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생1',  'MALE',   '1995-01-01', '010-2001-0001', 'student1@test.com',  NOW(), 'SYSTEM'),
+('student2@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생2',  'FEMALE', '1996-02-02', '010-2002-0002', 'student2@test.com',  NOW(), 'SYSTEM'),
+('student3@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생3',  'MALE',   '1997-03-03', '010-2003-0003', 'student3@test.com',  NOW(), 'SYSTEM'),
+('student4@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생4',  'FEMALE', '1998-04-04', '010-2004-0004', 'student4@test.com',  NOW(), 'SYSTEM'),
+('student5@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생5',  'MALE',   '1999-05-05', '010-2005-0005', 'student5@test.com',  NOW(), 'SYSTEM'),
+('student6@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생6',  'MALE',   '1997-03-03', '010-2006-0006', 'student6@test.com',  NOW(), 'SYSTEM'),
+('student7@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생7',  'FEMALE', '1998-04-04', '010-2007-0007', 'student7@test.com',  NOW(), 'SYSTEM'),
+('student8@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생8',  'MALE',   '1999-05-05', '010-2008-0008', 'student8@test.com',  NOW(), 'SYSTEM'),
+('student9@test.com',  '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생9',  'MALE',   '1995-01-01', '010-2009-0009', 'student9@test.com',  NOW(), 'SYSTEM'),
+('student10@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생10', 'FEMALE', '1996-02-02', '010-2010-0010', 'student10@test.com', NOW(), 'SYSTEM'),
+('student11@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생11', 'MALE',   '1997-03-03', '010-2011-0011', 'student11@test.com', NOW(), 'SYSTEM'),
+('student12@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생12', 'FEMALE', '1998-04-04', '010-2012-0012', 'student12@test.com', NOW(), 'SYSTEM'),
+('student13@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생13', 'MALE',   '1999-05-05', '010-2013-0013', 'student13@test.com', NOW(), 'SYSTEM'),
+('student14@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생14', 'MALE',   '1995-01-01', '010-2014-0014', 'student14@test.com', NOW(), 'SYSTEM'),
+('student15@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생15', 'FEMALE', '1996-02-02', '010-2015-0015', 'student15@test.com', NOW(), 'SYSTEM'),
+('student16@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생16', 'MALE',   '1997-03-03', '010-2016-0016', 'student16@test.com', NOW(), 'SYSTEM'),
+('student17@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생17', 'FEMALE', '1998-04-04', '010-2017-0017', 'student17@test.com', NOW(), 'SYSTEM'),
+('student18@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생18', 'MALE',   '1999-05-05', '010-2018-0018', 'student18@test.com', NOW(), 'SYSTEM'),
+('student19@test.com', '{bcrypt}$2a$10$mr58N9D/.RfsyxIhxcSXB.RWt7RE5upuOBVAsdSmcE5UgRjwQe.wm', '테스트학생19', 'MALE',   '1995-01-01', '010-2019-0019', 'student19@test.com', NOW(), 'SYSTEM');
 
 INSERT IGNORE INTO role (role_type, created_at, created_by)
 VALUES
@@ -89,24 +85,8 @@ VALUES
 ('GUEST', NOW(), 'SYSTEM');
 
 INSERT IGNORE INTO user_role (user_id, role_id, created_at, created_by)
-VALUES
-    (1, 1, NOW(), 'SYSTEM'),
-    (2, 1, NOW(), 'SYSTEM'),
-    (3, 1, NOW(), 'SYSTEM'),
-    (4, 1, NOW(), 'SYSTEM'),
-    (5, 1, NOW(), 'SYSTEM'),
-    (6, 1, NOW(), 'SYSTEM'),
-    (7, 1, NOW(), 'SYSTEM'),
-    (8, 1, NOW(), 'SYSTEM'),
-    (9, 1, NOW(), 'SYSTEM'),
-    (10, 1, NOW(), 'SYSTEM'),
-    (11, 1, NOW(), 'SYSTEM'),
-    (12, 1, NOW(), 'SYSTEM'),
-    (13, 1, NOW(), 'SYSTEM'),
-    (14, 1, NOW(), 'SYSTEM'),
-    (15, 1, NOW(), 'SYSTEM'),
-    (16, 1, NOW(), 'SYSTEM'),
-    (17, 1, NOW(), 'SYSTEM');
+SELECT user_id, 1, NOW(), 'SYSTEM' FROM user_account WHERE email LIKE 'tutor%@test.com';
+
 -- Assign STUDENT role to all student accounts
 INSERT IGNORE INTO user_role (user_id, role_id, created_at, created_by)
 SELECT user_id, 2, NOW(), 'SYSTEM' FROM user_account WHERE email LIKE 'student%@test.com';
@@ -301,39 +281,22 @@ VALUES
 -- ──────────────────────────────────────────────────────────────
 INSERT IGNORE INTO goal_tutor (tutor_id, goal_id)
 VALUES
--- 1번 강사 (피아노 - 취미/입시)
 (1, 1), (1, 3),
--- 2번 강사 (바이올린 - 취미/단기)
 (2, 1), (2, 5),
--- 3번 강사 (첼로 - 취미/단기)
 (3, 1), (3, 5),
--- 4번 강사 (기타 - 취미/단기)
 (4, 1), (4, 5),
--- 5번 강사 (보컬 - 취미/입시/콩쿠르)
 (5, 1), (5, 2), (5, 3),
--- 6번 강사 (드럼 - 취미/단기)
 (6, 1), (6, 5),
--- 7번 강사 (베이스 - 취미/창작)
 (7, 1), (7, 6),
--- 8번 강사 (피아노 클래식 - 입시/콩쿠르)
 (8, 2), (8, 3),
--- 9번 강사 (재즈 피아노 - 취미/창작)
 (9, 1), (9, 6),
--- 10번 강사 (성인 취미 피아노 - 취미/단기)
 (10, 1), (10, 5),
--- 11번 강사 (어린이 피아노 - 취미/자격증)
 (11, 1), (11, 4),
--- 12번 강사 (뉴에이지 - 취미/창작)
 (12, 1), (12, 6),
--- 13번 강사 (바이올린 심화 - 입시/콩쿠르)
 (13, 2), (13, 3),
--- 14번 강사 (바이올린 기초 - 입시/단기)
 (14, 3), (14, 5),
--- 15번 강사 (바이올린 취미 - 취미/단기)
 (15, 1), (15, 5),
--- 16번 강사 (앙상블 - 취미/창작)
 (16, 1), (16, 6),
--- 17번 강사 (입시 전문 - 입시/콩쿠르)
 (17, 2), (17, 3);
 
 -- ──────────────────────────────────────────────────────────────
@@ -367,38 +330,26 @@ VALUES
 -- ──────────────────────────────────────────────────────────────
 INSERT IGNORE INTO tutor_lesson_price (tutor_id, class_name, price, created_at, created_by)
 VALUES
-(1,  '입문 클래스 (1시간)',   30000, NOW(), 'SYSTEM'),
-(1,  '심화 클래스 (1.5시간)', 45000, NOW(), 'SYSTEM'),
-(2,  '기초 클래스 (1시간)',   35000, NOW(), 'SYSTEM'),
-(2,  '중급 클래스 (1시간)',   45000, NOW(), 'SYSTEM'),
-(3,  '취미 클래스 (1시간)',   40000, NOW(), 'SYSTEM'),
-(4,  '통기타 기초 (1시간)',   25000, NOW(), 'SYSTEM'),
-(4,  '일렉기타 중급 (1시간)', 35000, NOW(), 'SYSTEM'),
-(5,  '보컬 기초 (1시간)',     30000, NOW(), 'SYSTEM'),
-(5,  '보컬 심화 (1시간)',     50000, NOW(), 'SYSTEM'),
-(6,  '드럼 기초 (1시간)',     30000, NOW(), 'SYSTEM'),
-(7,  '베이스 입문 (1시간)',   35000, NOW(), 'SYSTEM'),
-(8,  '클래식 기초 (1시간)',   50000, NOW(), 'SYSTEM'),
-(8,  '클래식 심화 (1.5시간)',  70000, NOW(), 'SYSTEM'),
-(9,  '재즈 입문 (1시간)',     35000, NOW(), 'SYSTEM'),
-(10, '취미 피아노 (1시간)',   25000, NOW(), 'SYSTEM'),
-(11, '어린이 클래스 (45분)',  20000, NOW(), 'SYSTEM'),
-(12, '뉴에이지 클래스 (1시간)', 35000, NOW(), 'SYSTEM'),
-(13, '심화/입시 클래스 (1시간)', 60000, NOW(), 'SYSTEM'),
-(14, '바이올린 기초 (1시간)', 40000, NOW(), 'SYSTEM'),
-(15, '바이올린 취미 (1시간)', 30000, NOW(), 'SYSTEM'),
-(16, '앙상블 클래스 (1시간)', 45000, NOW(), 'SYSTEM'),
-(17, '입시 전문 (1시간)',     70000, NOW(), 'SYSTEM'),
-(17, '입시 집중 (2시간)',    120000, NOW(), 'SYSTEM');
-
--- ──────────────────────────────────────────────────────────────
--- student_account: nGrinder 부하 테스트 학생 계정 프로필 (id 37~41)
--- user_account와 @MapsId 관계이므로 student_id = user_account.id
--- ──────────────────────────────────────────────────────────────
-INSERT IGNORE INTO student_account (student_id, introduction, created_at, created_by)
-VALUES
-(37, 'nGrinder 부하 테스트용 학생 계정입니다. (1)', NOW(), 'SYSTEM'),
-(38, 'nGrinder 부하 테스트용 학생 계정입니다. (2)', NOW(), 'SYSTEM'),
-(39, 'nGrinder 부하 테스트용 학생 계정입니다. (3)', NOW(), 'SYSTEM'),
-(40, 'nGrinder 부하 테스트용 학생 계정입니다. (4)', NOW(), 'SYSTEM'),
-(41, 'nGrinder 부하 테스트용 학생 계정입니다. (5)', NOW(), 'SYSTEM');
+(1,  '입문 클래스',   30000, NOW(), 'SYSTEM'),
+(1,  '심화 클래스', 45000, NOW(), 'SYSTEM'),
+(2,  '기초 클래스',   35000, NOW(), 'SYSTEM'),
+(2,  '중급 클래스',   45000, NOW(), 'SYSTEM'),
+(3,  '취미 클래스',   40000, NOW(), 'SYSTEM'),
+(4,  '통기타 기초',   25000, NOW(), 'SYSTEM'),
+(4,  '일렉기타 중급', 35000, NOW(), 'SYSTEM'),
+(5,  '보컬 기초',     30000, NOW(), 'SYSTEM'),
+(5,  '보컬 심화',     50000, NOW(), 'SYSTEM'),
+(6,  '드럼 기초',     30000, NOW(), 'SYSTEM'),
+(7,  '베이스 입문',   35000, NOW(), 'SYSTEM'),
+(8,  '클래식 기초',   50000, NOW(), 'SYSTEM'),
+(8,  '클래식 심화',  70000, NOW(), 'SYSTEM'),
+(9,  '재즈 입문',     35000, NOW(), 'SYSTEM'),
+(10, '취미 피아노',   25000, NOW(), 'SYSTEM'),
+(11, '어린이 클래스',  20000, NOW(), 'SYSTEM'),
+(12, '뉴에이지 클래스', 35000, NOW(), 'SYSTEM'),
+(13, '심화/입시 클래스', 60000, NOW(), 'SYSTEM'),
+(14, '바이올린 기초', 40000, NOW(), 'SYSTEM'),
+(15, '바이올린 취미', 30000, NOW(), 'SYSTEM'),
+(16, '앙상블 클래스', 45000, NOW(), 'SYSTEM'),
+(17, '입시 전문',     70000, NOW(), 'SYSTEM'),
+(17, '입시 집중',    120000, NOW(), 'SYSTEM');

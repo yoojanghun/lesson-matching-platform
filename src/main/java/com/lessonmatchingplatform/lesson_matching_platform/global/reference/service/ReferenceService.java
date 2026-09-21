@@ -10,10 +10,16 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.repository.Tu
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.global.reference.dto.response.ReferenceAllResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.type.TutorSortType;
+import com.lessonmatchingplatform.lesson_matching_platform.global.reference.dto.response.EnumReferenceDto;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,7 +30,8 @@ public class ReferenceService {
     private final CategoryRepository categoryRepository;
     private final TutorStyleRepository tutorStyleRepository;
     private final LessonGoalRepository lessonGoalRepository;
-
+    
+    @Cacheable(value = "references")
     public ReferenceAllResponse getAllReferences() {
         List<LocationDto> locations = locationRepository.findAll().stream()
                 .map(LocationDto::of)
@@ -42,9 +49,18 @@ public class ReferenceService {
                 .map(GoalTypeDto::of)
                 .toList();
 
-        return ReferenceAllResponse.of(locations, categories, styles, goals);
+        List<EnumReferenceDto> lessonTypes = Arrays.stream(LessonType.values())
+                .map(type -> new EnumReferenceDto(type.name(), type.getDescription()))
+                .toList();
+
+        List<EnumReferenceDto> sortTypes = Arrays.stream(TutorSortType.values())
+                .map(type -> new EnumReferenceDto(type.name(), type.getDescription()))
+                .toList();
+
+        return ReferenceAllResponse.of(locations, categories, styles, goals, lessonTypes, sortTypes);
     }
 
+    @Cacheable(value = "locations")
     public List<LocationDto> getLocations() {
         return locationRepository.findAll().stream()
                 .map(LocationDto::of)

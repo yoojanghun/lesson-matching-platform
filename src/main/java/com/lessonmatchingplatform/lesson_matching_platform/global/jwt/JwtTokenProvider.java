@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.jwt;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -7,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -21,50 +20,56 @@ public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
 
-    // 서명 키 생성
     private SecretKey getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(jwtProperties.getSecret());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Access Token 생성
-    public String createAccessToken(Long userId, String username, List<String> roles) {
+    /**
+     * Access Token 생성
+     * @param activeRole 현재 활성 역할 (예: "ROLE_STUDENT"). 보유 역할 중 하나여야 함.
+     */
+    public String createAccessToken(Long userId, String username, List<String> roles, String activeRole) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtProperties.getAccessTokenExpiration());
 
         return Jwts.builder()
                 .subject(username)
                 .claim("userId", userId)
-                .claim("roles", roles) // JWT Payload에 role 추가
+                .claim("roles", roles)           // 보유 역할 전체 목록
+                .claim("activeRole", activeRole)  // 현재 활성 역할
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    // Refresh Token 생성
-    public String createRefreshToken(String username) {
-        return buildToken(username, jwtProperties.getRefreshTokenExpiration());
-    }
-
-    private String buildToken(String username, long expirationMs) {
+    /**
+     * Refresh Token 생성 — activeRole 클레임 포함
+     * Access Token 만료 후 재발급 시 역할 전환 상태를 유지하기 위해 activeRole을 Refresh Token에도 기록합니다.
+     */
+    public String createRefreshToken(String username, String activeRole) {
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + expirationMs);
+        Date expiry = new Date(now.getTime() + jwtProperties.getRefreshTokenExpiration());
 
         return Jwts.builder()
                 .subject(username)
+                .claim("activeRole", activeRole)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    // 토큰에서 username 추출
     public String getUsername(String token) {
         return parseClaims(token).getSubject();
     }
 
-    // 토큰 유효성 검증
+    // 토큰에서 현재 활성 역할 클레임 추출 (예: "ROLE_STUDENT"). Access Token / Refresh Token 모두 사용 가능.
+    public String getActiveRole(String token) {
+        return parseClaims(token).get("activeRole", String.class);
+    }
+
     public boolean validateToken(String token) {
         try {
             parseClaims(token);
@@ -86,9 +91,8 @@ public class JwtTokenProvider {
     // 토큰으로 Authentication(인증 토큰 신분증) 객체 반환
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
+        Long userId = claims.get("userId", Long.class);
         String username = claims.getSubject();
-
-        // Claims에서 roles 리스트 추출
         List<?> rawRoles = claims.get("roles", List.class);
 
         List<SimpleGrantedAuthority> authorities = Collections.emptyList();
@@ -99,10 +103,9 @@ public class JwtTokenProvider {
                     .toList();
         }
 
-        // UserDetails 구현체인 Spring Security 기본 User 객체 생성
-        UserDetails principal = new User(username, "", authorities);
+        BoardPrincipal principal = BoardPrincipal.of(userId, username, authorities);
 
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
 
     // 토큰 비밀 키로 검증한 후, payload 반환

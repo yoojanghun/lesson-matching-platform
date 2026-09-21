@@ -16,6 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentListResponse;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/payments")
@@ -34,6 +40,18 @@ public class LessonPaymentController {
         PaymentPrepareResponse response = lessonPaymentService.preparePayment(studentId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 학생이 자신의 결제 정보를 확인할 수 있도록 함
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping
+    public ResponseEntity<Page<PaymentListResponse>> getStudentPayments(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Long studentId = boardPrincipal.id();
+        Page<PaymentListResponse> response = lessonPaymentService.getStudentPayments(studentId, pageable);
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('STUDENT')")

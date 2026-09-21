@@ -41,7 +41,7 @@ public class SignUpController {
                         HttpServletResponse response) {
                 signUpService.signUpTutorFromGuest(boardPrincipal);
 
-                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.username());
+                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
                 ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
@@ -67,7 +67,7 @@ public class SignUpController {
                         HttpServletResponse response) {
                 signUpService.signUpStudentFromGuest(boardPrincipal);
 
-                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.username());
+                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
                 ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
@@ -84,7 +84,7 @@ public class SignUpController {
                 Long id = boardPrincipal.id();
                 signUpService.switchTutor(id);
 
-                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.username());
+                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
                 ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
@@ -101,7 +101,7 @@ public class SignUpController {
                 Long id = boardPrincipal.id();
                 signUpService.switchStudent(id);
 
-                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.username());
+                AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
                 ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
                 response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 

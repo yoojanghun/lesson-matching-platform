@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "인증", description = "로그인 / 토큰 재발급 / 로그아웃 API")
+@Tag(name = "인증", description = "로그인 / 토큰 재발급 / 로그아웃 / 역할 전환 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @RestController
@@ -46,6 +46,25 @@ public class AuthController {
         }
 
         AuthTokens tokens = authService.refresh(refreshToken);
+
+        ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken(), 7 * 24 * 60 * 60);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        TokenResponse tokenResponse = TokenResponse.of(tokens.accessToken(), tokens.expiresIn());
+        return ResponseEntity.ok(tokenResponse);
+    }
+
+    @Operation(
+        summary = "역할 전환",
+        description = "보유한 역할(STUDENT/TUTOR) 중 다른 역할로 전환하는 새 토큰을 발급합니다."
+    )
+    @PostMapping("/switch-role")
+    public ResponseEntity<TokenResponse> switchRole(
+            @AuthenticationPrincipal BoardPrincipal principal,
+            @RequestParam String role,
+            HttpServletResponse response
+    ) {
+        AuthTokens tokens = authService.switchRole(principal.id(), role);
 
         ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken(), 7 * 24 * 60 * 60);
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

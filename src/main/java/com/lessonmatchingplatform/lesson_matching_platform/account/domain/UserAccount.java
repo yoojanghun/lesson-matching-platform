@@ -75,8 +75,8 @@ public class UserAccount extends AuditingFields {
     }
 
     // 학생 가입 (최소 정보만 필수 — 성별/생년월일/전화번호는 매칭 시 입력)
-    public static UserAccount ofRegister(String userId, String userPassword, String name, String email) {
-        return new UserAccount(userId, userPassword, name, null, null, null, email, null, null);
+    public static UserAccount ofRegister(String userId, String userPassword, String name) {
+        return new UserAccount(userId, userPassword, name, null, null, null, null, null, null);
     }
 
     public void updatePhoneNumber(String phoneNumber) {

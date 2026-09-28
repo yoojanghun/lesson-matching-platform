@@ -4,12 +4,14 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Locati
 
 public record LocationDto(
         Long locationId,
+        Long parentId,
         String name
 ) {
 
     public static LocationDto of(Location location) {
         return new LocationDto(
                 location.getLocationId(),
+                location.getParent() != null ? location.getParent().getLocationId() : null,
                 location.getName()
         );
     }

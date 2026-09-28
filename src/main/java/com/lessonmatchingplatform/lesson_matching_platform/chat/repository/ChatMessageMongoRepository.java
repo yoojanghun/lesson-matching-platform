@@ -17,6 +17,12 @@ public interface ChatMessageMongoRepository extends MongoRepository<ChatMessageD
     Slice<ChatMessageDocument> findByStudentIdAndTutorIdAndMatchingIdIsNullOrderByCreatedAtDesc(
             Long studentId, Long tutorId, Pageable pageable);
 
+    // 3. 학생-튜터 간 전체 대화 내역 조회 (문의 + 매칭 통합 최신순 페이징)
+    Slice<ChatMessageDocument> findByStudentIdAndTutorIdOrderByCreatedAtDesc(
+            Long studentId, Long tutorId, Pageable pageable);
+
+    List<ChatMessageDocument> findByStudentIdOrTutorIdOrderByCreatedAtDesc(Long studentId, Long tutorId);
+
     // 매칭 채팅방 읽음 처리 (상대방이 보낸 unread 메시지만 targets)
     @Query("{ 'matching_id': ?0, 'sender_id': { $ne: ?1 }, 'is_read': false }")
     List<ChatMessageDocument> findUnreadMatchingMessages(Long matchingId, Long currentUserId);

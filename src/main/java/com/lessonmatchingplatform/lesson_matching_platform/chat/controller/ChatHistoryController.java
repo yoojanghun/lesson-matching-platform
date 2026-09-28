@@ -2,7 +2,9 @@ package com.lessonmatchingplatform.lesson_matching_platform.chat.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.chat.domain.ChatMessageDocument;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.ChatMessageDto;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.dto.ChatRoomSummaryDto;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.repository.ChatMessageMongoRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.chat.service.ChatRoomService;
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -15,12 +17,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/chat")
 @RestController
 public class ChatHistoryController {
 
     private final ChatMessageMongoRepository chatMessageMongoRepository;
+    private final ChatRoomService chatRoomService;
+
+    @GetMapping("/rooms")
+    public ResponseEntity<List<ChatRoomSummaryDto>> getChatRooms(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal
+    ) {
+        if (boardPrincipal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok(chatRoomService.getRooms(boardPrincipal.id()));
+    }
 
     @GetMapping("/history")
     public ResponseEntity<Slice<ChatMessageDto>> getChatHistory(
@@ -43,12 +59,12 @@ public class ChatHistoryController {
         PageRequest pageable = PageRequest.of(page, size);
 
         Slice<ChatMessageDocument> history;
-        if (matchingId != null) {           // 매칭 확정건 채팅 내역
+        if (matchingId != null) {           // 특정 매칭 건에 국한된 내역 조회 시
             history = chatMessageMongoRepository.findByMatchingIdAndStudentIdAndTutorIdOrderByCreatedAtDesc(
                     matchingId, studentId, tutorId, pageable
             );
-        } else {                            // 사전 문의 채팅 내역
-            history = chatMessageMongoRepository.findByStudentIdAndTutorIdAndMatchingIdIsNullOrderByCreatedAtDesc(
+        } else {                            // 사전 문의 + 매칭 통합 대화 내역 조회
+            history = chatMessageMongoRepository.findByStudentIdAndTutorIdOrderByCreatedAtDesc(
                     studentId, tutorId, pageable
             );
         }

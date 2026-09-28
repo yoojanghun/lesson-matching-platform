@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
@@ -153,6 +154,24 @@ public class LessonMatchingService {
         );
 
         reservationRepository.save(reservation);
+    }
+
+    // 튜터 또는 학생이 특정 매칭의 예약 목록 조회 (레슨 스케줄)
+    @Transactional(readOnly = true)
+    public Slice<ReservationResponse> getReservationsByMatching(Long id, Long matchingId, Pageable pageable) {
+        Matching matching = matchingRepository.findById(matchingId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 매칭이 존재하지 않습니다."));
+
+        boolean isStudent = matching.getStudentAccount().getStudentId().equals(id);
+        boolean isTutor = matching.getTutorAccount().getTutorId().equals(id);
+
+
+        if (!isStudent && !isTutor) {
+            throw new IllegalStateException("해당 매칭에 접근할 권한이 없습니다.");
+        }
+
+            Slice<Reservation> responses = reservationRepository.findReservationsWithDetailsByMatchingId(matchingId, pageable);
+        return responses.map(ReservationResponse::of);
     }
 
     // Student가 Tutor에게 보냈던 reservation 취소

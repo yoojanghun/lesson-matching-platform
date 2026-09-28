@@ -38,8 +38,11 @@ public class SignUpController {
         @PostMapping("/tutor-from-guest")
         public ResponseEntity<TokenResponse> signUpTutorFromGuest(
                         @AuthenticationPrincipal BoardPrincipal boardPrincipal,
-                        HttpServletResponse response) {
-                signUpService.signUpTutorFromGuest(boardPrincipal);
+                        @Valid @RequestBody SwitchToTutorRequest request,
+                        HttpServletResponse response
+        ) {
+            Long id = boardPrincipal.id();
+                signUpService.signUpTutorFromGuest(id, request);
 
                 AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
                 ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
@@ -64,7 +67,8 @@ public class SignUpController {
         @PostMapping("/student-from-guest")
         public ResponseEntity<TokenResponse> signUpStudentFromGuest(
                         @AuthenticationPrincipal BoardPrincipal boardPrincipal,
-                        HttpServletResponse response) {
+                        HttpServletResponse response
+        ) {
                 signUpService.signUpStudentFromGuest(boardPrincipal);
 
                 AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
@@ -80,9 +84,11 @@ public class SignUpController {
         @PostMapping("/tutor-switch")
         public ResponseEntity<TokenResponse> postTutor(
                         @AuthenticationPrincipal BoardPrincipal boardPrincipal,              // Student로 등록한 계정
-                        HttpServletResponse response) {
+                        @Valid @RequestBody SwitchToTutorRequest request,
+                        HttpServletResponse response
+        ) {
                 Long id = boardPrincipal.id();
-                signUpService.switchTutor(id);
+                signUpService.switchTutor(id, request);
 
                 AuthTokens tokens = authService.issueTokenWithoutPassword(boardPrincipal.id());
                 ResponseCookie cookie = createRefreshTokenCookie(tokens.refreshToken());
@@ -97,7 +103,8 @@ public class SignUpController {
         @PostMapping("/student-switch")
         public ResponseEntity<TokenResponse> postStudent(
                         @AuthenticationPrincipal BoardPrincipal boardPrincipal,
-                        HttpServletResponse response) {
+                        HttpServletResponse response
+        ) {
                 Long id = boardPrincipal.id();
                 signUpService.switchStudent(id);
 

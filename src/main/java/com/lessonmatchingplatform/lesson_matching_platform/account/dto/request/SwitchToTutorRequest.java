@@ -3,22 +3,13 @@ package com.lessonmatchingplatform.lesson_matching_platform.account.dto.request;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record TutorSignUpRequest(
-        @NotBlank(message = "이름은 필수입니다.")
-        String name,
-
-        @NotBlank(message = "아이디는 필수입니다.")
-        @Size(min = 4, max = 20, message = "아이디는 4~20자여야 합니다.")
-        String userId,
-
-        @NotBlank(message = "비밀번호는 필수입니다.")
-        @Size(min = 8, message = "비밀번호는 최소 8자 이상이어야 합니다.")
-        String userPassword,
-
+public record SwitchToTutorRequest(
         @NotEmpty(message = "가르칠 악기를 하나 이상 선택해 주세요")
         List<Long> categoryIds,
 

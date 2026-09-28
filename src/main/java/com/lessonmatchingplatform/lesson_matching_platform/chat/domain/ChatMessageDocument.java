@@ -20,7 +20,10 @@ import java.time.LocalDateTime;
 @Document(collection = "chat_messages")         // MongoDB 컬렉션 이름
 @CompoundIndexes({
         @CompoundIndex(name = "idx_matching_created", def = "{'matching_id': 1, 'created_at': -1}"),
-        @CompoundIndex(name = "idx_inquiry_created", def = "{'student_id': 1, 'tutor_id': 1, 'matching_id': 1, 'created_at': -1}")
+        @CompoundIndex(name = "idx_inquiry_created", def = "{'student_id': 1, 'tutor_id': 1, 'matching_id': 1, 'created_at': -1}"),
+        @CompoundIndex(name = "idx_student_tutor_created", def = "{'student_id': 1, 'tutor_id': 1, 'created_at': -1}"),
+        @CompoundIndex(name = "idx_student_created", def = "{'student_id': 1, 'created_at': -1}"),
+        @CompoundIndex(name = "idx_tutor_created", def = "{'tutor_id': 1, 'created_at': -1}")
 })
 public class ChatMessageDocument {
 

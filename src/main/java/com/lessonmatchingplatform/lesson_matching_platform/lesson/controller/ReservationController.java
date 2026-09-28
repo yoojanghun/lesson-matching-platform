@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class ReservationController {
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 예약 신청
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/matchings/{matchingId}/tutors/{tutorId}")
-    public ResponseEntity<Void> requestLessonSchedule(
+    public ResponseEntity<Void> requestStudentLessonSchedule(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long tutorId,
             @PathVariable Long matchingId,
@@ -42,6 +43,20 @@ public class ReservationController {
         lessonMatchingService.lessonScheduleMatching(studentId, tutorId, matchingId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    // 튜터 또는 학생이 특정 매칭의 예약 목록 조회 (레슨 스케줄)
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TUTOR')")
+    @GetMapping("/matching/{matchingId}")
+    public ResponseEntity<Slice<ReservationResponse>> getReservationsByMatching(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long matchingId,
+            @PageableDefault(size = 15) Pageable pageable
+    ) {
+        Long id = boardPrincipal.id();
+
+        Slice<ReservationResponse> responses = lessonMatchingService.getReservationsByMatching(id, matchingId, pageable);
+        return ResponseEntity.ok(responses);
     }
 
     // Student가 Tutor에게 보냈던 reservation 취소
@@ -70,8 +85,6 @@ public class ReservationController {
 
         return ResponseEntity.ok().body(reservations);
     }
-
-    // 학생이 특정 시간에 레슨 신청하면 강사가 해당 레슨을 취소, 거절, 승인 등을 처리
     
     // STUDENT는 자신이 신청한 Reservation들을 Page 형태로 확인할 수 있음
     @PreAuthorize("hasRole('STUDENT')")

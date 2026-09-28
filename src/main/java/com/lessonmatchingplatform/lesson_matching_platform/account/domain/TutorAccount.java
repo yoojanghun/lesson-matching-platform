@@ -203,22 +203,18 @@ public class TutorAccount extends AuditingFields {
 
     protected TutorAccount() {}
 
-    private TutorAccount(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus, LessonType lessonType) {
+    private TutorAccount(UserAccount userAccount, String title, String introduction, List<String> educations, List<String> experiences, ProfileStatus profileStatus, LessonType lessonType) {
         this.userAccount = userAccount;
-        this.introduction = introduction;
-        this.experiences = experiences != null ? experiences : new ArrayList<>();
         this.title = title;
+        this.introduction = introduction;
         this.educations = educations != null ? educations : new ArrayList<>();
+        this.experiences = experiences != null ? experiences : new ArrayList<>();
         this.lessonType = lessonType;
         this.profileStatus = profileStatus;
     }
 
-    public static TutorAccount of(UserAccount userAccount, String introduction, List<String> experiences, String title, List<String> educations, ProfileStatus profileStatus, LessonType lessonType) {
-        return new TutorAccount(userAccount, introduction, experiences, title, educations, profileStatus, lessonType);
-    }
-
-    public static TutorAccount ofRegister(UserAccount userAccount) {
-        return new TutorAccount(userAccount, null, new ArrayList<>(), null, new ArrayList<>(), ProfileStatus.INCOMPLETE, null);
+    public static TutorAccount ofRegister(UserAccount userAccount, String title, String introduction, List<String> educations, List<String> experiences, LessonType lessonType) {
+        return new TutorAccount(userAccount, title, introduction, educations, experiences, ProfileStatus.COMPLETED, lessonType);
     }
 
     @Override

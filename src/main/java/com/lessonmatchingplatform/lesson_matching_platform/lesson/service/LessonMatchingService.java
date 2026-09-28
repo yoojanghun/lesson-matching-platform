@@ -339,4 +339,19 @@ public class LessonMatchingService {
 
         matching.setPrice(request.pricePerLesson());
     }
+
+    // 특정 매칭 상세 조회
+    @Transactional(readOnly = true)
+    public MatchingDetailResponse getMatchingDetail(Long id, Long matchingId) {
+        Matching matching = matchingRepository.findWithDetailsByMatchingId(matchingId);
+
+        boolean isStudent = matching.getStudentAccount().getStudentId().equals(id);
+        boolean isTutor = matching.getTutorAccount().getTutorId().equals(id);
+
+        if (!isTutor && !isStudent) {
+            throw new IllegalStateException("해당 매칭에 접근할 권한이 없습니다.");
+        }
+
+        return MatchingDetailResponse.from(matching);
+    }
 }

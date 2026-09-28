@@ -4,6 +4,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.global.security.Board
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonMatchingRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.LessonStatusRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.PricePerLessonRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MatchingDetailResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsStudent;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
@@ -105,5 +106,17 @@ public class LessonMatchingController {
         Long studentId = boardPrincipal.id();
         Page<MyMatchingResponseAsStudent> result = lessonMatchingService.myMatchingsAsStudent(studentId, pageable);
         return ResponseEntity.ok(result);
+    }
+
+    // 특정 매칭 상세 조회
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TUTOR')")
+    @GetMapping("/{matchingId}")
+    public ResponseEntity<MatchingDetailResponse> getMatchingDetail(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable Long matchingId
+    ) {
+        Long id = boardPrincipal.id();
+        MatchingDetailResponse response = lessonMatchingService.getMatchingDetail(id, matchingId);
+        return ResponseEntity.ok(response);
     }
 }

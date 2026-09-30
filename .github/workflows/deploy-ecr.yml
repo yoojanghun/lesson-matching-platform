@@ -71,15 +71,21 @@ jobs:
       # ── 8. EC2 서버에 SSH 접속하여 docker-compose 재배포 ───
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_REGISTRY
           script: |
-            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            # GitHub Actions에서 로그인된 패스워드를 사용해 EC2 Docker 로그인
+            docker login -u AWS -p $(aws ecr get-login-password --region ap-northeast-2 || echo "") $ECR_REGISTRY || true
             
-            # docker-compose가 있는 폴더로 이동하여 전체 서비스 재시작
+            # 최신 이미지 Pull
+            docker pull $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest
+            
+            # docker-compose 실행
             cd /home/ubuntu
-            docker-compose down
-            docker-compose up -d
+            docker compose down || docker-compose down || true
+            docker compose up -d || docker-compose up -d

@@ -50,4 +50,6 @@ mongo_data/
 es_data/
 
 # nGrinder Controller Home (테스트 결과 및 캐시 — git 제외)
-ngrinder-controller-home/
+ngrinder-controller-home/
+
+key/

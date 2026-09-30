@@ -8,6 +8,10 @@ public record LocationDto(
         String name
 ) {
 
+    public LocationDto(Long locationId, String name) {
+        this(locationId, null, name);
+    }
+
     public static LocationDto of(Location location) {
         return new LocationDto(
                 location.getLocationId(),

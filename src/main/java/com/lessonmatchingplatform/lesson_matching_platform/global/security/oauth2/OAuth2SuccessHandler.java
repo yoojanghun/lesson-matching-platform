@@ -69,11 +69,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         boolean isGuest = roles.stream().anyMatch(role -> role.equals("ROLE_GUEST"));
+        String name = oAuth2User.getName();
+        String email = oAuth2User.getAttributes().get("email") != null
+                ? oAuth2User.getAttributes().get("email").toString()
+                : "";
 
-        // Access Token + isGuest만 URL에 담기 (Refresh Token 제거)
+        // Access Token + isGuest + 사용자 기본 정보(name, email)를 URL에 담기
         String targetUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL)
                 .queryParam("accessToken", accessToken)
                 .queryParam("isGuest", isGuest)
+                .queryParam("name", name)
+                .queryParam("email", email)
                 .build().toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);

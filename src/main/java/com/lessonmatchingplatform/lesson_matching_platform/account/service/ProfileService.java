@@ -21,6 +21,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.event.TutorSyncEventPublisher;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class ProfileService {
     private final TutorStyleRepository tutorStyleRepository;
     private final LessonGoalRepository lessonGoalRepository;
     private final TutorSyncEventPublisher tutorSyncEventPublisher;
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public StudentProfileResponse getMyStudentProfile(Long id) {
@@ -320,12 +322,14 @@ public class ProfileService {
 
         if (request.categoryIds() != null && !request.categoryIds().isEmpty()) {
             tutorAccount.getCategoryTutorSet().clear();
+            entityManager.flush();
             List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
             categoryList.forEach(category -> tutorAccount.addCategoryTutor(CategoryTutor.of(tutorAccount, category)));
         }
 
         if (request.subjectIds() != null && !request.subjectIds().isEmpty()) {
             tutorAccount.getSubjectTutorSet().clear();
+            entityManager.flush();
             List<Subject> subjectList = subjectRepository.findAllById(request.subjectIds());
             subjectList.forEach(subject -> tutorAccount.addSubjectTutor(SubjectTutor.of(tutorAccount, subject)));
         }
@@ -382,12 +386,14 @@ public class ProfileService {
 
         if (request.categoryIds() != null) {
             tutorAccount.getCategoryTutorSet().clear();
+            entityManager.flush();
             List<Category> categoryList = categoryRepository.findAllById(request.categoryIds());
             categoryList.forEach(category -> tutorAccount.addCategoryTutor(CategoryTutor.of(tutorAccount, category)));
         }
 
         if (request.subjectIds() != null) {
             tutorAccount.getSubjectTutorSet().clear();
+            entityManager.flush();
             List<Subject> subjectList = subjectRepository.findAllById(request.subjectIds());
             subjectList.forEach(subject -> tutorAccount.addSubjectTutor(SubjectTutor.of(tutorAccount, subject)));
         }

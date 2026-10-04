@@ -68,6 +68,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                         reservation.startTime,
                         reservation.endTime,
                         reservation.reservationStatus,
+                        matching.pricePerLesson,
                         reservation.createdAt
                         )
                 )
@@ -108,6 +109,7 @@ public class ReservationRepositoryImpl implements ReservationRepositoryCustom{
                         reservation.startTime,
                         reservation.endTime,
                         reservation.reservationStatus,
+                        matching.pricePerLesson,
                         reservation.createdAt
                         )
                 )

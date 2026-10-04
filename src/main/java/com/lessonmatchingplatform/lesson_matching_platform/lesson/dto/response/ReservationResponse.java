@@ -26,6 +26,8 @@ public record ReservationResponse(
 
         ReservationStatus reservationStatus,
 
+        Integer pricePerLesson,
+
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt // 신청 시각
 ) {
@@ -38,6 +40,7 @@ public record ReservationResponse(
                 entity.getStartTime(),
                 entity.getEndTime(),
                 entity.getReservationStatus(),
+                entity.getMatching().getPricePerLesson(),
                 entity.getCreatedAt()
         );
     }

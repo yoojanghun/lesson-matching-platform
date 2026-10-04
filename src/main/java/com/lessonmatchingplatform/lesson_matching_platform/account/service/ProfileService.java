@@ -316,6 +316,7 @@ public class ProfileService {
 
         if (request.styleIds() != null && !request.styleIds().isEmpty()) {
             tutorAccount.getStyleTutorSet().clear();
+            entityManager.flush();
             List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
             tutorStyleList.forEach(tutorStyle -> tutorAccount.addStyleTutor(StyleTutor.of(tutorAccount, tutorStyle)));
         }
@@ -336,18 +337,21 @@ public class ProfileService {
 
         if (request.locationIds() != null && !request.locationIds().isEmpty()) {
             tutorAccount.getLocationTutorSet().clear();
+            entityManager.flush();
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
         }
 
         if (request.goalIds() != null && !request.goalIds().isEmpty()) {
             tutorAccount.getGoalTutorSet().clear();
+            entityManager.flush();
             List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
             lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
         }
 
         if (request.prices() != null) {
             tutorAccount.getTutorLessonPriceSet().clear();
+            entityManager.flush();
             request.prices().forEach(priceDto -> 
                 tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
             );
@@ -380,6 +384,7 @@ public class ProfileService {
 
         if (request.styleIds() != null) {
             tutorAccount.getStyleTutorSet().clear();
+            entityManager.flush();
             List<TutorStyle> tutorStyleList = tutorStyleRepository.findAllById(request.styleIds());
             tutorStyleList.forEach(tutorStyle -> tutorAccount.addStyleTutor(StyleTutor.of(tutorAccount, tutorStyle)));
         }
@@ -400,18 +405,21 @@ public class ProfileService {
 
         if (request.locationIds() != null) {
             tutorAccount.getLocationTutorSet().clear();
+            entityManager.flush();
             List<Location> locationList = locationRepository.findAllById(request.locationIds());
             locationList.forEach(location -> tutorAccount.addLocationTutor(LocationTutor.of(tutorAccount, location)));
         }
 
         if (request.goalIds() != null) {
             tutorAccount.getGoalTutorSet().clear();
+            entityManager.flush();
             List<LessonGoal> lessonGoalList = lessonGoalRepository.findAllById(request.goalIds());
             lessonGoalList.forEach(goal -> tutorAccount.addGoalTutor(GoalTutor.of(tutorAccount, goal)));
         }
 
         if (request.prices() != null) {
             tutorAccount.getTutorLessonPriceSet().clear();
+            entityManager.flush();
             request.prices().forEach(priceDto ->
                     tutorAccount.addTutorLessonPrice(TutorLessonPrice.of(tutorAccount, priceDto.className(), priceDto.price()))
             );

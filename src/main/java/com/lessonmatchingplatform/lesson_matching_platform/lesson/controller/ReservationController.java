@@ -59,15 +59,20 @@ public class ReservationController {
         return ResponseEntity.ok(responses);
     }
 
-    // Student가 Tutor에게 보냈던 reservation 취소
-    @PreAuthorize("hasRole('STUDENT')")
+    // Student 또는 Tutor가 reservation 취소
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TUTOR')")
     @PatchMapping("/{reservationId}/cancel")
     public ResponseEntity<Long> cancelReservation(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long reservationId
     ) {
-        Long studentId = boardPrincipal.id();
-        Long canceledReservationId = lessonMatchingService.cancelReservation(studentId, reservationId);
+        Long userId = boardPrincipal.id();
+        boolean isTutor = boardPrincipal.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_TUTOR") || a.getAuthority().equals("TUTOR"));
+
+        Long canceledReservationId = isTutor
+                ? lessonMatchingService.cancelReservationByTutor(userId, reservationId)
+                : lessonMatchingService.cancelReservation(userId, reservationId);
 
         return ResponseEntity.ok().body(canceledReservationId);
     }

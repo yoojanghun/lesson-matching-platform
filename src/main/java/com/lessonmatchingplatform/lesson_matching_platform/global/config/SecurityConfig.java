@@ -51,7 +51,6 @@ public class SecurityConfig {
                                 "/api/reference/**",     // 지역/목표/스타일 등 참조 데이터 (비로그인 허용)
                                 "/api/tutors/search",    // 튜터 검색 (비로그인 허용)
                                 "/api/tutors/*/profile", // 튜터 공개 프로필 (비로그인 허용)
-                                "/api/tutors/*/reviews", // 튜터 리뷰 조회 (비로그인 허용)
                                 "/api/main/**",           // 홈 튜터 목록 (비로그인 허용)
                                 "/ws-chat/**",           // WebSocket 핸드셰이크 (JWT 인증은 StompJwtInterceptor에서 처리)
                                 "/swagger-ui/**",

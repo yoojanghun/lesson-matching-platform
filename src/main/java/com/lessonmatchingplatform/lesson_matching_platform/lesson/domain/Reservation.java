@@ -63,7 +63,7 @@ public class Reservation extends AuditingFields {
     }
 
     public void updateReservationStatus(ReservationStatus newStatus) {
-        if (this.getReservationStatus() != ReservationStatus.PENDING) {
+        if (this.reservationStatus != ReservationStatus.PENDING) {
             throw new IllegalStateException("이미 처리되었거나 변경이 불가능한 상태의 예약입니다.");
         }
 
@@ -72,6 +72,27 @@ public class Reservation extends AuditingFields {
         }
 
         this.reservationStatus = newStatus;
+    }
+
+    public void completeLesson(LocalDateTime now) {
+        if (this.reservationStatus != ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException("확정(CONFIRMED) 상태의 레슨만 완료 처리할 수 있습니다.");
+        }
+
+        LocalDateTime lessonEndTime = LocalDateTime.of(this.lessonDate, this.endTime);
+        if (now.isBefore(lessonEndTime)) {
+            throw new IllegalStateException("수업 종료 시간 이전에는 레슨을 완료 처리할 수 없습니다.");
+        }
+
+        this.reservationStatus = ReservationStatus.COMPLETED;
+    }
+
+    public void cancelByTutor() {
+        if (this.reservationStatus != ReservationStatus.PENDING && this.reservationStatus != ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException("이미 종료되었거나 취소할 수 없는 예약 상태입니다.");
+        }
+
+        this.reservationStatus = ReservationStatus.CANCELLED;
     }
 
     public void cancelReservation(LocalDateTime now) {

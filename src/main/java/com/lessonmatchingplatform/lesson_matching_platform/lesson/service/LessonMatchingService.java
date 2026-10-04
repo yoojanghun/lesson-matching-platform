@@ -314,8 +314,22 @@ public class LessonMatchingService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 예약이 없습니다."));
 
         ReservationStatus newStatus = request.reservationStatus();
+        switch (newStatus) {
+            case CONFIRMED, REJECTED -> reservation.updateReservationStatus(newStatus);
+            case COMPLETED -> reservation.completeLesson(LocalDateTime.now());
+            case CANCELLED -> reservation.cancelByTutor();
+            default -> throw new IllegalArgumentException("지원하지 않는 예약 상태 변경 요청입니다.");
+        }
+    }
 
-        reservation.updateReservationStatus(newStatus);
+    // Tutor가 예약(확정된 레슨 또는 대기중인 레슨) 취소
+    public Long cancelReservationByTutor(Long tutorId, Long reservationId) {
+        Reservation reservation = reservationRepository.findByReservationIdAndTutorAccount_TutorId(reservationId, tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 예약을 찾을 수 없습니다."));
+
+        reservation.cancelByTutor();
+
+        return reservationId;
     }
 
     // 학생이 레슨 신청을 하지 않더라도, 강사는 특정 레슨을 COMPLETED 할 수 있어야 함.

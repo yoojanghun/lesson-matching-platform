@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScheduleExceptionRepositoryImpl implements ScheduleExceptionRepositoryCustom{
 
-    private JPAQueryFactory jpaQueryFactory;
+    private final JPAQueryFactory jpaQueryFactory;
 
     @Override
     public List<ScheduleException> findByTutorIdAndDateRange(Long tutorId, LocalDate startTime, LocalDate endTime) {

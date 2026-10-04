@@ -59,7 +59,7 @@ public class SignUpService {
                 .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
 
         userRoleRepository.deleteByUserAccount(userAccount);
-        userRoleRepository.flush();
+        userAccount.getUserRoleSet().clear();
 
         registerAsTutor(userAccount, request);
     }
@@ -84,7 +84,7 @@ public class SignUpService {
                 .orElseThrow(() -> new EntityNotFoundException("관련 GUEST 계정이 없습니다."));
 
         userRoleRepository.deleteByUserAccount(userToUpdate);
-        userRoleRepository.flush();
+        userToUpdate.getUserRoleSet().clear();
 
         Role studentRole = roleRepository.getReferenceById(2L);
         UserRole userRole = UserRole.of(userToUpdate, studentRole);

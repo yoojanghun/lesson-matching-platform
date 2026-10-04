@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +70,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         boolean isGuest = roles.stream().anyMatch(role -> role.equals("ROLE_GUEST"));
-        String name = oAuth2User.getName();
+        String name = oAuth2User.getAttributes().get("name") != null
+                ? oAuth2User.getAttributes().get("name").toString()
+                : "";
         String email = oAuth2User.getAttributes().get("email") != null
                 ? oAuth2User.getAttributes().get("email").toString()
                 : "";
@@ -80,6 +83,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .queryParam("isGuest", isGuest)
                 .queryParam("name", name)
                 .queryParam("email", email)
+                .encode(StandardCharsets.UTF_8)
                 .build().toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);

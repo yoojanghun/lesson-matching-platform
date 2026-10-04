@@ -85,11 +85,17 @@ VALUES
 ('GUEST', NOW(), 'SYSTEM');
 
 INSERT IGNORE INTO user_role (user_id, role_id, created_at, created_by)
-SELECT user_id, 1, NOW(), 'SYSTEM' FROM user_account WHERE email LIKE 'tutor%@test.com';
+SELECT ua.id, r.role_id, NOW(), 'SYSTEM'
+FROM user_account ua
+JOIN role r ON r.role_type = 'TUTOR'
+WHERE ua.email LIKE 'tutor%@test.com';
 
 -- Assign STUDENT role to all student accounts
 INSERT IGNORE INTO user_role (user_id, role_id, created_at, created_by)
-SELECT user_id, 2, NOW(), 'SYSTEM' FROM user_account WHERE email LIKE 'student%@test.com';
+SELECT ua.id, r.role_id, NOW(), 'SYSTEM'
+FROM user_account ua
+JOIN role r ON r.role_type = 'STUDENT'
+WHERE ua.email LIKE 'student%@test.com';
 
 -- ──────────────────────────────────────────────────────────────────────────────
 -- tutor_account: profile_status = COMPLETED 으로 설정

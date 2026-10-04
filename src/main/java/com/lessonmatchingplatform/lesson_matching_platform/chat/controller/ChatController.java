@@ -6,9 +6,10 @@ import com.lessonmatchingplatform.lesson_matching_platform.chat.service.RedisPub
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
@@ -20,12 +21,11 @@ public class ChatController {
     @MessageMapping("/chat/message")        // @MessageMapping: Websocket메세지를 수신하여 특정 메서드로 연결해줌
     public void message(
             ChatMessageDto message,
-            @AuthenticationPrincipal BoardPrincipal boardPrincipal
+            Principal principal
     ) {
-        if (boardPrincipal == null) {
-            throw new IllegalArgumentException("인증되지 않은 사용자입니다.");
+        if (!(principal instanceof Authentication auth) || !(auth.getPrincipal() instanceof BoardPrincipal boardPrincipal) || boardPrincipal.id() == null) {
+            throw new IllegalArgumentException("WebSocket 인증 정보에 사용자 ID가 없습니다.");
         }
-
         Long senderId = boardPrincipal.id();
         String senderName = boardPrincipal.name();
 

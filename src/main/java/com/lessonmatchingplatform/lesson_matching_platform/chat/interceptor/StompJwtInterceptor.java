@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.chat.interceptor;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.jwt.JwtTokenProvider;
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -53,6 +54,11 @@ public class StompJwtInterceptor implements ChannelInterceptor {
                 if (jwtTokenProvider.validateToken(token)) {
                     // STOMP 세션에 인증 정보 등록 → 이후 @MessageMapping에서 Principal로 접근 가능
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
+
+                    if (authentication.getPrincipal() instanceof BoardPrincipal principal) {
+                        log.info("WebSocket 인증 사용자 ID: {}, username: {}",
+                                principal.id(), principal.getUsername());
+                    }
                     accessor.setUser(authentication);
                     log.debug("WebSocket JWT 인증 성공: {}", authentication.getName());
                 } else {

@@ -144,6 +144,26 @@ public class TutorAccount extends AuditingFields {
         );
     }
 
+    public void deleteReview(BigDecimal deletedRating) {
+        if (this.reviewCount <= 1) {
+            this.reviewCount = 0;
+            this.averageRating = BigDecimal.ZERO;
+            return;
+        }
+
+        BigDecimal totalScore = this.averageRating
+                .multiply(BigDecimal.valueOf(this.reviewCount))
+                .subtract(deletedRating);
+
+        this.reviewCount--;
+
+        this.averageRating = totalScore.divide(
+                BigDecimal.valueOf(reviewCount),
+                1,
+                RoundingMode.HALF_UP
+        );
+    }
+
     public void increaseMatchingCount() {
         this.matchingCount++;
     }

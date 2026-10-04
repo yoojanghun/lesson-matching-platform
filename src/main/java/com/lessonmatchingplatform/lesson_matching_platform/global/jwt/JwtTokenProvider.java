@@ -91,7 +91,8 @@ public class JwtTokenProvider {
     // 토큰으로 Authentication(인증 토큰 신분증) 객체 반환
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
-        Long userId = claims.get("userId", Long.class);
+        Number userIdRaw = (Number) claims.get("userId");
+        Long userId = userIdRaw != null ? userIdRaw.longValue() : null;
         String username = claims.getSubject();
         List<?> rawRoles = claims.get("roles", List.class);
 

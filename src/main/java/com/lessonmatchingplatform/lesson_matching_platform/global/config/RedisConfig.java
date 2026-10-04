@@ -7,8 +7,14 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lessonmatchingplatform.lesson_matching_platform.chat.service.RedisSubscriber;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -26,9 +32,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @EnableCaching
-public class RedisConfig {
+public class RedisConfig implements CachingConfigurer {
 
     @Value("${spring.data.redis.host}")
     private String host;
@@ -116,5 +123,28 @@ public class RedisConfig {
     @Bean
     public MessageListenerAdapter messageListenerAdapter(RedisSubscriber redisSubscriber) {
         return new MessageListenerAdapter(redisSubscriber, "sendMessage");
+    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new SimpleCacheErrorHandler() {
+
+            @Override
+            public void handleCacheGetError(@NotNull RuntimeException exception, @NotNull Cache cache, @NotNull Object key) {
+                log.warn("Redis 캐시 읽기 실패 (캐시 무시 후 DB 조회) - cache: {}, key: {}, error: {}",
+                        cache.getName(), key, exception.getMessage());
+                // 에러를 throw하지 않고 넘기면 Spring이 자동으로 DB 쿼리를 실행합니다!
+            }
+            @Override
+            public void handleCachePutError(@NotNull RuntimeException exception, @NotNull Cache cache, @NotNull Object key, Object value) {
+                log.warn("Redis 캐시 저장 실패 - cache: {}, key: {}, error: {}",
+                        cache.getName(), key, exception.getMessage());
+            }
+            @Override
+            public void handleCacheEvictError(@NotNull RuntimeException exception, @NotNull Cache cache, @NotNull Object key) {
+                log.warn("Redis 캐시 삭제 실패 - cache: {}, key: {}, error: {}",
+                        cache.getName(), key, exception.getMessage());
+            }
+        };
     }
 }

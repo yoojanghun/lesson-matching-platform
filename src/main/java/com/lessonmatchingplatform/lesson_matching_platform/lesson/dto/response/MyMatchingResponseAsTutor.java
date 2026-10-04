@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 public record MyMatchingResponseAsTutor(
         Long matchingId,
+        Long studentId,
         String requestMsg,
         MatchingStatus status,
         String name,
@@ -26,6 +27,7 @@ public record MyMatchingResponseAsTutor(
 
         return new MyMatchingResponseAsTutor(
                 entity.getMatchingId(),
+                entity.getStudentAccount().getStudentId(),
                 entity.getRequestMsg(),
                 entity.getStatus(),
                 userAccount.getName(),

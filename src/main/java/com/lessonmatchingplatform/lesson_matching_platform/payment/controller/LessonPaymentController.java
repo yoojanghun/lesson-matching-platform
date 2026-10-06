@@ -2,10 +2,12 @@ package com.lessonmatchingplatform.lesson_matching_platform.payment.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentPrepareRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.StudentCancelPaymentRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TransferClaimRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorBankAccountRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorCancelPaymentRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorConfirmPaymentRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentDetailResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentListResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentPrepareResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentStatusResponse;
@@ -50,6 +52,30 @@ public class LessonPaymentController {
     ) {
         PaymentStatusResponse response = lessonPaymentService.claimTransfer(
                 boardPrincipal.id(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 학생의 결제 취소 요청
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/cancel-by-student")
+    public ResponseEntity<PaymentStatusResponse> cancelPaymentByStudent(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestBody @Valid StudentCancelPaymentRequest request
+    ) {
+        PaymentStatusResponse response = lessonPaymentService.cancelPaymentByStudent(
+                boardPrincipal.id(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 단건 결제 상세 조회
+    @PreAuthorize("hasAnyRole('STUDENT', 'TUTOR')")
+    @GetMapping("/{orderId}")
+    public ResponseEntity<PaymentDetailResponse> getPaymentDetail(
+            @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @PathVariable String orderId
+    ) {
+        PaymentDetailResponse response = lessonPaymentService.getPaymentDetail(
+                boardPrincipal.id(), orderId);
         return ResponseEntity.ok(response);
     }
 

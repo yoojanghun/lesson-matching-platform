@@ -9,10 +9,12 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.Mat
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentPrepareRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.StudentCancelPaymentRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorBankAccountRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorCancelPaymentRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorConfirmPaymentRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TransferClaimRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentDetailResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentListResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentPrepareResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentStatusResponse;
@@ -21,6 +23,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentS
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LessonPaymentService {
@@ -104,6 +108,20 @@ public class LessonPaymentService {
         return PaymentStatusResponse.of(payment);
     }
 
+    // 학생의 결제 취소 요청
+    @Transactional
+    public PaymentStatusResponse cancelPaymentByStudent(Long studentId, StudentCancelPaymentRequest request) {
+        Payment payment = paymentRepository.findByOrderIdForStudentUpdate(request.orderId())
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
+
+        if (!payment.getMatching().getStudentAccount().getStudentId().equals(studentId)) {
+            throw new AccessDeniedException("해당 결제건에 대한 접근 권한이 없습니다.");
+        }
+
+        payment.cancelByStudent(request.cancelReason());
+        return PaymentStatusResponse.of(payment);
+    }
+
     // 선생님이 입금 확인 후, OK 처리
     @Transactional
     public PaymentStatusResponse confirmPaymentByTutor(Long tutorId, TutorConfirmPaymentRequest request) {
@@ -132,6 +150,22 @@ public class LessonPaymentService {
         return PaymentStatusResponse.of(payment);
     }
 
+    // 단건 결제 상세 조회
+    @Transactional(readOnly = true)
+    public PaymentDetailResponse getPaymentDetail(Long userId, String orderId) {
+        Payment payment = paymentRepository.findByOrderIdWithDetail(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
+
+        Long studentId = payment.getMatching().getStudentAccount().getStudentId();
+        Long tutorId = payment.getMatching().getTutorAccount().getTutorId();
+
+        if (!userId.equals(studentId) && !userId.equals(tutorId)) {
+            throw new AccessDeniedException("해당 결제 상세 정보를 조회할 권한이 없습니다.");
+        }
+
+        return PaymentDetailResponse.of(payment);
+    }
+
     // 선생님이 계좌 정보 등록 / 수정
     @Transactional
     public void updateBankAccount(Long tutorId, TutorBankAccountRequest request) {
@@ -150,6 +184,20 @@ public class LessonPaymentService {
     @Transactional(readOnly = true)
     public Page<PaymentListResponse> getTutorPayments(Long tutorId, Pageable pageable) {
         return paymentRepository.findTutorPayments(tutorId, pageable);
+    }
+
+    // 24시간 초과된 미입금 건 자동 만료 처리
+    @Transactional
+    public void expireTimeoutPayments() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        List<Payment> timedOutPayments = paymentRepository.findTimedOutPayments(PaymentStatus.PENDING_TRANSFER, cutoff);
+
+        for (Payment payment : timedOutPayments) {
+            payment.expire();
+        }
+        if (!timedOutPayments.isEmpty()) {
+            log.info("미입금 만료 배치 실행: 총 {}건 만료 처리 완료", timedOutPayments.size());
+        }
     }
 
     private String generateOrderId() {

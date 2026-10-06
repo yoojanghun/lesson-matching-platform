@@ -57,7 +57,7 @@ public class Payment extends AuditingFields {
     private LocalDateTime confirmedAt;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "payment", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private final Set<Reservation> reservationSet = new LinkedHashSet<>();
 
     protected Payment() {}
@@ -80,12 +80,18 @@ public class Payment extends AuditingFields {
                 tutorBankName, tutorBankAccountNumber, tutorBankAccountHolder);
     }
 
-
     public void addReservations(List<Reservation> reservations) {
         for (Reservation reservation : reservations) {
             this.getReservationSet().add(reservation);
             reservation.assignPayment(this);
         }
+    }
+
+    public void releaseReservations() {
+        for (Reservation reservation : this.reservationSet) {
+            reservation.assignPayment(null);
+        }
+        this.reservationSet.clear();
     }
 
     public void claimTransfer() {
@@ -110,12 +116,24 @@ public class Payment extends AuditingFields {
             throw new IllegalStateException("취소 가능한 상태가 아닙니다. 현재 상태: " + this.paymentStatus);
         }
         this.paymentStatus = PaymentStatus.CANCELLED;
-        this.cancelReason = cancelReason;
+        this.cancelReason = (cancelReason != null && !cancelReason.isBlank()) ? cancelReason : "선생님에 의해 결제가 취소되었습니다.";
+        releaseReservations();
+    }
+
+    public void cancelByStudent(String cancelReason) {
+        if (this.paymentStatus != PaymentStatus.PENDING_TRANSFER) {
+            throw new IllegalStateException("이체 완료 전(PENDING_TRANSFER) 상태에서만 결제를 취소할 수 있습니다. 현재 상태: " + this.paymentStatus);
+        }
+        this.paymentStatus = PaymentStatus.CANCELLED;
+        this.cancelReason = (cancelReason != null && !cancelReason.isBlank()) ? cancelReason : "학생에 의해 결제가 취소되었습니다.";
+        releaseReservations();
     }
 
     public void expire() {
         if (this.paymentStatus == PaymentStatus.PENDING_TRANSFER) {
             this.paymentStatus = PaymentStatus.EXPIRED;
+            this.cancelReason = "입금 대기 시간 초과로 자동 만료되었습니다.";
+            releaseReservations();
         }
     }
 
@@ -130,5 +148,4 @@ public class Payment extends AuditingFields {
     public int hashCode() {
         return Objects.hashCode(paymentId);
     }
-
 }

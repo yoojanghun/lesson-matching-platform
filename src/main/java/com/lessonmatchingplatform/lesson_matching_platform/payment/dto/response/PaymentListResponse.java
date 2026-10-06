@@ -7,19 +7,20 @@ import java.time.LocalDateTime;
 
 public record PaymentListResponse(
         Long paymentId,
-
         String orderId,
-
-        String tutorName,
-
+        String counterpartName,
         Integer amount,
-
+        Integer lessonCount,
         PaymentStatus paymentStatus,
+        String cancelReason,
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt,
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime approvedAt
+        LocalDateTime transferClaimedAt,
+
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime confirmedAt
 ) {
 }

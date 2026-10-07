@@ -1,110 +1,203 @@
 package com.lessonmatchingplatform.lesson_matching_platform.payment.service;
 
+import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.client.TossPaymentsClient;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.exception.TossPaymentException;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentConfirmRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentPrepareRequest;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentConfirmResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.StudentCancelPaymentRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorBankAccountRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorCancelPaymentRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TutorConfirmPaymentRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.TransferClaimRequest;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentDetailResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentListResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentPrepareResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.TossApproveResponse;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentStatusResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.repository.PaymentRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response.PaymentListResponse;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LessonPaymentService {
 
     private final PaymentRepository paymentRepository;
     private final MatchingRepository matchingRepository;
-    private final TossPaymentsClient tossPaymentsClient;
-    private final PaymentTransactionHandler paymentTransactionHandler;
+    private final TutorsRepository tutorsRepository;
+    private final ReservationRepository reservationRepository;
 
+    // 학생이 결제 요청 생성
     @Transactional
     public PaymentPrepareResponse preparePayment(Long studentId, PaymentPrepareRequest request) {
-        Long matchingId = request.matchingId();
-        Integer lessonCount = request.lessonCount();
+        Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(request.matchingId(), studentId)
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 레슨 매칭이 없습니다."));
 
-        // 트랜잭션이 끝날 때까지 비관적 락을 걸어, 같은 결제가 2번 이상 반복되는 일이 없도록 함.
-        Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(matchingId, studentId)
-                .orElseThrow(() -> new EntityNotFoundException("해당되는 레슨이 없습니다."));
-
-        // 매칭은 ACCEPTED인 경우에만 결제 가능
         if (matching.getStatus() != MatchingStatus.ACCEPTED) {
             throw new IllegalStateException("결제가 불가능한 매칭 상태입니다.");
         }
 
-        // 회당 레슨비는 Tutor가 설정
         Integer pricePerLesson = matching.getPricePerLesson();
-
         if (pricePerLesson == null || pricePerLesson <= 0) {
             throw new IllegalStateException("선생님이 아직 레슨비를 설정하지 않은 매칭건입니다.");
         }
 
-        Integer totalAmount = lessonCount * pricePerLesson;
+        TutorAccount tutor = matching.getTutorAccount();
+        if (!tutor.hasBankAccount()) {
+            throw new IllegalStateException("선생님이 아직 계좌 정보를 등록하지 않았습니다.");
+        }
+
+        List<Reservation> reservations = reservationRepository.findValidReservationsForPayment(
+                request.reservationId(), request.matchingId(), ReservationStatus.COMPLETED
+        );
+
+        if (reservations.size() != request.reservationId().size()) {
+            throw new IllegalArgumentException("결제할 수 없는 예약이 포함되어 있거나, 이미 결제 진행 중인 레슨입니다.");
+        }
+
+        Integer totalAmount = reservations.stream()
+                .mapToInt(Reservation::getAppliedPrice)
+                .sum();
 
         Payment payment = Payment.of(
                 matching,
                 generateOrderId(),
                 totalAmount,
-                PaymentStatus.READY
+                reservations.size(),
+                tutor.getBankName(),
+                tutor.getBankAccountNumber(),
+                tutor.getBankAccountHolder()
         );
-
         paymentRepository.save(payment);
 
-        String orderName = String.format("%d회차 레슨", request.lessonCount());
+        payment.addReservations(reservations);
 
-        return PaymentPrepareResponse.of(
-                payment,
-                orderName
-        );
+        String orderName = String.format("%d회차 레슨", reservations.size());
+        return PaymentPrepareResponse.of(payment, orderName);
     }
 
-    public PaymentConfirmResponse confirmPayment(Long studentId, PaymentConfirmRequest request) {
-        String orderId = request.orderId();
-        String paymentKey = request.paymentKey();
-        Integer amount = request.amount();
+    // 학생이 이체 완료 신고
+    @Transactional
+    public PaymentStatusResponse claimTransfer(Long studentId, TransferClaimRequest request) {
+        Payment payment = paymentRepository.findByOrderIdForStudentUpdate(request.orderId())
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
 
-        // 1. [트랜잭션 1] 결제 전 유효성 검증 (READY 상태, 권한, 금액 일치 여부)
-        paymentTransactionHandler.validatePaymentBeforeConfirm(orderId, studentId, amount);
-
-        // 2. [외부 PG 호출 - 트랜잭션 외부] 토스페이먼츠 승인 요청 (서버 응답이 느릴 것을 대비해 DB 커넥션을 물지 않음)
-        TossApproveResponse tossResponse;
-        try {
-            tossResponse = tossPaymentsClient.confirmPayment(request);
-        } catch (TossPaymentException e) {
-            // PG 승인 실패 시 실패 사유를 DB에 기록 (새 트랜잭션)
-            paymentTransactionHandler.recordPaymentFailure(orderId, e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            paymentTransactionHandler.recordPaymentFailure(orderId, "알 수 없는 이유로 결제 승인에 실패했습니다.");
-            throw e;
+        if (!payment.getMatching().getStudentAccount().getStudentId().equals(studentId)) {
+            throw new AccessDeniedException("해당 결제건에 대한 접근 권한이 없습니다.");
         }
 
-        // 3. [트랜잭션 2] 결제 완료 상태 및 승인 정보 업데이트
-        Payment paidPayment = paymentTransactionHandler.completePaymentSuccess(orderId, paymentKey, tossResponse);
-
-        return PaymentConfirmResponse.of(paidPayment);
+        payment.claimTransfer();
+        return PaymentStatusResponse.of(payment);
     }
 
-    
+    // 학생의 결제 취소 요청
+    @Transactional
+    public PaymentStatusResponse cancelPaymentByStudent(Long studentId, StudentCancelPaymentRequest request) {
+        Payment payment = paymentRepository.findByOrderIdForStudentUpdate(request.orderId())
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
+
+        if (!payment.getMatching().getStudentAccount().getStudentId().equals(studentId)) {
+            throw new AccessDeniedException("해당 결제건에 대한 접근 권한이 없습니다.");
+        }
+
+        payment.cancelByStudent(request.cancelReason());
+        return PaymentStatusResponse.of(payment);
+    }
+
+    // 선생님이 입금 확인 후, OK 처리
+    @Transactional
+    public PaymentStatusResponse confirmPaymentByTutor(Long tutorId, TutorConfirmPaymentRequest request) {
+        Payment payment = paymentRepository.findByOrderIdForTutorUpdate(request.orderId())
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
+
+        if (!payment.getMatching().getTutorAccount().getTutorId().equals(tutorId)) {
+            throw new AccessDeniedException("해당 결제건에 대한 접근 권한이 없습니다.");
+        }
+
+        payment.confirmByTutor();
+        return PaymentStatusResponse.of(payment);
+    }
+
+    // 선생님의 결제 취소 처리
+    @Transactional
+    public PaymentStatusResponse cancelPaymentByTutor(Long tutorId, TutorCancelPaymentRequest request) {
+        Payment payment = paymentRepository.findByOrderIdForTutorUpdate(request.orderId())
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
+
+        if (!payment.getMatching().getTutorAccount().getTutorId().equals(tutorId)) {
+            throw new AccessDeniedException("해당 결제건에 대한 접근 권한이 없습니다.");
+        }
+
+        payment.cancelByTutor(request.cancelReason());
+        return PaymentStatusResponse.of(payment);
+    }
+
+    // 단건 결제 상세 조회
+    @Transactional(readOnly = true)
+    public PaymentDetailResponse getPaymentDetail(Long userId, String orderId) {
+        Payment payment = paymentRepository.findByOrderIdWithDetail(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("해당되는 결제 정보가 없습니다."));
+
+        Long studentId = payment.getMatching().getStudentAccount().getStudentId();
+        Long tutorId = payment.getMatching().getTutorAccount().getTutorId();
+
+        if (!userId.equals(studentId) && !userId.equals(tutorId)) {
+            throw new AccessDeniedException("해당 결제 상세 정보를 조회할 권한이 없습니다.");
+        }
+
+        return PaymentDetailResponse.of(payment);
+    }
+
+    // 선생님이 계좌 정보 등록 / 수정
+    @Transactional
+    public void updateBankAccount(Long tutorId, TutorBankAccountRequest request) {
+        TutorAccount tutor = tutorsRepository.findById(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("선생님 계정을 찾을 수 없습니다."));
+        tutor.updateBankAccount(request.bankName(), request.bankAccountNumber(), request.bankAccountHolder());
+    }
+
+    // 학생이 자신의 결제 목록 조회
     @Transactional(readOnly = true)
     public Page<PaymentListResponse> getStudentPayments(Long studentId, Pageable pageable) {
         return paymentRepository.findStudentPayments(studentId, pageable);
+    }
+
+    // 선생님 자신이 받아야 할 결제 목록 조회
+    @Transactional(readOnly = true)
+    public Page<PaymentListResponse> getTutorPayments(Long tutorId, Pageable pageable) {
+        return paymentRepository.findTutorPayments(tutorId, pageable);
+    }
+
+    // 24시간 초과된 미입금 건 자동 만료 처리
+    @Transactional
+    public void expireTimeoutPayments() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        List<Payment> timedOutPayments = paymentRepository.findTimedOutPayments(PaymentStatus.PENDING_TRANSFER, cutoff);
+
+        for (Payment payment : timedOutPayments) {
+            payment.expire();
+        }
+        if (!timedOutPayments.isEmpty()) {
+            log.info("미입금 만료 배치 실행: 총 {}건 만료 처리 완료", timedOutPayments.size());
+        }
     }
 
     private String generateOrderId() {

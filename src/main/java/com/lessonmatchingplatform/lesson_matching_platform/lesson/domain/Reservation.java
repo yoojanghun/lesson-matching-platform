@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.lesson.domain;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
@@ -31,6 +32,14 @@ public class Reservation extends AuditingFields {
     @JoinColumn(name = "tutor_id", nullable = false)
     private TutorAccount tutorAccount;
 
+    @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
+    @Column(nullable = false)
+    private Integer appliedPrice;
+
     @Column(length = 500)
     private String requestMsg;
 
@@ -51,6 +60,8 @@ public class Reservation extends AuditingFields {
     private Reservation(Matching matching, TutorAccount tutorAccount, String requestMsg, LocalDate lessonDate, LocalTime startTime, LocalTime endTime, ReservationStatus reservationStatus) {
         this.matching = matching;
         this.tutorAccount = tutorAccount;
+        this.payment = null;
+        this.appliedPrice = matching.getPricePerLesson();
         this.requestMsg = requestMsg;
         this.lessonDate = lessonDate;
         this.startTime = startTime;
@@ -109,6 +120,10 @@ public class Reservation extends AuditingFields {
         }
 
         this.reservationStatus = ReservationStatus.CANCELLED;
+    }
+
+    public void assignPayment(Payment payment) {
+        this.payment = payment;
     }
 
     @Override

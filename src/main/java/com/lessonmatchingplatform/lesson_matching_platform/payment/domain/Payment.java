@@ -2,14 +2,17 @@ package com.lessonmatchingplatform.lesson_matching_platform.payment.domain;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.domain.AuditingFields;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
-import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentMethod;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Reservation;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @ToString(callSuper = true)
 @Getter
@@ -28,52 +31,110 @@ public class Payment extends AuditingFields {
     @Column(length = 64, nullable = false, unique = true)
     private String orderId;
 
-    @Column(length = 200)
-    private String paymentKey;
-
     @Column(nullable = false)
     private Integer amount;
 
-    @Enumerated(value = EnumType.STRING)
-    @Column(length = 20)
-    private PaymentMethod paymentMethod;
+    @Column(nullable = false)
+    private Integer lessonCount;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(length = 30, nullable = false)
     private PaymentStatus paymentStatus;
 
-    @Column(length = 255)
-    private String failReason;
+    @Column(length = 500)
+    private String cancelReason;
 
-    private LocalDateTime approvedAt;
+    @Column(length = 50)
+    private String tutorBankName;
+
+    @Column(length = 30)
+    private String tutorBankAccountNumber;
+
+    @Column(length = 30)
+    private String tutorBankAccountHolder;
+
+    private LocalDateTime transferClaimedAt;
+    private LocalDateTime confirmedAt;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "payment", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private final Set<Reservation> reservationSet = new LinkedHashSet<>();
 
     protected Payment() {}
 
-    private Payment (Matching matching, String orderId, Integer amount, PaymentStatus paymentStatus) {
+    private Payment(Matching matching, String orderId, Integer amount, Integer lessonCount,
+                    String tutorBankName, String tutorBankAccountNumber, String tutorBankAccountHolder) {
         this.matching = matching;
         this.orderId = orderId;
-        this.paymentKey = null;
         this.amount = amount;
-        this.paymentMethod = null;
-        this.paymentStatus = paymentStatus;
-        this.failReason = null;
-        this.approvedAt = null;
+        this.lessonCount = lessonCount;
+        this.paymentStatus = PaymentStatus.PENDING_TRANSFER;
+        this.tutorBankName = tutorBankName;
+        this.tutorBankAccountNumber = tutorBankAccountNumber;
+        this.tutorBankAccountHolder = tutorBankAccountHolder;
     }
 
-    public static Payment of(Matching matching, String orderId, Integer amount, PaymentStatus paymentStatus) {
-        return new Payment(matching, orderId, amount, paymentStatus);
+    public static Payment of(Matching matching, String orderId, Integer amount, Integer lessonCount,
+                             String tutorBankName, String tutorBankAccountNumber, String tutorBankAccountHolder) {
+        return new Payment(matching, orderId, amount, lessonCount,
+                tutorBankName, tutorBankAccountNumber, tutorBankAccountHolder);
     }
 
-    public void markAsPaid(String paymentKey, PaymentMethod paymentMethod, LocalDateTime approvedAt) {
-        this.paymentKey = paymentKey;
-        this.paymentMethod = paymentMethod;
+    public void addReservations(List<Reservation> reservations) {
+        for (Reservation reservation : reservations) {
+            this.getReservationSet().add(reservation);
+            reservation.assignPayment(this);
+        }
+    }
+
+    public void releaseReservations() {
+        for (Reservation reservation : this.reservationSet) {
+            reservation.assignPayment(null);
+        }
+        this.reservationSet.clear();
+    }
+
+    public void claimTransfer() {
+        if (this.paymentStatus != PaymentStatus.PENDING_TRANSFER) {
+            throw new IllegalStateException("이체 대기(PENDING_TRANSFER) 상태인 결제만 신고할 수 있습니다. 현재 상태: " + this.paymentStatus);
+        }
+        this.paymentStatus = PaymentStatus.TRANSFER_CLAIMED;
+        this.transferClaimedAt = LocalDateTime.now();
+    }
+
+    public void confirmByTutor() {
+        if (this.paymentStatus != PaymentStatus.TRANSFER_CLAIMED) {
+            throw new IllegalStateException("이체 완료 신고(TRANSFER_CLAIMED) 상태인 결제만 확인할 수 있습니다. 현재 상태: " + this.paymentStatus);
+        }
         this.paymentStatus = PaymentStatus.DONE;
-        this.approvedAt = approvedAt;
+        this.confirmedAt = LocalDateTime.now();
     }
 
-    public void markAsFailed(String failReason){
-        this.failReason = failReason;
-        this.paymentStatus = PaymentStatus.FAILED;
+    public void cancelByTutor(String cancelReason) {
+        if (this.paymentStatus != PaymentStatus.TRANSFER_CLAIMED
+                && this.paymentStatus != PaymentStatus.PENDING_TRANSFER) {
+            throw new IllegalStateException("취소 가능한 상태가 아닙니다. 현재 상태: " + this.paymentStatus);
+        }
+        this.paymentStatus = PaymentStatus.CANCELLED;
+        this.cancelReason = (cancelReason != null && !cancelReason.isBlank()) ? cancelReason : "선생님에 의해 결제가 취소되었습니다.";
+        releaseReservations();
+    }
+
+    public void cancelByStudent(String cancelReason) {
+        if (this.paymentStatus != PaymentStatus.PENDING_TRANSFER) {
+            throw new IllegalStateException("이체 완료 전(PENDING_TRANSFER) 상태에서만 결제를 취소할 수 있습니다. 현재 상태: " + this.paymentStatus);
+        }
+        this.paymentStatus = PaymentStatus.CANCELLED;
+        this.cancelReason = (cancelReason != null && !cancelReason.isBlank()) ? cancelReason : "학생에 의해 결제가 취소되었습니다.";
+        releaseReservations();
+    }
+
+    public void expire() {
+        if (this.paymentStatus == PaymentStatus.PENDING_TRANSFER) {
+            this.paymentStatus = PaymentStatus.EXPIRED;
+            this.cancelReason = "입금 대기 시간 초과로 자동 만료되었습니다.";
+            releaseReservations();
+        }
     }
 
     @Override

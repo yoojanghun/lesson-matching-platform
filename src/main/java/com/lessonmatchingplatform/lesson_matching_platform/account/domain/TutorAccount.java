@@ -65,6 +65,16 @@ public class TutorAccount extends AuditingFields {
     @Column(nullable = false)
     private ProfileStatus profileStatus;
 
+    // 계좌 정보 (P2P 직접 송금용)
+    @Column(length = 50)
+    private String bankName;
+
+    @Column(length = 30)
+    private String bankAccountNumber;
+
+    @Column(length = 30)
+    private String bankAccountHolder;
+
     @Column(nullable = false)
     private Boolean isBirthDatePublic = false;
 
@@ -235,6 +245,24 @@ public class TutorAccount extends AuditingFields {
 
     public static TutorAccount ofRegister(UserAccount userAccount, String title, String introduction, List<String> educations, List<String> experiences, LessonType lessonType) {
         return new TutorAccount(userAccount, title, introduction, educations, experiences, ProfileStatus.COMPLETED, lessonType);
+    }
+
+    public void updateBankAccount(String bankName, String bankAccountNumber, String bankAccountHolder) {
+        if (isBlank(bankName) || isBlank(bankAccountNumber) || isBlank(bankAccountHolder)) {
+            throw new IllegalArgumentException("은행명, 계좌번호, 예금주 정보는 모두 필수 입력 항목입니다.");
+        }
+
+        this.bankName = bankName.trim();
+        this.bankAccountNumber = bankAccountNumber.trim();
+        this.bankAccountHolder = bankAccountHolder.trim();
+    }
+
+    public boolean hasBankAccount() {
+        return this.bankName != null && this.bankAccountNumber != null && this.bankAccountHolder != null;
+    }
+
+    private boolean isBlank(String string) {
+        return string == null || string.isBlank();
     }
 
     @Override

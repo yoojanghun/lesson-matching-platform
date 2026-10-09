@@ -19,7 +19,10 @@ public record MyMatchingResponseAsStudent(
         Set<SubjectType> subject,
         String requestMsg,
         MatchingStatus status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String bankName,
+        String bankAccountNumber,
+        String bankAccountHolder
 ) {
     public static MyMatchingResponseAsStudent from(Matching entity) {
         TutorAccount tutorAccount = entity.getTutorAccount();
@@ -43,7 +46,10 @@ public record MyMatchingResponseAsStudent(
                 subjects,
                 entity.getRequestMsg(),
                 entity.getStatus(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                tutorAccount.getBankName(),
+                tutorAccount.getBankAccountNumber(),
+                tutorAccount.getBankAccountHolder()
         );
     }
 }

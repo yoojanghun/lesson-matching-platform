@@ -1,16 +1,12 @@
 package com.lessonmatchingplatform.lesson_matching_platform.payment.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.StudentAccount;
-import com.lessonmatchingplatform.lesson_matching_platform.account.domain.TutorAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.UserAccount;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.domain.Matching;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.type.PaymentStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 public record PaymentDetailResponse(

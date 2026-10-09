@@ -31,7 +31,10 @@ public record TutorProfileResponse(
                 List<SubjectTypeDto> subjects,
                 List<StyleTypeDto> styles,
                 List<GoalTypeDto> goals,
-                List<TutorLessonPriceDto> prices) {
+                List<TutorLessonPriceDto> prices,
+                String bankName,
+                String bankAccountNumber,
+                String bankAccountHolder) {
 
         public static TutorProfileResponse of(
                         TutorAccount entity,
@@ -60,7 +63,10 @@ public record TutorProfileResponse(
                                 subjects,
                                 styles,
                                 goals,
-                                prices
+                                prices,
+                                entity.getBankName(),
+                                entity.getBankAccountNumber(),
+                                entity.getBankAccountHolder()
                 );
         }
 }

@@ -36,6 +36,12 @@ public record SwitchToTutorRequest(
         List<Long> goalIds,
 
         @Valid
-        List<TutorLessonPriceDto> lessonPriceDtos
+        List<TutorLessonPriceDto> lessonPriceDtos,
+
+        String bankName,
+
+        String bankAccountNumber,
+
+        String bankAccountHolder
 ) implements TutorRegistrable {
 }

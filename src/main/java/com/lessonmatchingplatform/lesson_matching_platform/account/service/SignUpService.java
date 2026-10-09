@@ -192,5 +192,11 @@ public class SignUpService {
                             TutorLessonPrice.of(tutorAccount, lessonPriceDto.className(), lessonPriceDto.price())
                     ));
         }
+
+        if (request.bankName() != null && !request.bankName().isBlank()
+                && request.bankAccountNumber() != null && !request.bankAccountNumber().isBlank()
+                && request.bankAccountHolder() != null && !request.bankAccountHolder().isBlank()) {
+            tutorAccount.updateBankAccount(request.bankName(), request.bankAccountNumber(), request.bankAccountHolder());
+        }
     }
 }

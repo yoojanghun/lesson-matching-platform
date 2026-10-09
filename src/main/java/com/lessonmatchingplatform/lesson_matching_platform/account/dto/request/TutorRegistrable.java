@@ -17,4 +17,7 @@ public interface TutorRegistrable {
     List<Long> styleIds();
     List<Long> goalIds();
     List<TutorLessonPriceDto> lessonPriceDtos();
+    String bankName();
+    String bankAccountNumber();
+    String bankAccountHolder();
 }

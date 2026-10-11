@@ -94,9 +94,10 @@ jobs:
               -e SPRING_DATA_REDIS_HOST=$REDIS_HOST \
               -e SPRING_DATA_REDIS_PORT=6379 \
               -e SPRING_DATA_MONGODB_URI="mongodb://$MONGO_HOST:27017/lesson_db" \
-              -e SPRING_DATASOURCE_URL="jdbc:mysql://$RDS_ENDPOINT:3306/lesson_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8" \
+              -e SPRING_DATASOURCE_URL="jdbc:mysql://$RDS_ENDPOINT:3306/lesson_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true" \
               -e SPRING_DATASOURCE_USERNAME=$RDS_USERNAME \
               -e SPRING_DATASOURCE_PASSWORD=$RDS_PASSWORD \
+              -e SPRING_JPA_DATABASE_PLATFORM="org.hibernate.dialect.MySQLDialect" \
               --restart always \
               $ECR_REGISTRY/$ECR_REPOSITORY:latest
 

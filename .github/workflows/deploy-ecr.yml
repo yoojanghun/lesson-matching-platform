@@ -66,16 +66,22 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
           SPRING_PROFILE: prod
+          REDIS_HOST: ${{ secrets.REDIS_PRIVATE_IP }}
+          MONGO_HOST: ${{ secrets.MONGO_PRIVATE_IP }}
+          RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
+          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: ECR_REGISTRY,SPRING_PROFILE
+          envs: ECR_REGISTRY,ECR_REPOSITORY,SPRING_PROFILE,REDIS_HOST,MONGO_HOST,RDS_ENDPOINT,RDS_USERNAME,RDS_PASSWORD
           script: |
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
 
-            docker pull $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
             docker stop spring-app || true
             docker rm spring-app || true
@@ -84,13 +90,13 @@ jobs:
               --name spring-app \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILE \
-              -e SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_PRIVATE_IP }} \
+              -e SPRING_DATA_REDIS_HOST=$REDIS_HOST \
               -e SPRING_DATA_REDIS_PORT=6379 \
-              -e SPRING_DATA_MONGODB_URI="mongodb://${{ secrets.MONGO_PRIVATE_IP }}:27017/lesson_db" \
-              -e SPRING_DATASOURCE_URL="jdbc:mysql://${{ secrets.RDS_ENDPOINT }}:3306/lesson_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8" \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.RDS_USERNAME }} \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.RDS_PASSWORD }} \
+              -e SPRING_DATA_MONGODB_URI="mongodb://$MONGO_HOST:27017/lesson_db" \
+              -e SPRING_DATASOURCE_URL="jdbc:mysql://$RDS_ENDPOINT:3306/lesson_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8" \
+              -e SPRING_DATASOURCE_USERNAME=$RDS_USERNAME \
+              -e SPRING_DATASOURCE_PASSWORD=$RDS_PASSWORD \
               --restart always \
-              $ECR_REGISTRY/${{ env.ECR_REPOSITORY }}:latest
+              $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
             docker image prune -f

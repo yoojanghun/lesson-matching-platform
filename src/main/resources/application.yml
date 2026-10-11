@@ -71,11 +71,20 @@ toss:
 
 # LangChain4j
 langchain4j:
-  open-ai:
+  ollama:
     chat-model:
-      api-key: ${OPENAI_API_KEY:temp_openai_api_key} # 발급받은 API 키
-      model-name: gpt-4o-mini   # 속도가 빠르고 비용이 매우 저렴한 모델
+      base-url: http://localhost:11434
+      model-name: llama3.2
       temperature: 0.2
+      timeout: 60s
+
+#langchain4j:
+#  open-ai:
+#    chat-model:
+#      api-key: ${OPENAI_API_KEY:temp_openai_api_key} # 발급받은 API 키
+#      model-name: gpt-4o-mini   # 속도가 빠르고 비용이 매우 저렴한 모델
+#      temperature: 0.2
+
     # ── nGrinder 부하 테스트를 위해 EmbeddingModel을 로컬 ONNX(AllMiniLmL6V2)로 교체 ──
     # LangChain4jConfig.java 의 @Primary @Bean이 아래 auto-config을 override하므로
     # embedding-model 설정은 현재 비활성입니다. 운영 복귀 시 @Bean 주석 처리 후 아래 활성화.

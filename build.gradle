@@ -74,6 +74,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Ollama Spring Boot Starter
+    implementation 'dev.langchain4j:langchain4j-ollama-spring-boot-starter:0.35.0'
 }
 
 // QueryDSL QClass 생성 경로 설정

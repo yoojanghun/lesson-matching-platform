@@ -3,6 +3,7 @@ package com.lessonmatchingplatform.lesson_matching_platform.ai.service;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.request.TutorRecommendRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.response.TutorAiMatch;
+import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.response.TutorAiMatchList;
 import com.lessonmatchingplatform.lesson_matching_platform.ai.dto.response.TutorRecommendationResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryTutorRepository;
 import dev.langchain4j.data.embedding.Embedding;
@@ -58,7 +59,9 @@ public class TutorRecommendationService {
         }
 
         // 3. LLM 추천 사유 및 튜터 목록 추출 (2차 RAG)
-        List<TutorAiMatch> aiMatches = aiService.recommendTutors(candidateTutorsText, studentRequirement);
+        TutorAiMatchList result = aiService.recommendTutors(candidateTutorsText, studentRequirement);
+        List<TutorAiMatch> aiMatches = result != null && result.matches() != null
+                ? result.matches() : List.of();
 
         if (aiMatches.isEmpty()) {
             return Collections.emptyList();

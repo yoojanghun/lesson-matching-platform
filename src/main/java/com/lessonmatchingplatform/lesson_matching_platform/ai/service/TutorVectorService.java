@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import dev.langchain4j.data.document.Metadata;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -47,5 +49,26 @@ public class TutorVectorService {
         } catch (Exception e) {
             log.warn("Failed to delete tutor vector or store doesn't support removal by filter. TutorId: {}", tutorId, e);
         }
+    }
+
+    public int reindexAll(List<TutorProfileDto> tutorProfiles) {
+        log.info("[VectorReindex] 기존 Vector DB 전체 삭제 후 {}명 재색인 시작...", tutorProfiles.size());
+        try {
+            embeddingStore.removeAll();
+            log.info("[VectorReindex] Vector DB 전체 삭제 완료");
+        } catch (Exception e) {
+            log.warn("[VectorReindex] 전체 삭제 미지원 — 개별 삭제로 진행: {}", e.getMessage());
+        }
+        int indexed = 0;
+        for (TutorProfileDto profile : tutorProfiles) {
+            try {
+                indexTutorProfile(profile);
+                indexed++;
+            } catch (Exception e) {
+                log.warn("[VectorReindex] tutorId={} 색인 실패: {}", profile.tutorId(), e.getMessage());
+            }
+        }
+        log.info("[VectorReindex] 재색인 완료 — {}명 성공 / {}명 시도", indexed, tutorProfiles.size());
+        return indexed;
     }
 }

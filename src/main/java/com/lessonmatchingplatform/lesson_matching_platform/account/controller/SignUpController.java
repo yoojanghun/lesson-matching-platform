@@ -143,7 +143,7 @@ public class SignUpController {
                         .secure(true)                       // HTTPS 환경에서만 전송
                         .path("/")                          // 어떤 주소로 API 요청을 날리든 간에 브라우저가 쿠키를 서버로 보내줌.
                         .maxAge(604800)
-                        .sameSite("Strict")                 // 외부 사이트에서 우리 서버로 요청을 보낼 때 쿠키 유출, 악용 차단(CSRF 방어)
+                        .sameSite("Lax")                 // 외부 사이트에서 우리 서버로 요청을 보낼 때 쿠키 유출, 악용 차단(CSRF 방어)
                         .build();
         }
 }

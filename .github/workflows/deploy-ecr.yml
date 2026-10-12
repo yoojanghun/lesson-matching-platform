@@ -100,7 +100,7 @@ jobs:
               -e SPRING_DATASOURCE_USERNAME=$RDS_USERNAME \
               -e SPRING_DATASOURCE_PASSWORD=$RDS_PASSWORD \
               -e SPRING_JPA_HIBERNATE_DDL_AUTO=validate \
-              -e SPRING_SQL_INIT_MODE=always \
+              -e SPRING_SQL_INIT_MODE=never \
               -e SPRING_RABBITMQ_HOST=${RABBITMQ_HOST:-localhost} \
               -e SPRING_RABBITMQ_PORT=5672 \
               -e SPRING_RABBITMQ_USERNAME=guest \

@@ -9,6 +9,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.type.LessonGo
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.CategoryType;
 import com.lessonmatchingplatform.lesson_matching_platform.category.type.SubjectType;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.document.TutorDocument;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public record TutorCardDto(
         Long tutorId,
         String name,

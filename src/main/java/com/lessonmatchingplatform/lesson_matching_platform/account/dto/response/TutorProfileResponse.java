@@ -9,9 +9,12 @@ import com.lessonmatchingplatform.lesson_matching_platform.account.dto.SubjectTy
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.TutorLessonPriceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.account.type.GenderType;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.time.LocalDate;
 import java.util.List;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public record TutorProfileResponse(
                 Long tutorId,
                 String name,

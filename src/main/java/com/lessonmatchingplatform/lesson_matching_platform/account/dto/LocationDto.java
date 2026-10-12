@@ -1,7 +1,9 @@
 package com.lessonmatchingplatform.lesson_matching_platform.account.dto;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.lessonmatchingplatform.lesson_matching_platform.account.domain.Location;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public record LocationDto(
         Long locationId,
         Long parentId,

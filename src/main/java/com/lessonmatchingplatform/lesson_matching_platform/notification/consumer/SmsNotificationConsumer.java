@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class SmsNotificationConsumer {
 
     private static final long BASE_RETRY_DELAY_MS = 1000L; // 기본 지연: 1초

@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * - 3회 초과 시 DLX 큐로 이동
  */
 @Configuration
+@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class RabbitMQConfig {
 
     // ──────────────────────────────────────────────────────────────────────
@@ -213,6 +215,8 @@ public class RabbitMQConfig {
         // 동시 소비자 수 (기본 1, 필요 시 조정)
         factory.setConcurrentConsumers(1);
         factory.setMaxConcurrentConsumers(5);
+        // RabbitMQ 연결 실패 시 재시도 간격 (기본 5초 → 30초로 늘려 로그 스팸 방지)
+        factory.setRecoveryInterval(30_000L);
         return factory;
     }
 }

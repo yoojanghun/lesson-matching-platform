@@ -2,9 +2,9 @@ package com.lessonmatchingplatform.lesson_matching_platform.notification.produce
 
 import com.lessonmatchingplatform.lesson_matching_platform.notification.config.RabbitMQConfig;
 import com.lessonmatchingplatform.lesson_matching_platform.notification.dto.SmsMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,10 +22,13 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class SmsNotificationProducer {
 
     private final RabbitTemplate rabbitTemplate;
+
+    public SmsNotificationProducer(@Autowired(required = false) RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
+    }
 
     /**
      * 레슨 매칭 완료 SMS 발행
@@ -98,6 +101,12 @@ public class SmsNotificationProducer {
      * Topic Exchange로 메시지 발행 (공통)
      */
     private void publish(String routingKey, SmsMessage message) {
+        if (rabbitTemplate == null) {
+            log.warn("[SmsProducer] RabbitMQ가 비활성화되어 메시지를 발행하지 않습니다. | routingKey={} | userId={}",
+                    routingKey, message.userId());
+            return;
+        }
+
         log.info("[SmsProducer] 발행 | routingKey={} | userId={} | phone={}",
                 routingKey, message.userId(), message.phoneNumber());
 

@@ -9,22 +9,27 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.service.TutorsS
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSearchService;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSyncService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/tutors")
-@RequiredArgsConstructor
 @RestController
 public class TutorsController {
 
     private final TutorsService tutorsService;
-    private final TutorSearchService tutorSearchService;
-    private final TutorSyncService tutorSyncService;
+
+    @Autowired(required = false)
+    private TutorSearchService tutorSearchService;
+
+    @Autowired(required = false)
+    private TutorSyncService tutorSyncService;
 
     // 강사 상세 프로필 조회 (리뷰 제외, Redis 캐싱 적용)
     @GetMapping("/{tutorId}/profile")
@@ -36,11 +41,15 @@ public class TutorsController {
 
     // Elasticsearch 기반 선생님 검색 (키워드 및 필터 조건)
     @GetMapping("/search")
-    public ResponseEntity<Page<TutorCardDto>> searchTutors(
+    public ResponseEntity<?> searchTutors(
             @RequestParam(required = false) String keyword,         // 검색어
             @ModelAttribute TutorSearchCondition condition,         // 검색 조건
             @PageableDefault(size = 8) Pageable pageable
     ) {
+        if (tutorSearchService == null) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Elasticsearch is not configured. Use /api/tutors (DB fallback) instead.");
+        }
         Page<TutorCardDto> searchResult = tutorSearchService.searchTutors(keyword, condition, pageable)
                 .map(TutorCardDto::from);
         return ResponseEntity.ok(searchResult);
@@ -49,6 +58,10 @@ public class TutorsController {
     // DB의 완성된 튜터 데이터 전체를 Elasticsearch에 1회성 벌크 동기화
     @PostMapping("/sync/all")
     public ResponseEntity<String> syncAllTutors() {
+        if (tutorSyncService == null) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Elasticsearch is not configured.");
+        }
         int count = tutorSyncService.syncAllCompletedTutors();
         return ResponseEntity.ok(count + "명의 튜터 데이터가 Elasticsearch에 동기화되었습니다.");
     }

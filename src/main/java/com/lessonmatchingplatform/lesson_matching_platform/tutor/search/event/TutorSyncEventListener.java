@@ -10,6 +10,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.type.EventType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,9 +24,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class TutorSyncEventListener {
 
     private final TutorsRepository tutorsRepository;
-    private final TutorSearchRepository tutorSearchRepository;
-    private final TutorSyncService tutorSyncService;
     private final TutorVectorService tutorVectorService;
+
+    @Autowired(required = false)
+    private TutorSearchRepository tutorSearchRepository;
+
+    @Autowired(required = false)
+    private TutorSyncService tutorSyncService;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -34,7 +39,7 @@ public class TutorSyncEventListener {
         log.info("Handling TutorSyncEvent for tutorId: {}, eventType: {}", event.tutorId(), event.eventType());
 
         if (event.eventType() == EventType.DELETED) {
-            tutorSearchRepository.deleteById(event.tutorId());
+            if (tutorSearchRepository != null) tutorSearchRepository.deleteById(event.tutorId());
             tutorVectorService.deleteTutorProfile(event.tutorId());
             log.info("Successfully deleted TutorDocument and Vector for tutorId: {}", event.tutorId());
             return;
@@ -42,19 +47,23 @@ public class TutorSyncEventListener {
 
         tutorsRepository.findById(event.tutorId()).ifPresent(tutorAccount -> {
             if (tutorAccount.getProfileStatus() != ProfileStatus.COMPLETED) {
-                tutorSearchRepository.deleteById(event.tutorId());
+                if (tutorSearchRepository != null) tutorSearchRepository.deleteById(event.tutorId());
                 tutorVectorService.deleteTutorProfile(event.tutorId());
                 log.info("TutorAccount profile is incomplete. Deleted/skipped from Elasticsearch and Vector DB. tutorId: {}", event.tutorId());
                 return;
             }
 
-            TutorDocument document = tutorSyncService.toDocument(tutorAccount);
-            tutorSearchRepository.save(document);
+            if (tutorSyncService != null && tutorSearchRepository != null) {
+                TutorDocument document = tutorSyncService.toDocument(tutorAccount);
+                tutorSearchRepository.save(document);
+            } else {
+                log.warn("Elasticsearch is not configured. Skipping ES sync for tutorId: {}", event.tutorId());
+            }
 
             TutorProfileDto profileDto = TutorProfileDto.from(tutorAccount);
             tutorVectorService.indexTutorProfile(profileDto);
 
-            log.info("Successfully synced TutorAccount to Elasticsearch and Vector DB. tutorId: {}", event.tutorId());
+            log.info("Successfully synced TutorAccount to Vector DB. tutorId: {}", event.tutorId());
         });
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Builder
-@Document(indexName = "tutors")
+@Document(indexName = "tutors", createIndex = false)
 @Setting(settingPath = "elasticsearch/settings/nori-settings.json")
 public class TutorDocument {
 

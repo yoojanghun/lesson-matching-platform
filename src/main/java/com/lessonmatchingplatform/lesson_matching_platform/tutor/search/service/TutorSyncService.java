@@ -8,6 +8,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.document
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.repository.TutorSearchRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "spring.data.elasticsearch.uris", matchIfMissing = false)
 public class TutorSyncService {
 
     private final TutorsRepository tutorsRepository;

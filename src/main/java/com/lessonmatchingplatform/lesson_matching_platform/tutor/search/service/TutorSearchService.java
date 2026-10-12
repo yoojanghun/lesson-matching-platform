@@ -10,6 +10,7 @@ import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.Criteria;
 import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 @Service
+@ConditionalOnProperty(name = "spring.data.elasticsearch.uris", matchIfMissing = false)
 public class TutorSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;

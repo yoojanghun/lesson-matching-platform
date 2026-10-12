@@ -1,14 +1,12 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.controller;
 
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
-import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReviewRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorCardDto;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.account.dto.response.TutorProfileResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.service.TutorsService;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSearchService;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSyncService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,21 +29,23 @@ public class TutorsController {
     @Autowired(required = false)
     private TutorSyncService tutorSyncService;
 
+    public TutorsController(TutorsService tutorsService) {
+        this.tutorsService = tutorsService;
+    }
+
     // 강사 상세 프로필 조회 (리뷰 제외, Redis 캐싱 적용)
     @GetMapping("/{tutorId}/profile")
     public ResponseEntity<TutorProfileResponse> getTutorProfile(
-            @PathVariable Long tutorId
-    ) {
+            @PathVariable Long tutorId) {
         return ResponseEntity.ok(tutorsService.getTutorProfile(tutorId));
     }
 
     // Elasticsearch 기반 선생님 검색 (키워드 및 필터 조건)
     @GetMapping("/search")
     public ResponseEntity<?> searchTutors(
-            @RequestParam(required = false) String keyword,         // 검색어
-            @ModelAttribute TutorSearchCondition condition,         // 검색 조건
-            @PageableDefault(size = 8) Pageable pageable
-    ) {
+            @RequestParam(required = false) String keyword, // 검색어
+            @ModelAttribute TutorSearchCondition condition, // 검색 조건
+            @PageableDefault(size = 8) Pageable pageable) {
         if (tutorSearchService == null) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Elasticsearch is not configured. Use /api/tutors (DB fallback) instead.");
@@ -70,8 +70,7 @@ public class TutorsController {
     @GetMapping("/{tutorId}/reviews")
     public ResponseEntity<Slice<ReviewResponse>> getReviews(
             @PathVariable Long tutorId,
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<ReviewResponse> reviewResponseSlice = tutorsService.findReviewsByTutorId(tutorId, pageable);
 
         return ResponseEntity.ok(reviewResponseSlice);
@@ -81,8 +80,7 @@ public class TutorsController {
     @GetMapping
     public ResponseEntity<Page<TutorCardDto>> getTutorsList(
             @RequestBody TutorSearchCondition tutorSearchCondition,
-            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PageableDefault(size = 8, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<TutorCardDto> tutorCardDtoPage = tutorsService.getTutorsList(tutorSearchCondition, pageable);
         return ResponseEntity.ok(tutorCardDtoPage);
     }

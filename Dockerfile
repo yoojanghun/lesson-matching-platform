@@ -1,5 +1,5 @@
 # Docker Image를 만들기 위한 step-by-step 설명서
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 

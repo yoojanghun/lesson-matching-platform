@@ -13,6 +13,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.S
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.notification.producer.SmsNotificationProducer;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
@@ -44,6 +45,7 @@ public class LessonMatchingService {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleExceptionRepository scheduleExceptionRepository;
     private final ReservationRepository reservationRepository;
+    private final SmsNotificationProducer smsNotificationProducer;
 
     // Student가 레슨 등록
     public Long lessonMatching(Long studentId, Long tutorId, LessonMatchingRequest request) {
@@ -72,12 +74,22 @@ public class LessonMatchingService {
 
     // Tutor가 레슨 승인 / 거절 / 취소
     public Long postMyMatching(Long tutorId, Long matchingId, LessonStatusRequest request) {
-        Matching matching = matchingRepository.findByMatchingIdAndTutorAccount_TutorId(matchingId, tutorId)
+        // studentAccount.userAccount.phoneNumber 접근을 위해 페치조인 쿼리 사용
+        Matching matching = matchingRepository.findByMatchingIdAndTutorIdWithStudent(matchingId, tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
 
         MatchingStatus requestStatus = request.status();
         if(!matching.getStatus().equals(requestStatus)) {
             matching.setStatus(requestStatus);
+
+            // 튜터가 매칭 승인 시 → 학생에게 SMS 알림 발행 (RabbitMQ 비동기)
+            if (requestStatus == MatchingStatus.ACCEPTED) {
+                String studentPhone = matching.getStudentAccount().getUserAccount().getPhoneNumber();
+                Long studentId = matching.getStudentAccount().getStudentId();
+                if (studentPhone != null && !studentPhone.isBlank()) {
+                    smsNotificationProducer.sendLessonMatchedNotification(studentId, studentPhone);
+                }
+            }
         }
 
         return matching.getMatchingId();

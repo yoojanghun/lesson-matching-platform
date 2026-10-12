@@ -5,6 +5,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.que
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -19,4 +20,16 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
 
     @Query("SELECT m FROM Matching m JOIN FETCH m.studentAccount sa JOIN FETCH m.tutorAccount ta JOIN FETCH sa.userAccount sua JOIN FETCH ta.userAccount tua WHERE m.matchingId = :matchingId")
     Matching findWithDetailsByMatchingId(Long matchingId);
+
+    /**
+     * 튜터 매칭 승인 처리 + SMS 발송에 필요한 studentAccount.userAccount 즉시 로드용 쿼리
+     * - studentAccount → userAccount.phoneNumber 접근 시 Lazy 로딩 문제 방지
+     */
+    @Query("SELECT m FROM Matching m " +
+            "JOIN FETCH m.studentAccount sa " +
+            "JOIN FETCH sa.userAccount ua " +
+            "WHERE m.matchingId = :matchingId AND m.tutorAccount.tutorId = :tutorId")
+    Optional<Matching> findByMatchingIdAndTutorIdWithStudent(
+            @Param("matchingId") Long matchingId,
+            @Param("tutorId") Long tutorId);
 }

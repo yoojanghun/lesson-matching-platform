@@ -53,6 +53,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT p FROM Payment p " +
             "JOIN FETCH p.matching m " +
             "JOIN FETCH m.tutorAccount ta " +
+            "JOIN FETCH m.studentAccount sa " +
+            "JOIN FETCH sa.userAccount ua " +
             "LEFT JOIN FETCH p.reservationSet r " +
             "WHERE p.orderId = :orderId")
     Optional<Payment> findByOrderIdForTutorUpdate(@Param("orderId") String orderId);

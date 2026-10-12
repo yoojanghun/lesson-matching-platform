@@ -73,12 +73,14 @@ jobs:
           RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          RABBITMQ_HOST: ${{ secrets.RABBITMQ_HOST }}
+          ES_HOST: ${{ secrets.ES_HOST }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
-          envs: ECR_REGISTRY,ECR_REPOSITORY,SPRING_PROFILE,REDIS_HOST,MONGO_HOST,RDS_ENDPOINT,RDS_USERNAME,RDS_PASSWORD
+          envs: ECR_REGISTRY,ECR_REPOSITORY,SPRING_PROFILE,REDIS_HOST,MONGO_HOST,RDS_ENDPOINT,RDS_USERNAME,RDS_PASSWORD,RABBITMQ_HOST,ES_HOST
           script: |
             aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
 
@@ -93,11 +95,17 @@ jobs:
               -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILE \
               -e SPRING_DATA_REDIS_HOST=$REDIS_HOST \
               -e SPRING_DATA_REDIS_PORT=6379 \
-              -e SPRING_DATA_MONGODB_URI="mongodb://$MONGO_HOST:27017/lesson_db" \
-              -e SPRING_DATASOURCE_URL="jdbc:mysql://$RDS_ENDPOINT:3306/lesson_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true" \
+              -e SPRING_DATA_MONGODB_URI="mongodb://$MONGO_HOST:27017/lesson_chat" \
+              -e SPRING_DATASOURCE_URL="jdbc:mysql://$RDS_ENDPOINT:3306/lesson_platform?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true" \
               -e SPRING_DATASOURCE_USERNAME=$RDS_USERNAME \
               -e SPRING_DATASOURCE_PASSWORD=$RDS_PASSWORD \
-              -e SPRING_JPA_DATABASE_PLATFORM="org.hibernate.dialect.MySQLDialect" \
+              -e SPRING_JPA_HIBERNATE_DDL_AUTO=validate \
+              -e SPRING_SQL_INIT_MODE=never \
+              -e SPRING_RABBITMQ_HOST=${RABBITMQ_HOST:-localhost} \
+              -e SPRING_RABBITMQ_PORT=5672 \
+              -e SPRING_RABBITMQ_USERNAME=guest \
+              -e SPRING_RABBITMQ_PASSWORD=guest \
+              -e SPRING_ELASTICSEARCH_URIS=${ES_HOST:-localhost:9200} \
               --restart always \
               $ECR_REGISTRY/$ECR_REPOSITORY:latest
 

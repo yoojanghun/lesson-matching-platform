@@ -4,15 +4,16 @@ spring:
 
   # Datasource Configuration
   datasource:
-    url: jdbc:mysql://localhost:3308/lesson_platform?serverTimezone=Asia/Seoul&createDatabaseIfNotExist=true
-    username: root
-    password: Janghun7926*
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3308/lesson_platform?serverTimezone=Asia/Seoul&createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:Janghun7926*}
 
   # JPA Configuration
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
+      # 로컬: create / 운영(prod): validate 또는 none
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
     properties:
       hibernate:
         format_sql: true
@@ -24,19 +25,20 @@ spring:
     defer-datasource-initialization: true
 
   # SQL Init
+  # 로컬: always / 운영(prod): never (매 배포마다 data.sql 재실행 방지)
   sql:
     init:
-      mode: always
+      mode: ${SPRING_SQL_INIT_MODE:always}
 
   # NoSQL (Redis, MongoDB, Elasticsearch)
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
     mongodb:
-      uri: mongodb://localhost:27017/lesson_chat
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/lesson_chat}
     elasticsearch:
-      uris: localhost:9200
+      uris: ${SPRING_ELASTICSEARCH_URIS:localhost:9200}
 
   # RabbitMQ
   rabbitmq:

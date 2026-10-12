@@ -7,6 +7,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.Res
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.ReservationStatus;
+import com.lessonmatchingplatform.lesson_matching_platform.notification.producer.SmsNotificationProducer;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.domain.Payment;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.PaymentPrepareRequest;
 import com.lessonmatchingplatform.lesson_matching_platform.payment.dto.request.StudentCancelPaymentRequest;
@@ -44,6 +45,7 @@ public class LessonPaymentService {
     private final MatchingRepository matchingRepository;
     private final TutorsRepository tutorsRepository;
     private final ReservationRepository reservationRepository;
+    private final SmsNotificationProducer smsNotificationProducer;
 
     // 학생이 결제 요청 생성
     @Transactional
@@ -133,6 +135,18 @@ public class LessonPaymentService {
         }
 
         payment.confirmByTutor();
+
+        // 튜터가 결제 최종 확인 시 → 학생에게 결제 완료 SMS 알림 (RabbitMQ 비동기)
+        String studentPhone = payment.getMatching().getStudentAccount().getUserAccount().getPhoneNumber();
+        Long studentId = payment.getMatching().getStudentAccount().getStudentId();
+        if (studentPhone != null && !studentPhone.isBlank()) {
+            smsNotificationProducer.sendPaymentCompletedNotification(
+                    studentId,
+                    studentPhone,
+                    payment.getAmount()
+            );
+        }
+
         return PaymentStatusResponse.of(payment);
     }
 

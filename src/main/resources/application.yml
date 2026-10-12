@@ -38,6 +38,20 @@ spring:
     elasticsearch:
       uris: localhost:9200
 
+  # RabbitMQ
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: /
+    listener:
+      simple:
+        acknowledge-mode: manual          # 수동 Ack 모드 (Consumer에서 직접 Ack/Nack 호출)
+        prefetch: 1                       # 한 번에 1개 메시지만 처리 (Ack 전 다음 메시지 수신 안 함)
+        retry:
+          enabled: false                  # Spring Retry는 비활성 (Consumer 내부에서 직접 재시도 관리)
+
   # Security OAuth2
   security:
     oauth2:

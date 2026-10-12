@@ -39,6 +39,9 @@ dependencies {
     // WebSocket (STOMP)
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // RabbitMQ (AMQP)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     // QueryDSL (Jakarta 대응)
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"

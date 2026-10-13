@@ -53,7 +53,7 @@ public class Reservation extends AuditingFields {
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(length = 20, nullable = false)
     private ReservationStatus reservationStatus;
 
     protected Reservation() {}

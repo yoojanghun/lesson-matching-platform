@@ -24,7 +24,7 @@ public class Schedule extends AuditingFields {
     private TutorAccount tutorAccount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(length = 20, nullable = false)
     private DayOfWeek dayOfWeek;
 
     @Column(nullable = false)

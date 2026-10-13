@@ -112,25 +112,15 @@ class ReservationConcurrencyTest {
     // ─────────────────────────────────────────────────────────────────────
     static final List<Map> STUDENT_USERS = [
         [username: "student1@test.com",  password: "testaccount123", matchingId: 1L],
-        [username: "student2@test.com",  password: "testaccount123", matchingId: 2L],
-        [username: "student3@test.com",  password: "testaccount123", matchingId: 3L],
-        [username: "student4@test.com",  password: "testaccount123", matchingId: 4L],
-        [username: "student5@test.com",  password: "testaccount123", matchingId: 5L],
-        [username: "student6@test.com",  password: "testaccount123", matchingId: 6L],
-        [username: "student7@test.com",  password: "testaccount123", matchingId: 7L],
-        [username: "student8@test.com",  password: "testaccount123", matchingId: 8L],
-        [username: "student9@test.com",  password: "testaccount123", matchingId: 9L],
-        [username: "student10@test.com", password: "testaccount123", matchingId: 10L],
-        [username: "student11@test.com", password: "testaccount123", matchingId: 11L],
-        [username: "student12@test.com", password: "testaccount123", matchingId: 12L],
-        [username: "student13@test.com", password: "testaccount123", matchingId: 13L],
-        [username: "student14@test.com", password: "testaccount123", matchingId: 14L],
-        [username: "student15@test.com", password: "testaccount123", matchingId: 15L],
-        [username: "student16@test.com", password: "testaccount123", matchingId: 16L],
-        [username: "student17@test.com", password: "testaccount123", matchingId: 17L],
-        [username: "student18@test.com", password: "testaccount123", matchingId: 18L],
-        [username: "student19@test.com", password: "testaccount123", matchingId: 19L],
-        [username: "student20@test.com", password: "testaccount123", matchingId: 20L],
+        [username: "student3@test.com",  password: "testaccount123", matchingId: 2L],
+        [username: "student7@test.com",  password: "testaccount123", matchingId: 3L],
+        [username: "student8@test.com",  password: "testaccount123", matchingId: 4L],
+        [username: "student10@test.com", password: "testaccount123", matchingId: 5L],
+        [username: "student11@test.com", password: "testaccount123", matchingId: 6L],
+        [username: "student13@test.com", password: "testaccount123", matchingId: 7L],
+        [username: "student15@test.com", password: "testaccount123", matchingId: 8L],
+        [username: "student16@test.com", password: "testaccount123", matchingId: 9L],
+        [username: "student17@test.com", password: "testaccount123", matchingId: 10L],
     ]
 
     static final List<String> RESERVATION_MESSAGES = [
@@ -452,7 +442,7 @@ class ReservationConcurrencyTest {
         long start = System.currentTimeMillis()
 
         try {
-            def res     = request.GET(url, authHeader())
+            def res     = request.GET(url, null, authHeader())
             long elapsed = System.currentTimeMillis() - start
 
             if (res.statusCode == 200) {

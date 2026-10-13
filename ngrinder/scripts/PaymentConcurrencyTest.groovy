@@ -87,16 +87,16 @@ class PaymentConcurrencyTest {
     //   GROUP BY m.matching_id, sa.student_id, ua.username;
     // ─────────────────────────────────────────────────────────────────────
     static final List<Map> STUDENT_USERS = [
-        [username: "student1@test.com",  password: "testaccount123", matchingId: 1L, reservationIds: [1L, 2L]],
-        [username: "student2@test.com",  password: "testaccount123", matchingId: 2L, reservationIds: [3L, 4L]],
-        [username: "student3@test.com",  password: "testaccount123", matchingId: 3L, reservationIds: [5L, 6L]],
-        [username: "student4@test.com",  password: "testaccount123", matchingId: 4L, reservationIds: [7L, 8L]],
-        [username: "student5@test.com",  password: "testaccount123", matchingId: 5L, reservationIds: [9L, 10L]],
-        [username: "student6@test.com",  password: "testaccount123", matchingId: 6L, reservationIds: [11L, 12L]],
-        [username: "student7@test.com",  password: "testaccount123", matchingId: 7L, reservationIds: [13L, 14L]],
-        [username: "student8@test.com",  password: "testaccount123", matchingId: 8L, reservationIds: [15L, 16L]],
-        [username: "student9@test.com",  password: "testaccount123", matchingId: 9L, reservationIds: [17L, 18L]],
-        [username: "student10@test.com", password: "testaccount123", matchingId: 10L, reservationIds: [19L, 20L]],
+        [username: "student1@test.com",  password: "testaccount123", matchingId: 1L,  reservationIds: [1L, 2L]],
+        [username: "student3@test.com",  password: "testaccount123", matchingId: 2L,  reservationIds: [3L, 4L]],
+        [username: "student7@test.com",  password: "testaccount123", matchingId: 3L,  reservationIds: [5L, 6L]],
+        [username: "student8@test.com",  password: "testaccount123", matchingId: 4L,  reservationIds: [7L, 8L]],
+        [username: "student10@test.com", password: "testaccount123", matchingId: 5L,  reservationIds: [9L, 10L]],
+        [username: "student11@test.com", password: "testaccount123", matchingId: 6L,  reservationIds: [11L, 12L]],
+        [username: "student13@test.com", password: "testaccount123", matchingId: 7L,  reservationIds: [13L, 14L]],
+        [username: "student15@test.com", password: "testaccount123", matchingId: 8L,  reservationIds: [15L, 16L]],
+        [username: "student16@test.com", password: "testaccount123", matchingId: 9L,  reservationIds: [17L, 18L]],
+        [username: "student17@test.com", password: "testaccount123", matchingId: 10L, reservationIds: [19L, 20L]],
     ]
 
     // ─────────────────────────────────────────────────────────────────────

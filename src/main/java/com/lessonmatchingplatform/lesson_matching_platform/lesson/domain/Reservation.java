@@ -52,6 +52,7 @@ public class Reservation extends AuditingFields {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReservationStatus reservationStatus;
 

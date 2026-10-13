@@ -279,7 +279,7 @@ class MatchingStatusUpdateTest {
         long start = System.currentTimeMillis()
 
         try {
-            def res     = request.PATCH(url, body.getBytes("UTF-8"), authHeader())
+            def res     = request.POST(url, body.getBytes("UTF-8"), authHeader())
             long elapsed = System.currentTimeMillis() - start
 
             switch (res.statusCode) {
@@ -382,7 +382,7 @@ class MatchingStatusUpdateTest {
         long start = System.currentTimeMillis()
 
         try {
-            def res     = request.GET(url, authHeader())
+            def res     = request.GET(url, null, authHeader())
             long elapsed = System.currentTimeMillis() - start
 
             if (res.statusCode == 200) {

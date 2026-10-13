@@ -58,7 +58,7 @@ public class LessonMatchingController {
 
     // Tutor는 자신의 레슨 요청 정보(Matching)들 중 하나를 선택 후, 거절 / 승인 을 답장으로 보냄
     @PreAuthorize("hasRole('TUTOR')")
-    @PatchMapping("/{matchingId}/status")
+    @RequestMapping(value = "/{matchingId}/status", method = {RequestMethod.PATCH, RequestMethod.POST})
     public ResponseEntity<Long> postMyMatching(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long matchingId,

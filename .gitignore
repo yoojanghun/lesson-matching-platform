@@ -53,3 +53,6 @@ es_data/
 ngrinder-controller-home/
 
 key/
+
+# RabbitMQ
+rabbitmq_data/

@@ -23,6 +23,7 @@ public class Schedule extends AuditingFields {
     @JoinColumn(name = "tutor_id", nullable = false)
     private TutorAccount tutorAccount;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DayOfWeek dayOfWeek;
 

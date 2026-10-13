@@ -93,7 +93,7 @@ class TutorSearchConcurrencyTest {
      */
     static final List<String> LOCATIONS = ["서울", "경기", "인천", "부산", "대전"]
     static final List<String> PRICE_RANGES = ["30000-50000", "50000-70000", "70000-100000"]
-    static final List<String> SORT_OPTIONS = ["rating,desc", "price,asc", "reviewCount,desc"]
+    static final List<String> SORT_OPTIONS = ["averageRating,desc", "minPrice,asc", "reviewCount,desc"]
 
     /**
      * 인기 키워드 집중도 (%)
@@ -222,7 +222,7 @@ class TutorSearchConcurrencyTest {
         long start = System.currentTimeMillis()
 
         try {
-            def res     = request.GET(url, jsonHeader())
+            def res     = request.GET(url, null, jsonHeader())
             long elapsed = System.currentTimeMillis() - start
 
             // ─── Cache Hit/Miss 확인 (서버가 X-Cache 헤더 제공 시) ───
@@ -332,7 +332,7 @@ class TutorSearchConcurrencyTest {
         long start = System.currentTimeMillis()
 
         try {
-            def res     = request.GET(url, jsonHeader())
+            def res     = request.GET(url, null, jsonHeader())
             long elapsed = System.currentTimeMillis() - start
 
             String cacheStatus = res.getHeader("X-Cache") ?: "UNKNOWN"
@@ -375,7 +375,7 @@ class TutorSearchConcurrencyTest {
         long start = System.currentTimeMillis()
 
         try {
-            def res     = request.GET(url, jsonHeader())
+            def res     = request.GET(url, null, jsonHeader())
             long elapsed = System.currentTimeMillis() - start
 
             if (res.statusCode == 200) {

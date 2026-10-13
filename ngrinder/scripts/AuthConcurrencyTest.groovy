@@ -164,15 +164,17 @@ class AuthConcurrencyTest {
     // ─────────────────────────────────────────────────────────────────────
 
     Map generateRandomAccount() {
-        long timestamp = System.currentTimeMillis()
-        int threadNum = grinder.threadNumber
-        int random = new Random().nextInt(10000)
+        // timestamp 뒤 8자리 + random 4자리 -> 총 19자 이내 보장
+        long shortTs = System.currentTimeMillis() % 100000000L          // 8자리
+        int threadNum = grinder.threadNumber % 100                      // 최대 2자리
+        int random = new Random().nextInt(1000)                   // 최대 3자리
 
-        String username = "user_${threadNum}_${timestamp}_${random}"
-        String email = "user${threadNum}_${timestamp}_${random}@test.com"
+        // 예: u0_12345678_999 (약 15~16자 -> 20자 이하 충족)
+        String username = "u${threadNum}_${shortTs}_${random}"
+        String email = "${username}@test.com"
         String name = NAMES[new Random().nextInt(NAMES.size())]
-        String phone = PHONE_PREFIXES[new Random().nextInt(PHONE_PREFIXES.size())] + "-" + 
-                       String.format("%04d", new Random().nextInt(10000))
+        String phone = PHONE_PREFIXES[new Random().nextInt(PHONE_PREFIXES.size())] + "-" +
+                String.format("%04d", new Random().nextInt(10000))
 
         return [
             username: username,
@@ -199,9 +201,10 @@ class AuthConcurrencyTest {
         int rand = new Random().nextInt(100)
         if (rand < 50) {
             // 50%는 인기 아이디 (중복 체크 집중)
-            userId = "popular_user_" + (new Random().nextInt(10))
+            userId = "pop_user_" + (new Random().nextInt(10))
         } else {
-            userId = "user_" + System.currentTimeMillis() + "_" + new Random().nextInt(10000)
+            long shortTs = System.currentTimeMillis() % 100000000L
+            userId = "u_${shortTs}_" + (new Random().nextInt(1000))
         }
 
         String url = "${BASE_URL}/api/sign-up/check-id?userId=${URLEncoder.encode(userId, 'UTF-8')}"
@@ -280,11 +283,9 @@ class AuthConcurrencyTest {
         }
 
         String body = JsonOutput.toJson([
-            userId: account.username,
-            username: account.name,
-            email: account.email,
-            password: account.password,
-            phoneNumber: account.phone
+                userId: account.username,
+                name: account.name,
+                userPassword: account.password
         ])
 
         String url = "${BASE_URL}/api/sign-up/student"
@@ -315,7 +316,7 @@ class AuthConcurrencyTest {
 
                 case 400:
                 case 409:
-                    // ⚠ 중복 계정 차단 (정상 동작)
+                    // ⚠ 중복 계정 차단 (정상 동작) 또는 유효성 검증 실패
                     duplicateErrorCount++
                     if (isRaceAttempt) {
                         grinder.logger.info(
@@ -325,7 +326,7 @@ class AuthConcurrencyTest {
                         )
                     } else {
                         grinder.logger.warn(
-                            "⚠ 예상치 못한 중복(${res.statusCode}) | username=${account.username}"
+                            "⚠ 요청 거부(${res.statusCode}) | username=${account.username} | body=${res.text?.take(150)}"
                         )
                     }
                     break

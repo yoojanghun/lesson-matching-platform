@@ -66,6 +66,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_PASSWORD: ${{ steps.login-ecr.outputs.docker_password }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
           SPRING_PROFILE: prod
           REDIS_HOST: ${{ secrets.REDIS_PRIVATE_IP }}
@@ -80,9 +81,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
-          envs: ECR_REGISTRY,ECR_REPOSITORY,SPRING_PROFILE,REDIS_HOST,MONGO_HOST,RDS_ENDPOINT,RDS_USERNAME,RDS_PASSWORD,RABBITMQ_HOST,ES_HOST
+          envs: ECR_REGISTRY,ECR_PASSWORD,ECR_REPOSITORY,SPRING_PROFILE,REDIS_HOST,MONGO_HOST,RDS_ENDPOINT,RDS_USERNAME,RDS_PASSWORD,RABBITMQ_HOST,ES_HOST
           script: |
-            aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $ECR_REGISTRY
+            echo "$ECR_PASSWORD" | docker login --username AWS --password-stdin $ECR_REGISTRY
 
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
 

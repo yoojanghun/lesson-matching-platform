@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      enable_perf:
+        description: '부하 테스트용 perf 프로필 활성화 (NoOpPasswordEncoder & SyncExecutor)'
+        type: boolean
+        default: false
+        required: false
 
 permissions:
   id-token: write
@@ -71,7 +78,7 @@ jobs:
           AWS_DEFAULT_REGION: ap-northeast-2
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
-          SPRING_PROFILE: prod
+          SPRING_PROFILE: ${{ (inputs.enable_perf == true) && 'prod,perf' || 'prod' }}
           REDIS_HOST: ${{ secrets.REDIS_PRIVATE_IP }}
           MONGO_HOST: ${{ secrets.MONGO_PRIVATE_IP }}
           RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}

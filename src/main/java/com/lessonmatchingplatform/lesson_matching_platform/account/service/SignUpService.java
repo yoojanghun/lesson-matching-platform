@@ -46,9 +46,9 @@ public class SignUpService {
     private final LessonGoalRepository lessonGoalRepository;
     private final GoalTutorRepository goalTutorRepository;
 
-    public void signUpTutor(TutorSignUpRequest request) throws ExecutionException, InterruptedException {
+    public void signUpTutor(TutorSignUpRequest request) {
         // Bcrypt 전용 스레드 풀(Bulkhead)에서 비동기 해싱 → Tomcat 스레드 점유 방지
-        String encodedPassword = bcryptService.encode(request.userPassword()).get();
+        String encodedPassword = bcryptService.encode(request.userPassword()).join();
         UserAccount userAccount = UserAccount.ofRegister(
                 request.userId(),
                 encodedPassword,
@@ -67,9 +67,9 @@ public class SignUpService {
         registerAsTutor(userAccount, request);
     }
 
-    public void signUpStudent(StudentSignupRequest request) throws ExecutionException, InterruptedException {
+    public void signUpStudent(StudentSignupRequest request) {
         // Bcrypt 전용 스레드 풀(Bulkhead)에서 비동기 해싱 → Tomcat 스레드 점유 방지
-        String encodedPassword = bcryptService.encode(request.userPassword()).get();
+        String encodedPassword = bcryptService.encode(request.userPassword()).join();
         UserAccount userAccount = UserAccount.ofRegister(
                 request.userId(),
                 encodedPassword,

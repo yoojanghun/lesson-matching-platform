@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.concurrent.RejectedExecutionException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -45,6 +47,17 @@ public class GlobalExceptionHandler {
         // 상황에 따라 400(Bad Request) 혹은 409(Conflict)로 내려주면 적절
         CustomErrorResponse response = new CustomErrorResponse(e.getMessage(), HttpStatus.CONFLICT.value());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    // Bcrypt 전용 스레드 풀(Bulkhead) 포화 시 (429 Too Many Requests)
+    // 동시 회원가입/로그인 요청이 풀 큐(50개) 초과 시 발생 → 서버 보호
+    @ExceptionHandler(RejectedExecutionException.class)
+    public ResponseEntity<CustomErrorResponse> handleRejectedExecutionException(RejectedExecutionException e) {
+        CustomErrorResponse response = new CustomErrorResponse(
+                "서버가 처리할 수 있는 인증 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.",
+                HttpStatus.TOO_MANY_REQUESTS.value()
+        );
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
     }
 
     // 예측하지 못한 심각한 서버 에러 발생 시 (500 Internal Server Error)

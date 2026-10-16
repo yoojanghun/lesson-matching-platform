@@ -15,13 +15,14 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.repository.S
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 
 import com.lessonmatchingplatform.lesson_matching_platform.global.security.BoardPrincipal;
+import com.lessonmatchingplatform.lesson_matching_platform.global.security.BcryptService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RequiredArgsConstructor
 @Transactional
@@ -30,7 +31,7 @@ public class SignUpService {
 
     private final UserRepository userRepository;
     private final TutorsRepository tutorsRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final BcryptService bcryptService;
     private final StudentRepository studentRepository;
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
@@ -45,10 +46,12 @@ public class SignUpService {
     private final LessonGoalRepository lessonGoalRepository;
     private final GoalTutorRepository goalTutorRepository;
 
-    public void signUpTutor(TutorSignUpRequest request) {
+    public void signUpTutor(TutorSignUpRequest request) throws ExecutionException, InterruptedException {
+        // Bcrypt 전용 스레드 풀(Bulkhead)에서 비동기 해싱 → Tomcat 스레드 점유 방지
+        String encodedPassword = bcryptService.encode(request.userPassword()).get();
         UserAccount userAccount = UserAccount.ofRegister(
                 request.userId(),
-                passwordEncoder.encode(request.userPassword()), // password는 암호화 한 후 저장
+                encodedPassword,
                 request.name());
         userRepository.save(userAccount);
         registerAsTutor(userAccount, request);
@@ -64,10 +67,12 @@ public class SignUpService {
         registerAsTutor(userAccount, request);
     }
 
-    public void signUpStudent(StudentSignupRequest request) {
+    public void signUpStudent(StudentSignupRequest request) throws ExecutionException, InterruptedException {
+        // Bcrypt 전용 스레드 풀(Bulkhead)에서 비동기 해싱 → Tomcat 스레드 점유 방지
+        String encodedPassword = bcryptService.encode(request.userPassword()).get();
         UserAccount userAccount = UserAccount.ofRegister(
                 request.userId(),
-                passwordEncoder.encode(request.userPassword()),
+                encodedPassword,
                 request.name());
         userRepository.save(userAccount);
 

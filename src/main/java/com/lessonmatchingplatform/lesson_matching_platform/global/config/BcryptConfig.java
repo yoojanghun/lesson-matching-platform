@@ -2,6 +2,8 @@ package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
@@ -12,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class BcryptConfig {
 
     @Bean(name = "bcryptExecutor")
+    @Profile("!perf")
     public Executor bcryptExecutor() {
         return new ThreadPoolExecutor(
                 10,                                          // corePoolSize
@@ -26,5 +29,11 @@ public class BcryptConfig {
                 },
                 new ThreadPoolExecutor.AbortPolicy()         // 큐 초과 시 RejectedExecutionException
         );
+    }
+
+    @Bean(name = "bcryptExecutor")
+    @Profile("perf")
+    public Executor perfBcryptExecutor() {
+        return new SyncTaskExecutor();
     }
 }

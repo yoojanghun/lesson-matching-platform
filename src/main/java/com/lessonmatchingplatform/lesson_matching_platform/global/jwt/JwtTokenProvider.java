@@ -21,7 +21,12 @@ public class JwtTokenProvider {
     private final JwtProperties jwtProperties;
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(jwtProperties.getSecret());
+        byte[] keyBytes;
+        try {
+            keyBytes = Base64.getDecoder().decode(jwtProperties.getSecret());
+        } catch (IllegalArgumentException e) {
+            keyBytes = jwtProperties.getSecret().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

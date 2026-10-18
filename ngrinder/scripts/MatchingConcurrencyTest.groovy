@@ -56,8 +56,8 @@ class MatchingConcurrencyTest {
     // ★ 테스트 환경 설정 (실제 환경에 맞게 수정 필요)
     // ─────────────────────────────────────────────────────────────────────
 
-    /** nGrinder Agent → Spring Boot 앱 주소 (Docker 내부 실행 시 host.docker.internal) */
-    static final String BASE_URL = "http://host.docker.internal:8080"
+    /** nGrinder Agent → Spring Boot 앱 주소 */
+    static final String BASE_URL = "http://13.125.58.106:8080"
 
     /**
      * 부하를 몰아줄 인기 튜터의 DB ID (PK)
@@ -150,14 +150,12 @@ class MatchingConcurrencyTest {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // 로그인 (STUDENT 역할 JWT 발급)
+    // 로그인 (STUDENT 역할 JWT 발급) — 스레드 초기화 시 1회 호출
     // ─────────────────────────────────────────────────────────────────────
 
     void login() {
         int idx  = (int)(grinder.threadNumber % STUDENT_USERS.size())
         Map user = STUDENT_USERS[idx]
-
-        loginTest.record(request)
 
         String body = JsonOutput.toJson([
             username: user.username,
@@ -173,21 +171,13 @@ class MatchingConcurrencyTest {
                 tokenIssuedAt = System.currentTimeMillis()
                 grinder.logger.info("✅ 로그인 성공 | thread=${grinder.threadNumber} | user=${user.username}")
             } else {
-                grinder.logger.warn("⚠ 로그인 실패 | status=${res.statusCode} | user=${user.username}")
+                grinder.logger.error("❌ 로그인 실패 | status=${res.statusCode} | body=${res.text} | user=${user.username}")
                 accessToken = null
             }
         } catch (Exception e) {
             grinder.logger.error("❌ 로그인 예외 | thread=${grinder.threadNumber} | msg=${e.message}")
             accessToken = null
         }
-    }
-
-    boolean ensureValidToken() {
-        boolean expired = (System.currentTimeMillis() - tokenIssuedAt) > (TOKEN_TTL_MS * 0.9)
-        if (accessToken == null || expired) {
-            login()
-        }
-        return accessToken != null
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -209,9 +199,13 @@ class MatchingConcurrencyTest {
      */
     @Test
     void testConcurrentMatchingRequest() {
-        if (!ensureValidToken()) {
-            grinder.logger.warn("⛔ 토큰 없음 — 테스트 스킵 | thread=${grinder.threadNumber}")
-            return
+        if (accessToken == null) {
+            // 토큰이 없으면 재로그인 시도
+            login()
+            if (accessToken == null) {
+                grinder.logger.warn("⛔ 토큰 획득 실패 — 테스트 스킵 | thread=${grinder.threadNumber}")
+                return
+            }
         }
 
         matchingRequestTest.record(request)

@@ -36,6 +36,10 @@ VALUES
 (7, 'COMPOSITION_MIDI', 2, NOW(), 'SYSTEM'),
 (7, 'COMPOSITION_JAZZ', 3, NOW(), 'SYSTEM');
 
+DELETE FROM lesson_review;
+DELETE FROM matching;
+DELETE FROM student_account;
+DELETE FROM user_role;
 DELETE FROM user_account WHERE user_id LIKE 'student%@test.com' OR user_id LIKE 'tutor%@test.com';
 
 -- 모두 비밀번호는: testaccount123
@@ -176,6 +180,14 @@ INSERT IGNORE INTO user_role (user_id, role_id, created_at, created_by)
 SELECT ua.id, r.role_id, NOW(), 'SYSTEM'
 FROM user_account ua
 JOIN role r ON r.role_type = 'STUDENT'
+WHERE ua.email LIKE 'student%@test.com';
+
+-- ──────────────────────────────────────────────────────────────────────────────
+-- student_account: 학생 프로필 생성 (매칭 요청 및 동시성 테스트용)
+-- ──────────────────────────────────────────────────────────────────────────────
+INSERT IGNORE INTO student_account (student_id, introduction, lesson_type, min_budget, max_budget, created_at, created_by)
+SELECT ua.id, '피아노와 보컬을 배우고 싶은 학생입니다.', 'BOTH', 30000, 100000, NOW(), 'SYSTEM'
+FROM user_account ua
 WHERE ua.email LIKE 'student%@test.com';
 
 -- ──────────────────────────────────────────────────────────────────────────────

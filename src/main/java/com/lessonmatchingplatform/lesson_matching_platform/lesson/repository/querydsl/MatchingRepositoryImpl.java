@@ -93,9 +93,7 @@ public class MatchingRepositoryImpl implements MatchingRepositoryCustom {
                 .where(
                         matching.tutorAccount.tutorId.eq(tutorId),
                         matching.studentAccount.studentId.eq(studentId),
-                        matching.status.ne(MatchingStatus.REJECTED),
-                        matching.status.ne(MatchingStatus.CANCELLED),
-                        matching.status.ne(MatchingStatus.ACCEPTED)
+                        matching.status.in(MatchingStatus.PENDING, MatchingStatus.ACCEPTED)
                 ).fetchFirst();             // 조건에 맞는 record를 모두 조회하는 것이 아니라, 처음 1개만 조회 (limit 1)
 
         return content != null;

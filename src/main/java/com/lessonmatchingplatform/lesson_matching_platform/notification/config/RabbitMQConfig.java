@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * - 3회 초과 시 DLX 큐로 이동
  */
 @Configuration
-@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = true)
 public class RabbitMQConfig {
 
     // ──────────────────────────────────────────────────────────────────────

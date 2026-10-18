@@ -56,7 +56,7 @@ class MatchingStatusUpdateTest {
     // ★ 테스트 환경 설정 (실제 환경에 맞게 수정 필요)
     // ─────────────────────────────────────────────────────────────────────
 
-    static final String BASE_URL    = "http://host.docker.internal:8080"
+    static final String BASE_URL    = "http://13.125.58.106:8080"
     static final long TOKEN_TTL_MS  = 15 * 60 * 1000L  // 15분
 
     /**

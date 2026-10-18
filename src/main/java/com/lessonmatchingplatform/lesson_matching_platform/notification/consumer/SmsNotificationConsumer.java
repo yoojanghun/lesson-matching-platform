@@ -38,7 +38,7 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
+@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true", matchIfMissing = true)
 public class SmsNotificationConsumer {
 
     private static final long BASE_RETRY_DELAY_MS = 1000L; // 기본 지연: 1초

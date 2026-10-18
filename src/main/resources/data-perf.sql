@@ -36,11 +36,19 @@ VALUES
 (7, 'COMPOSITION_MIDI', 2, NOW(), 'SYSTEM'),
 (7, 'COMPOSITION_JAZZ', 3, NOW(), 'SYSTEM');
 
-DELETE FROM lesson_review;
-DELETE FROM matching;
-DELETE FROM student_account;
-DELETE FROM user_role;
-DELETE FROM user_account WHERE user_id LIKE 'student%@test.com' OR user_id LIKE 'tutor%@test.com';
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE lesson_review;
+TRUNCATE TABLE matching;
+TRUNCATE TABLE schedule;
+TRUNCATE TABLE tutor_lesson_price;
+TRUNCATE TABLE style_tutor;
+TRUNCATE TABLE subject_tutor;
+TRUNCATE TABLE category_tutor;
+TRUNCATE TABLE tutor_account;
+TRUNCATE TABLE student_account;
+TRUNCATE TABLE user_role;
+TRUNCATE TABLE user_account;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- 모두 비밀번호는: testaccount123
 INSERT INTO user_account (user_id, user_password, name, gender, birth_date, phone_number, email, created_at, created_by)
@@ -770,3 +778,70 @@ VALUES
 (1, 'FRIDAY',    '09:00:00', '22:00:00', NOW(), 'SYSTEM'),
 (1, 'SATURDAY',  '09:00:00', '22:00:00', NOW(), 'SYSTEM'),
 (1, 'SUNDAY',    '09:00:00', '22:00:00', NOW(), 'SYSTEM');
+
+-- ──────────────────────────────────────────────────────────────
+-- 매칭 수락/거절 동시성 테스트용 PENDING 매칭 시드 데이터
+-- (MatchingStatusUpdateTest: tutor1~tutor10 각 5건, matching_id 1~50)
+-- ──────────────────────────────────────────────────────────────
+INSERT INTO matching (matching_id, student_id, tutor_id, request_msg, status, price_per_lesson, created_at, created_by)
+VALUES
+-- tutor 1 (matching_id 1..5, students 18..22)
+(1,  18, 1, '튜터1 레슨 신청합니다 (1)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(2,  19, 1, '튜터1 레슨 신청합니다 (2)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(3,  20, 1, '튜터1 레슨 신청합니다 (3)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(4,  21, 1, '튜터1 레슨 신청합니다 (4)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(5,  22, 1, '튜터1 레슨 신청합니다 (5)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+-- tutor 2 (matching_id 6..10, students 23..27)
+(6,  23, 2, '튜터2 레슨 신청합니다 (1)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(7,  24, 2, '튜터2 레슨 신청합니다 (2)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(8,  25, 2, '튜터2 레슨 신청합니다 (3)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(9,  26, 2, '튜터2 레슨 신청합니다 (4)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(10, 27, 2, '튜터2 레슨 신청합니다 (5)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+-- tutor 3 (matching_id 11..15, students 28..32)
+(11, 28, 3, '튜터3 레슨 신청합니다 (1)', 'PENDING', 40000, NOW(), 'SYSTEM'),
+(12, 29, 3, '튜터3 레슨 신청합니다 (2)', 'PENDING', 40000, NOW(), 'SYSTEM'),
+(13, 30, 3, '튜터3 레슨 신청합니다 (3)', 'PENDING', 40000, NOW(), 'SYSTEM'),
+(14, 31, 3, '튜터3 레슨 신청합니다 (4)', 'PENDING', 40000, NOW(), 'SYSTEM'),
+(15, 32, 3, '튜터3 레슨 신청합니다 (5)', 'PENDING', 40000, NOW(), 'SYSTEM'),
+-- tutor 4 (matching_id 16..20, students 33..37)
+(16, 33, 4, '튜터4 레슨 신청합니다 (1)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(17, 34, 4, '튜터4 레슨 신청합니다 (2)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(18, 35, 4, '튜터4 레슨 신청합니다 (3)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(19, 36, 4, '튜터4 레슨 신청합니다 (4)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(20, 37, 4, '튜터4 레슨 신청합니다 (5)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+-- tutor 5 (matching_id 21..25, students 38..42)
+(21, 38, 5, '튜터5 레슨 신청합니다 (1)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(22, 39, 5, '튜터5 레슨 신청합니다 (2)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(23, 40, 5, '튜터5 레슨 신청합니다 (3)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(24, 41, 5, '튜터5 레슨 신청합니다 (4)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(25, 42, 5, '튜터5 레슨 신청합니다 (5)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+-- tutor 6 (matching_id 26..30, students 43..47)
+(26, 43, 6, '튜터6 레슨 신청합니다 (1)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(27, 44, 6, '튜터6 레슨 신청합니다 (2)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(28, 45, 6, '튜터6 레슨 신청합니다 (3)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(29, 46, 6, '튜터6 레슨 신청합니다 (4)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(30, 47, 6, '튜터6 레슨 신청합니다 (5)', 'PENDING', 30000, NOW(), 'SYSTEM'),
+-- tutor 7 (matching_id 31..35, students 48..52)
+(31, 48, 7, '튜터7 레슨 신청합니다 (1)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(32, 49, 7, '튜터7 레슨 신청합니다 (2)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(33, 50, 7, '튜터7 레슨 신청합니다 (3)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(34, 51, 7, '튜터7 레슨 신청합니다 (4)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(35, 52, 7, '튜터7 레슨 신청합니다 (5)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+-- tutor 8 (matching_id 36..40, students 53..57)
+(36, 53, 8, '튜터8 레슨 신청합니다 (1)', 'PENDING', 50000, NOW(), 'SYSTEM'),
+(37, 54, 8, '튜터8 레슨 신청합니다 (2)', 'PENDING', 50000, NOW(), 'SYSTEM'),
+(38, 55, 8, '튜터8 레슨 신청합니다 (3)', 'PENDING', 50000, NOW(), 'SYSTEM'),
+(39, 56, 8, '튜터8 레슨 신청합니다 (4)', 'PENDING', 50000, NOW(), 'SYSTEM'),
+(40, 57, 8, '튜터8 레슨 신청합니다 (5)', 'PENDING', 50000, NOW(), 'SYSTEM'),
+-- tutor 9 (matching_id 41..45, students 58..62)
+(41, 58, 9, '튜터9 레슨 신청합니다 (1)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(42, 59, 9, '튜터9 레슨 신청합니다 (2)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(43, 60, 9, '튜터9 레슨 신청합니다 (3)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(44, 61, 9, '튜터9 레슨 신청합니다 (4)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(45, 62, 9, '튜터9 레슨 신청합니다 (5)', 'PENDING', 35000, NOW(), 'SYSTEM'),
+-- tutor 10 (matching_id 46..50, students 63..67)
+(46, 63, 10, '튜터10 레슨 신청합니다 (1)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(47, 64, 10, '튜터10 레슨 신청합니다 (2)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(48, 65, 10, '튜터10 레슨 신청합니다 (3)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(49, 66, 10, '튜터10 레슨 신청합니다 (4)', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(50, 67, 10, '튜터10 레슨 신청합니다 (5)', 'PENDING', 25000, NOW(), 'SYSTEM');

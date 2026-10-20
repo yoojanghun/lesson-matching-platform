@@ -103,8 +103,6 @@ jobs:
             docker run -d \
               --name spring-app \
               -p 8080:8080 \
-              --add-host host.docker.internal:host-gateway \
-              -e OLLAMA_BASE_URL="http://host.docker.internal:11434" \
               -e SPRING_PROFILES_ACTIVE=$SPRING_PROFILE \
               -e SPRING_DATA_REDIS_HOST=$REDIS_HOST \
               -e SPRING_DATA_REDIS_PORT=6379 \

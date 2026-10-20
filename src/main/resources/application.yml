@@ -90,8 +90,8 @@ toss:
 langchain4j:
   ollama:
     chat-model:
-      base-url: ${OLLAMA_BASE_URL:http://host.docker.internal:11434}
-      model-name: llama3.2:1b
+      base-url: http://localhost:11434
+      model-name: llama3.2
       temperature: 0.2
       timeout: 60s
 

@@ -56,3 +56,5 @@ key/
 
 # RabbitMQ
 rabbitmq_data/
+
+lib/

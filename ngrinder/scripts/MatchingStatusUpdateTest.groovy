@@ -92,16 +92,16 @@ class MatchingStatusUpdateTest {
      *   ORDER BY ta.tutor_id, m.matching_id;
      */
     static final Map<String, List<Long>> TUTOR_PENDING_MATCHING_IDS = [
-        "tutor1@test.com":  [1L,  2L,  3L,  4L,  5L],
-        "tutor2@test.com":  [6L,  7L,  8L,  9L,  10L],
-        "tutor3@test.com":  [11L, 12L, 13L, 14L, 15L],
-        "tutor4@test.com":  [16L, 17L, 18L, 19L, 20L],
-        "tutor5@test.com":  [21L, 22L, 23L, 24L, 25L],
-        "tutor6@test.com":  [26L, 27L, 28L, 29L, 30L],
-        "tutor7@test.com":  [31L, 32L, 33L, 34L, 35L],
-        "tutor8@test.com":  [36L, 37L, 38L, 39L, 40L],
-        "tutor9@test.com":  [41L, 42L, 43L, 44L, 45L],
-        "tutor10@test.com": [46L, 47L, 48L, 49L, 50L],
+        "tutor1@test.com":  (1L..50L)   as List,
+        "tutor2@test.com":  (51L..100L) as List,
+        "tutor3@test.com":  (101L..150L) as List,
+        "tutor4@test.com":  (151L..200L) as List,
+        "tutor5@test.com":  (201L..250L) as List,
+        "tutor6@test.com":  (251L..300L) as List,
+        "tutor7@test.com":  (301L..350L) as List,
+        "tutor8@test.com":  (351L..400L) as List,
+        "tutor9@test.com":  (401L..450L) as List,
+        "tutor10@test.com": (451L..500L) as List,
     ]
 
     // ─────────────────────────────────────────────────────────────────────

@@ -90,10 +90,19 @@ class TutorSearchConcurrencyTest {
 
     /**
      * 검색 조건 (필터)
+     * locationIds: data-perf.sql 기준 실제 location_id 값 (Long 리스트로 쿼리 파라미터 전송)
+     * sort: Spring Pageable 형식 — TutorDocument 필드명 기준
+     *   totalScore,desc / averageRating,desc / minPrice,asc / reviewCount,desc / createdAt,desc
      */
-    static final List<String> LOCATIONS = ["서울", "경기", "인천", "부산", "대전"]
-    static final List<String> PRICE_RANGES = ["30000-50000", "50000-70000", "70000-100000"]
-    static final List<String> SORT_OPTIONS = ["averageRating,desc", "minPrice,asc", "reviewCount,desc"]
+    // location_id는 DB의 실제 PK값으로 교체 (현재 data-perf.sql 미포함 → 필터 비활성화)
+    static final List<Long> LOCATION_ID_OPTIONS = [1L, 2L, 3L, 4L, 5L]   // ★ 실제 DB location PK로 교체
+    static final List<Long> CATEGORY_ID_OPTIONS = [1L, 2L, 3L, 4L, 5L, 6L, 7L]  // category: 1=PIANO~7=COMPOSITION
+    static final List<String> SORT_OPTIONS = ["totalScore,desc", "averageRating,desc", "minPrice,asc", "reviewCount,desc"]
+    static final List<Map> PRICE_RANGES = [
+        [min: 30000, max: 70000],
+        [min: 50000, max: 100000],
+        [min: null,  max: null]   // 가격 필터 없음
+    ]
 
     /**
      * 인기 키워드 집중도 (%)
@@ -104,8 +113,15 @@ class TutorSearchConcurrencyTest {
     /**
      * Deep Pagination 테스트 활성화
      * true = 일부 요청을 깊은 페이지로 보내서 성능 측정
+     * ES max_result_window=10000 기준: size=8이면 page 최대 1250까지 가능
+     * 단, 실제 튜터 데이터 수보다 큰 페이지는 빈 결과 반환 → 부하 의미 없음
+     * ★ data-perf.sql 기준 튜터 17명 → 최대 page=2 (17/8=2.12)
+     *    Deep Pagination은 ES 데이터가 500개+ 이상일 때 의미 있음
      */
     static final boolean ENABLE_DEEP_PAGINATION = true
+    // 1,017명 튜터 기준 / size(8) = 최대 127페이지 존재
+    // 1페이지(page=0), 10페이지(page=9), 50페이지(page=49), 100페이지(page=99) Deep Pagination 부하 검증 가능
+    static final int MAX_MEANINGFUL_PAGE = 100   // ★ 1000+명 튜터 데이터셋 기준
 
     // ─────────────────────────────────────────────────────────────────────
     // GTest 통계 수집 단위
@@ -199,25 +215,40 @@ class TutorSearchConcurrencyTest {
         String keyword = selectKeyword()
         boolean isPopular = POPULAR_KEYWORDS.contains(keyword)
 
-        // 필터 조건 랜덤 생성
-        String location = LOCATIONS[new Random().nextInt(LOCATIONS.size())]
+        // ─── 필터 조건 랜덤 생성 (TutorSearchCondition 필드명 기준) ───
         String sort = SORT_OPTIONS[new Random().nextInt(SORT_OPTIONS.size())]
+        Map priceRange = PRICE_RANGES[new Random().nextInt(PRICE_RANGES.size())]
+
+        // locationIds, categoryIds: @ModelAttribute로 List<Long> 바인딩됨
+        // → ?locationIds=1&locationIds=2 형식으로 전송 (★ location 문자열이 아님!)
+        // data-perf.sql에 location 데이터가 없으면 필터 비활성화 → 파라미터 생략
+        // Long locationId = LOCATION_ID_OPTIONS[new Random().nextInt(LOCATION_ID_OPTIONS.size())]
+        Long categoryId = CATEGORY_ID_OPTIONS[new Random().nextInt(CATEGORY_ID_OPTIONS.size())]
 
         // Deep Pagination 일부 적용
         int page = 0
         if (ENABLE_DEEP_PAGINATION && new Random().nextInt(100) < 10) {
-            // 10%의 요청을 깊은 페이지로 (from: 1000+)
-            page = 100 + new Random().nextInt(50)  // page 100~150
+            // 10%의 요청을 깊은 페이지로
+            // ★ MAX_MEANINGFUL_PAGE 초과 시 빈 결과만 반환 → ES 부하 없음
+            // 대량 데이터 준비 후 page = MAX_MEANINGFUL_PAGE + new Random().nextInt(20) 으로 조정
+            page = MAX_MEANINGFUL_PAGE
             deepPageCount++
         } else {
-            page = new Random().nextInt(10)  // page 0~9
+            page = new Random().nextInt(MAX_MEANINGFUL_PAGE + 1)  // 0 ~ MAX_MEANINGFUL_PAGE
         }
 
         int size = 8
-        String url = "${BASE_URL}/api/tutors/search?" +
-                     "keyword=${URLEncoder.encode(keyword, 'UTF-8')}&" +
-                     "location=${URLEncoder.encode(location, 'UTF-8')}&" +
-                     "sort=${sort}&page=${page}&size=${size}"
+
+        // URL 조립 — Spring Pageable sort 형식: sort=field,direction
+        StringBuilder urlBuilder = new StringBuilder("${BASE_URL}/api/tutors/search?")
+        if (keyword) urlBuilder.append("keyword=${URLEncoder.encode(keyword, 'UTF-8')}&")
+        urlBuilder.append("categoryIds=${categoryId}&")   // Long ID 필터 (실제 바인딩됨)
+        // urlBuilder.append("locationIds=${locationId}&")  // ★ location 데이터 있으면 활성화
+        if (priceRange.min != null) urlBuilder.append("minPrice=${priceRange.min}&")
+        if (priceRange.max != null) urlBuilder.append("maxPrice=${priceRange.max}&")
+        urlBuilder.append("sort=${sort}&page=${page}&size=${size}")
+
+        String url = urlBuilder.toString()
 
         long start = System.currentTimeMillis()
 

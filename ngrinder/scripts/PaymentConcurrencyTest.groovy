@@ -61,7 +61,7 @@ class PaymentConcurrencyTest {
     // ★ 테스트 환경 설정
     // ─────────────────────────────────────────────────────────────────────
 
-    static final String BASE_URL    = "http://host.docker.internal:8080"
+    static final String BASE_URL    = "http://13.125.58.106:8080"
     static final long TOKEN_TTL_MS  = 15 * 60 * 1000L  // 15분
 
     /**
@@ -70,7 +70,7 @@ class PaymentConcurrencyTest {
      * - CLAIM_PHASE: 이체 완료 신고 동시성 (학생들이 동시에 이체 신고)
      * - CONFIRM_PHASE: 입금 확인 동시성 (튜터들이 동시에 확인/취소)
      */
-    static final String TEST_PHASE = "PREPARE_PHASE"  // ← 테스트 단계 선택
+    static final String TEST_PHASE = "CONFIRM_PHASE"  // ← 테스트 단계 선택
 
     // ─────────────────────────────────────────────────────────────────────
     // 학생 계정 풀 (matchingId + reservationIds 매핑)

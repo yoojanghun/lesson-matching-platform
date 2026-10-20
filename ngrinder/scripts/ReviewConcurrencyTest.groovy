@@ -78,9 +78,9 @@ class ReviewConcurrencyTest {
 
     /**
      * 인기 튜터 집중도 (%)
-     * 80 = 80%의 리뷰가 인기 튜터에게 집중, 20%는 분산
+     * 100 = 100%의 리뷰가 인기 튜터에게 집중 (평점 집계 Race Condition 유발 극대화)
      */
-    static final int POPULAR_TUTOR_RATIO = 80
+    static final int POPULAR_TUTOR_RATIO = 100
 
     // ─────────────────────────────────────────────────────────────────────
     // 학생 계정 풀 (리뷰 작성자)

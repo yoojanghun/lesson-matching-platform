@@ -31,10 +31,11 @@ public class ReviewService {
             throw new IllegalStateException("이미 리뷰를 작성한 수업입니다.");
         }
 
-        Matching matching = matchingRepository.findByStudentAccount_StudentIdAndStatus(
+        Matching matching = matchingRepository.findByStudentAccount_StudentIdAndTutorAccount_TutorIdAndStatus(
                         id,
+                        tutorId,
                         MatchingStatus.ACCEPTED
-                ).orElseThrow(() -> new EntityNotFoundException("리뷰를 작성할 수 있는 승인된 매칭이 없습니다."));
+                ).orElseThrow(() -> new EntityNotFoundException("해당 강사에 대해 리뷰를 작성할 수 있는 승인된 매칭이 없습니다."));
 
         TutorAccount tutorAccount = tutorsRepository.findById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("강사를 찾을 수 없습니다."));

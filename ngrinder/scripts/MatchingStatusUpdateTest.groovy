@@ -92,7 +92,7 @@ class MatchingStatusUpdateTest {
      *   ORDER BY ta.tutor_id, m.matching_id;
      */
     static final Map<String, List<Long>> TUTOR_PENDING_MATCHING_IDS = [
-        "tutor1@test.com":  (1L..50L)   as List,
+        "tutor1@test.com":  ((21L..50L) + (509L..528L)) as List,
         "tutor2@test.com":  (51L..100L) as List,
         "tutor3@test.com":  (101L..150L) as List,
         "tutor4@test.com":  (151L..200L) as List,

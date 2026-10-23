@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.Optional;
 
@@ -34,4 +35,16 @@ public interface MatchingRepository extends JpaRepository<Matching, Long>, Match
     Optional<Matching> findByMatchingIdAndTutorIdWithStudent(
             @Param("matchingId") Long matchingId,
             @Param("tutorId") Long tutorId);
+
+    /**
+     * 상태 조건부 원자적 UPDATE (동시성 보호)
+     * PENDING 상태일 때만 newStatus로 업데이트
+     * @return 업데이트된 행 수 (0이면 이미 다른 스레드가 처리한 것)
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Matching m SET m.status = :newStatus WHERE m.matchingId = :matchingId AND m.tutorAccount.tutorId = :tutorId AND m.status = 'PENDING'")
+    int updateStatusIfPending(
+            @Param("matchingId") Long matchingId,
+            @Param("tutorId") Long tutorId,
+            @Param("newStatus") MatchingStatus newStatus);
 }

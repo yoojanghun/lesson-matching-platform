@@ -810,36 +810,36 @@ VALUES
 (18, 35, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student18
 (19, 36, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student19
 (20, 37, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student20
-(21, 38, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(22, 39, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(23, 40, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(24, 41, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(25, 42, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(26, 43, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(27, 44, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(28, 45, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(29, 46, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(30, 47, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(31, 48, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(32, 49, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(33, 50, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(34, 51, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(35, 52, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(36, 53, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(37, 54, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(38, 55, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(39, 56, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(40, 57, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(41, 58, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(42, 59, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(43, 60, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(44, 61, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(45, 62, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(46, 63, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(47, 64, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(48, 65, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(49, 66, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(50, 67, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(21, 68, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student51
+(22, 69, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student52
+(23, 70, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student53
+(24, 71, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student54
+(25, 72, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student55
+(26, 73, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student56
+(27, 74, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student57
+(28, 75, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student58
+(29, 76, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student59
+(30, 77, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student60
+(31, 78, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student61
+(32, 79, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student62
+(33, 80, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student63
+(34, 81, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student64
+(35, 82, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student65
+(36, 83, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student66
+(37, 84, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student67
+(38, 85, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student68
+(39, 86, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student69
+(40, 87, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student70
+(41, 88, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student71
+(42, 89, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student72
+(43, 90, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student73
+(44, 91, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student74
+(45, 92, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student75
+(46, 93, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student76
+(47, 94, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student77
+(48, 95, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student78
+(49, 96, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student79
+(50, 97, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student80
 -- tutor 2 (matching_id 51..100, students 18..67)
 (51,  18, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
 (52,  19, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
@@ -1309,7 +1309,28 @@ VALUES
 (505, 24, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student7
 (506, 25, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student8
 (507, 26, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student9
-(508, 27, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'); -- student10
+(508, 27, 1, '레슨 신청합니다.', 'ACCEPTED', 30000, NOW(), 'SYSTEM'), -- student10
+-- MatchingStatusUpdateTest 용 tutor 1 PENDING 20건 추가 (matching_id 509..528, student81..100)
+(509, 98, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student81
+(510, 99, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student82
+(511, 100, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student83
+(512, 101, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student84
+(513, 102, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student85
+(514, 103, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student86
+(515, 104, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student87
+(516, 105, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student88
+(517, 106, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student89
+(518, 107, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student90
+(519, 108, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student91
+(520, 109, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student92
+(521, 110, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student93
+(522, 111, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student94
+(523, 112, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student95
+(524, 113, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student96
+(525, 114, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student97
+(526, 115, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student98
+(527, 116, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'), -- student99
+(528, 117, 1, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'); -- student100
 
 -- ──────────────────────────────────────────────────────────────
 -- PaymentConcurrencyTest & ReservationConcurrencyTest 용 예약(reservation) 시드 데이터

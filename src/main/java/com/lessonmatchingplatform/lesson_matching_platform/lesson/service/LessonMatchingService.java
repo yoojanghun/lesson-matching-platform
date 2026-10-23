@@ -82,13 +82,13 @@ public class LessonMatchingService {
                 .orElseThrow(() -> new EntityNotFoundException("matchingId에 해당되는 matching이 없습니다."));
 
         MatchingStatus requestStatus = request.status();
-        if(!matching.getStatus().equals(requestStatus)) {
-            matching.setStatus(requestStatus);
 
-            // 튜터가 매칭 승인 시 → 학생에게 SMS 알림 발행 (RabbitMQ 비동기)
-            if (requestStatus == MatchingStatus.ACCEPTED) {
-                String studentPhone = matching.getStudentAccount().getUserAccount().getPhoneNumber();
-                Long studentId = matching.getStudentAccount().getStudentId();
+        // 1. 상태 전이 동시성 보호: DB 원자적 조건부 UPDATE 실행 (PENDING 상태일 때만 변경)
+        int updatedCount = matchingRepository.updateStatusIfPending(matchingId, tutorId, requestStatus);
+        if (updatedCount == 0) {
+            // 이미 다른 스레드/요청에 의해 처리되었거나 PENDING 상태가 아님 → 409 Conflict 유도
+            throw new IllegalStateException("해당 매칭은 이미 처리되었거나 변경할 수 없는 상태입니다.");
+        }
 
         // 2. 튜터가 매칭 승인 시 → 트랜잭션 커밋(AFTER_COMMIT) 후에 안전하게 SMS가 발행되도록 이벤트 발행
         if (requestStatus == MatchingStatus.ACCEPTED) {

@@ -7,6 +7,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.request.Pr
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MatchingDetailResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsStudent;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.MyMatchingResponseAsTutor;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.facade.MatchingLockFacade;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.service.LessonMatchingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class LessonMatchingController {
 
     private final LessonMatchingService lessonMatchingService;
+    private final MatchingLockFacade matchingLockFacade;
 
     // Student가 Tutor에게 레슨 매칭 요청을 보냄
     @PreAuthorize("hasRole('STUDENT')")
@@ -38,7 +40,7 @@ public class LessonMatchingController {
             @RequestBody @Valid LessonMatchingRequest request
     ) {
         Long studentId = boardPrincipal.id();
-        Long matchingId = lessonMatchingService.lessonMatching(studentId, tutorId, request);
+        Long matchingId = matchingLockFacade.lessonMatchingWithLock(studentId, tutorId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
     }

@@ -18,6 +18,8 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.Tuto
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.context.ApplicationEventPublisher;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.event.MatchingAcceptedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +47,6 @@ public class LessonMatchingService {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleExceptionRepository scheduleExceptionRepository;
     private final ReservationRepository reservationRepository;
-    private final SmsNotificationProducer smsNotificationProducer;
 
     // Student가 레슨 등록
     public Long lessonMatching(Long studentId, Long tutorId, LessonMatchingRequest request) {
@@ -72,6 +73,8 @@ public class LessonMatchingService {
         return matchingId;
     }
 
+    private final ApplicationEventPublisher eventPublisher;
+
     // Tutor가 레슨 승인 / 거절 / 취소
     public Long postMyMatching(Long tutorId, Long matchingId, LessonStatusRequest request) {
         // studentAccount.userAccount.phoneNumber 접근을 위해 페치조인 쿼리 사용
@@ -86,9 +89,13 @@ public class LessonMatchingService {
             if (requestStatus == MatchingStatus.ACCEPTED) {
                 String studentPhone = matching.getStudentAccount().getUserAccount().getPhoneNumber();
                 Long studentId = matching.getStudentAccount().getStudentId();
-                if (studentPhone != null && !studentPhone.isBlank()) {
-                    smsNotificationProducer.sendLessonMatchedNotification(studentId, studentPhone);
-                }
+
+        // 2. 튜터가 매칭 승인 시 → 트랜잭션 커밋(AFTER_COMMIT) 후에 안전하게 SMS가 발행되도록 이벤트 발행
+        if (requestStatus == MatchingStatus.ACCEPTED) {
+            String studentPhone = matching.getStudentAccount().getUserAccount().getPhoneNumber();
+            Long studentId = matching.getStudentAccount().getStudentId();
+            if (studentPhone != null && !studentPhone.isBlank()) {
+                eventPublisher.publishEvent(new MatchingAcceptedEvent(studentId, studentPhone));
             }
         }
 

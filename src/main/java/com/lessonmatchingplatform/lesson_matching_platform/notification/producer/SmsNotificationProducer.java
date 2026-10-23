@@ -37,8 +37,7 @@ public class SmsNotificationProducer {
      * @param phoneNumber 수신자 전화번호
      */
     public void sendLessonMatchedNotification(Long userId, String phoneNumber) {
-        String content = String.format(
-                "[레슨매칭] 튜터와의 매칭이 완료되었습니다. 레슨 상세 페이지를 확인해주세요.");
+        String content = "[레슨매칭] 튜터와의 매칭이 완료되었습니다. 레슨 상세 페이지를 확인해주세요.";
 
         SmsMessage message = SmsMessage.builder()
                 .phoneNumber(phoneNumber)

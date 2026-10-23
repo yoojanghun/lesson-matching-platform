@@ -74,8 +74,9 @@ class ReservationConcurrencyTest {
     /**
      * 동시성 테스트에 사용할 고정 시간 슬롯 (인기 시간대)
      * → 모든 학생이 이 시간대를 동시에 예약 시도하여 Race Condition 유도
+     * ※ @FutureOrPresent 유효성 검증을 통과하기 위해 현재 날짜(2026-10-23) 이후의 미래 날짜 사용
      */
-    static final String TARGET_DATE       = "2026-10-15"  // 목요일
+    static final String TARGET_DATE       = "2026-10-29"  // 목요일 (미래 날짜)
     static final String TARGET_DAY        = "THURSDAY"
     static final String TARGET_START_TIME = "19:00"       // 평일 저녁 7시 (인기 시간대)
     static final String TARGET_END_TIME   = "20:00"
@@ -85,11 +86,11 @@ class ReservationConcurrencyTest {
      * 일부 VUser는 다른 시간대도 시도하여 전체 예약 시스템 부하 테스트
      */
     static final List<Map> TIME_SLOTS = [
-        [date: "2026-10-15", day: "THURSDAY", start: "19:00", end: "20:00"],  // 인기 #1
-        [date: "2026-10-16", day: "FRIDAY",   start: "20:00", end: "21:00"],  // 인기 #2
-        [date: "2026-10-18", day: "SUNDAY",   start: "14:00", end: "15:00"],  // 주말 인기
-        [date: "2026-10-19", day: "MONDAY",   start: "18:00", end: "19:00"],
-        [date: "2026-10-20", day: "TUESDAY",  start: "19:30", end: "20:30"],
+        [date: "2026-10-29", day: "THURSDAY", start: "19:00", end: "20:00"],  // 인기 #1
+        [date: "2026-10-30", day: "FRIDAY",   start: "20:00", end: "21:00"],  // 인기 #2
+        [date: "2026-11-01", day: "SUNDAY",   start: "14:00", end: "15:00"],  // 주말 인기
+        [date: "2026-11-02", day: "MONDAY",   start: "18:00", end: "19:00"],
+        [date: "2026-11-03", day: "TUESDAY",  start: "19:30", end: "20:30"],
     ]
 
     /**
@@ -113,14 +114,14 @@ class ReservationConcurrencyTest {
     static final List<Map> STUDENT_USERS = [
         [username: "student1@test.com",  password: "testaccount123", matchingId: 1L],
         [username: "student3@test.com",  password: "testaccount123", matchingId: 2L],
-        [username: "student7@test.com",  password: "testaccount123", matchingId: 3L],
-        [username: "student8@test.com",  password: "testaccount123", matchingId: 4L],
-        [username: "student10@test.com", password: "testaccount123", matchingId: 5L],
-        [username: "student11@test.com", password: "testaccount123", matchingId: 6L],
-        [username: "student13@test.com", password: "testaccount123", matchingId: 7L],
-        [username: "student15@test.com", password: "testaccount123", matchingId: 8L],
-        [username: "student16@test.com", password: "testaccount123", matchingId: 9L],
-        [username: "student17@test.com", password: "testaccount123", matchingId: 10L],
+        [username: "student11@test.com", password: "testaccount123", matchingId: 11L],
+        [username: "student12@test.com", password: "testaccount123", matchingId: 12L],
+        [username: "student13@test.com", password: "testaccount123", matchingId: 13L],
+        [username: "student14@test.com", password: "testaccount123", matchingId: 14L],
+        [username: "student15@test.com", password: "testaccount123", matchingId: 15L],
+        [username: "student16@test.com", password: "testaccount123", matchingId: 16L],
+        [username: "student17@test.com", password: "testaccount123", matchingId: 17L],
+        [username: "student18@test.com", password: "testaccount123", matchingId: 18L],
     ]
 
     static final List<String> RESERVATION_MESSAGES = [

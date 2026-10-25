@@ -57,7 +57,8 @@ public class SecurityConfig {
                                 "/ws-chat/**",           // WebSocket 핸드셰이크 (JWT 인증은 StompJwtInterceptor에서 처리)
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/actuator/**"
                         ).permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/tutors/*/profile").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/tutors/*/reviews").permitAll()

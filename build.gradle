@@ -59,6 +59,8 @@ dependencies {
     // Tools & Documentation
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'

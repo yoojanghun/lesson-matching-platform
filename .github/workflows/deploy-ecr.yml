@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/nocache-timer
   workflow_dispatch:
     inputs:
       enable_perf:

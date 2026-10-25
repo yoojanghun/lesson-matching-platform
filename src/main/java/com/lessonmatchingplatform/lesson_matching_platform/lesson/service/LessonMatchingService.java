@@ -156,12 +156,15 @@ public class LessonMatchingService {
             throw new IllegalStateException("요청한 시간이 튜터의 휴무/불가 시간과 겹칩니다.");
         }
 
+        // 비관적 락(Pessimistic Lock on Tutor Row) 획득: 튜터 행에 X-Lock을 걸어 해당 튜터의 예약 생성을 직렬화
+        TutorAccount tutorAccount = tutorsRepository.findByIdWithLock(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 tutorId의 튜터가 존재하지 않습니다."));
+
         boolean isAlreadyReserved = reservationRepository.existsOverlappingReservation(tutorId, requestDate, requestStartTime, requestEndTime);
         if (isAlreadyReserved) {
             throw new IllegalStateException("해당 시간대는 이미 다른 학생의 레슨 예약이 차 있습니다.");
         }
 
-        TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
         Reservation reservation = Reservation.of(
                 matching,
                 tutorAccount,

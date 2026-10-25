@@ -108,3 +108,20 @@ langchain4j:
 #    embedding-model:
 #      api-key: ${OPENAI_API_KEY:temp_openai_api_key}
 #      model-name: text-embedding-3-small
+
+# Spring Boot Actuator & Metrics (Prometheus / Grafana)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    cache:
+      instrument-cache: true

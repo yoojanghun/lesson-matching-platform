@@ -15,6 +15,10 @@ import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
+@Table(indexes = {
+        @Index(name = "idx_reservation_tutor_date", columnList = "tutor_id, lesson_date, start_time, end_time"),
+        @Index(name = "idx_reservation_tutor_status", columnList = "tutor_id, reservation_status")
+})
 @Entity
 public class Reservation extends AuditingFields {
 

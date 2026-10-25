@@ -32,6 +32,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -47,6 +49,7 @@ public class LessonMatchingService {
     private final ScheduleExceptionRepository scheduleExceptionRepository;
     private final ReservationRepository reservationRepository;
     private final ScheduleQueryService scheduleQueryService;
+    private final MeterRegistry meterRegistry;
 
     // Student가 레슨 등록
     public Long lessonMatching(Long studentId, Long tutorId, LessonMatchingRequest request) {
@@ -132,7 +135,17 @@ public class LessonMatchingService {
         LocalTime requestStartTime = request.startTime();
         LocalTime requestEndTime = request.endTime();
 
-        List<CachedScheduleDto> tutorSchedule = scheduleQueryService.getCachedTutorSchedules(tutorId, requestDayOfWeek);
+        Timer.Sample scheduleTimer = Timer.start(meterRegistry);
+        List<CachedScheduleDto> tutorSchedule;
+        try {
+            tutorSchedule = scheduleQueryService.getCachedTutorSchedules(tutorId, requestDayOfWeek);
+        } finally {
+            scheduleTimer.stop(Timer.builder("schedule.query.time")
+                    .description("Tutor schedule query latency")
+                    .publishPercentiles(0.5, 0.9, 0.95, 0.99)
+                    .register(meterRegistry));
+        }
+
         if (tutorSchedule.isEmpty()) {
             throw new IllegalStateException("해당 요일에는 튜터의 레슨 일정이 없습니다.");
         }
@@ -146,7 +159,16 @@ public class LessonMatchingService {
             throw new IllegalStateException("요청한 시간이 튜터의 레슨 가능 시간에 포함되지 않습니다.");
         }
 
-        List<CachedScheduleExceptionDto> tutorScheduleException = scheduleQueryService.getCachedScheduleExceptions(tutorId, requestDate);
+        Timer.Sample exceptionTimer = Timer.start(meterRegistry);
+        List<CachedScheduleExceptionDto> tutorScheduleException;
+        try {
+            tutorScheduleException = scheduleQueryService.getCachedScheduleExceptions(tutorId, requestDate);
+        } finally {
+            exceptionTimer.stop(Timer.builder("schedule.exception.query.time")
+                    .description("Tutor schedule exception query latency")
+                    .publishPercentiles(0.5, 0.9, 0.95, 0.99)
+                    .register(meterRegistry));
+        }
 
         boolean isOverlappingWithException = tutorScheduleException.stream()
                 .anyMatch(exception ->

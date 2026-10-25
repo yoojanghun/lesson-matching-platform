@@ -100,7 +100,9 @@ public class RedisConfig implements CachingConfigurer {
 
         Map<String, RedisCacheConfiguration> configurationMap = Map.of(
                 "trendingTutors", config.entryTtl(Duration.ofMinutes(30)),
-                "rookieTutors", config.entryTtl(Duration.ofMinutes(20))
+                "rookieTutors", config.entryTtl(Duration.ofMinutes(20)),
+                "tutorSchedule", config.entryTtl(Duration.ofMinutes(1)),
+                "tutorScheduleException", config.entryTtl(Duration.ofMinutes(1))
         );
 
         return RedisCacheManager.builder(connectionFactory)

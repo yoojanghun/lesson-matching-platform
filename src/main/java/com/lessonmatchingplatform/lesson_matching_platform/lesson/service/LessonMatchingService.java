@@ -13,11 +13,9 @@ import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.S
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.MatchingRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.account.repository.StudentRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReservationRepository;
-import com.lessonmatchingplatform.lesson_matching_platform.notification.producer.SmsNotificationProducer;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.type.MatchingStatus;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.event.MatchingAcceptedEvent;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +46,7 @@ public class LessonMatchingService {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleExceptionRepository scheduleExceptionRepository;
     private final ReservationRepository reservationRepository;
+    private final ScheduleQueryService scheduleQueryService;
 
     // Student가 레슨 등록
     public Long lessonMatching(Long studentId, Long tutorId, LessonMatchingRequest request) {
@@ -133,25 +132,25 @@ public class LessonMatchingService {
         LocalTime requestStartTime = request.startTime();
         LocalTime requestEndTime = request.endTime();
 
-        List<Schedule> tutorSchedule = scheduleRepository.findAllByTutorAccount_TutorIdAndDayOfWeek(tutorId, requestDayOfWeek);
+        List<CachedScheduleDto> tutorSchedule = scheduleQueryService.getCachedTutorSchedules(tutorId, requestDayOfWeek);
         if (tutorSchedule.isEmpty()) {
             throw new IllegalStateException("해당 요일에는 튜터의 레슨 일정이 없습니다.");
         }
 
         boolean isWithinSchedule = tutorSchedule.stream()
                 .anyMatch(schedule ->
-                        !requestStartTime.isBefore(schedule.getStartTime()) && !requestEndTime.isAfter(schedule.getEndTime())
+                        !requestStartTime.isBefore(schedule.startTime()) && !requestEndTime.isAfter(schedule.endTime())
                 );
 
         if (!isWithinSchedule) {
             throw new IllegalStateException("요청한 시간이 튜터의 레슨 가능 시간에 포함되지 않습니다.");
         }
 
-        List<ScheduleException> tutorScheduleException = scheduleExceptionRepository.findAllByTutorAccount_TutorIdAndExceptionDate(tutorId, requestDate);
+        List<CachedScheduleExceptionDto> tutorScheduleException = scheduleQueryService.getCachedScheduleExceptions(tutorId, requestDate);
 
         boolean isOverlappingWithException = tutorScheduleException.stream()
                 .anyMatch(exception ->
-                        requestStartTime.isBefore(exception.getEndTime()) && requestEndTime.isAfter(exception.getStartTime())
+                        requestStartTime.isBefore(exception.endTime()) && requestEndTime.isAfter(exception.startTime())
                 );
 
         if (isOverlappingWithException) {
@@ -232,10 +231,11 @@ public class LessonMatchingService {
                 .toList();
 
         scheduleRepository.saveAll(schedule);
+        scheduleQueryService.evictScheduleCache(tutorId);
     }
 
     // TUTOR가 특정 날에 레슨 불가 시간을 신청할 수 있도록 함.
-    public void registerScheduleExceptions(Long tutorId, List<@Valid ScheduleExceptionRequest> request) {
+    public void registerScheduleExceptions(Long tutorId, List<ScheduleExceptionRequest> request) {
         TutorAccount tutorAccount = tutorsRepository.getReferenceById(tutorId);
         validateExceptionRequests(request);
 
@@ -264,6 +264,7 @@ public class LessonMatchingService {
         }
 
         scheduleExceptionRepository.saveAll(exceptionToSave);
+        scheduleQueryService.evictScheduleExceptionCache(tutorId);
     }
 
     private void validateOverlappingSchedule(List<WeeklyScheduleRequest> request) {

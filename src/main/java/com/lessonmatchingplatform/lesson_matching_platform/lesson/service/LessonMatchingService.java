@@ -118,6 +118,7 @@ public class LessonMatchingService {
     }
 
     // Student가 Tutor와 레슨 매칭이 완료된 후, 특정 시간에 레슨 요청
+    @Transactional(timeout = 3, isolation = Isolation.READ_COMMITTED)
     public void lessonScheduleMatching(Long studentId, Long tutorId, Long matchingId, LessonScheduleRequest request) {
         Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(matchingId, studentId)
                 .orElseThrow(() -> new EntityNotFoundException("matchingId, studentId 에 해당하는 matching이 없습니다."));

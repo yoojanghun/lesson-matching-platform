@@ -99,6 +99,7 @@ public class RedisConfig implements CachingConfigurer {
                 );
 
         Map<String, RedisCacheConfiguration> configurationMap = Map.of(
+                "tutorDetail", config.entryTtl(Duration.ofSeconds(60)), // 부하 테스트 시 Cache Stampede 재현을 위해 60초 설정
                 "trendingTutors", config.entryTtl(Duration.ofMinutes(30)),
                 "rookieTutors", config.entryTtl(Duration.ofMinutes(20)),
                 "tutorSchedule", config.entryTtl(Duration.ofMinutes(1)),

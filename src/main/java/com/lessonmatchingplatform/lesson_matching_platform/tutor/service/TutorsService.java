@@ -45,10 +45,20 @@ public class TutorsService {
     private final SubjectTutorRepository subjectTutorRepository;
     private final TutorLessonPriceRepository tutorLessonPriceRepository;
 
+    private final java.util.concurrent.atomic.AtomicInteger dbQueryCount = new java.util.concurrent.atomic.AtomicInteger();
+
     // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redis 캐싱 적용
     @Cacheable(value = "tutorDetail", key = "#tutorId", unless = "#result == null")
     @Transactional(readOnly = true)
     public TutorProfileResponse getTutorProfile(Long tutorId) {
+        log.warn("🔥 [CACHE MISS] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
+                tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
+
+        try {
+            // DB 쿼리/연산 지연 재현 (만료 순간 동시 진입한 스레드들이 Stampede를 일으키도록 150ms 대기)
+            Thread.sleep(150);
+        } catch (InterruptedException ignored) {}
+
         TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
 

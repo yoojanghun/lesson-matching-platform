@@ -8,11 +8,14 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.service.TutorsS
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSearchService;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.search.service.TutorSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class TutorsController {
 
     private final TutorsService tutorsService;
+    private final CacheManager cacheManager;
 
     @Autowired(required = false)
     private TutorSearchService tutorSearchService;
@@ -29,15 +33,28 @@ public class TutorsController {
     @Autowired(required = false)
     private TutorSyncService tutorSyncService;
 
-    public TutorsController(TutorsService tutorsService) {
+    public TutorsController(TutorsService tutorsService, CacheManager cacheManager) {
         this.tutorsService = tutorsService;
+        this.cacheManager = cacheManager;
     }
 
     // 강사 상세 프로필 조회 (리뷰 제외, Redis 캐싱 적용)
+    // X-Cache 헤더로 캐시 HIT/MISS 여부를 응답에 포함 → nGrinder 캐시 히트율 측정 가능
     @GetMapping("/{tutorId}/profile")
     public ResponseEntity<TutorProfileResponse> getTutorProfile(
             @PathVariable Long tutorId) {
-        return ResponseEntity.ok(tutorsService.getTutorProfile(tutorId));
+
+        // @Cacheable 호출 전에 캐시 존재 여부를 사전 확인하여 HIT/MISS 판단
+        Cache cache = cacheManager.getCache("tutorDetail");
+        boolean isCacheHit = cache != null && cache.get(tutorId) != null;
+        String cacheStatus = isCacheHit ? "HIT" : "MISS";
+
+        TutorProfileResponse response = tutorsService.getTutorProfile(tutorId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Cache", cacheStatus);  // HIT 또는 MISS
+
+        return ResponseEntity.ok().headers(headers).body(response);
     }
 
     // Elasticsearch 기반 선생님 검색 (키워드 및 필터 조건)

@@ -317,12 +317,14 @@ class TutorSearchConcurrencyTest {
                     grinder.logger.error("⚠ 예상치 못한 응답 | status=${res.statusCode}")
             }
 
-            // ─── 통계 요약 로그 (30회마다 출력) ───
+            // ─── 통계 요약 로그 (100회마다 출력) ───
+            // 문제: grinder.logger.info는 nGrinder 기본 로그 레벨(WARN)에서 출력되지 않음
+            // 해결: logger.warn 으로 변경하여 기본 설정에서도 반드시 로그 파일에 기록되도록 함
             int total = searchSuccessCount + errorCount
-            if (total > 0 && total % 30 == 0) {
+            if (total > 0 && total % 100 == 0) {
                 double hitRatio = cacheHitCount + cacheMissCount > 0 ?
                     (cacheHitCount * 100.0 / (cacheHitCount + cacheMissCount)) : 0.0
-                grinder.logger.info(
+                grinder.logger.warn(
                     "📊 [검색 집계] thread=${grinder.threadNumber} | " +
                     "성공=${searchSuccessCount} | 에러=${errorCount} | " +
                     "캐시 히트율=${String.format('%.1f', hitRatio)}% | " +

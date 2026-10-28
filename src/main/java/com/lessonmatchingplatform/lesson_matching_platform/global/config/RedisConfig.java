@@ -101,13 +101,12 @@ public class RedisConfig implements CachingConfigurer {
         Map<String, RedisCacheConfiguration> configurationMap = Map.ofEntries(
                 Map.entry("tutorDetail",            config.entryTtl(Duration.ofSeconds(15))),  // Cache Stampede 검증: 15초마다 만료
                 // ── 메인 페이지 Cache Stampede 테스트(MainPageCacheStampedeTest)용 설정 ──
-                // 테스트를 위해 15초마다 만료시켜 동시 쿼리 및 방어 효과 관찰 (운영 기본값: 30분 / 20분)
+                Map.entry("mainHome",               config.entryTtl(Duration.ofSeconds(15))),  // /api/main/home 통합 캐시
                 Map.entry("trendingTutors",         config.entryTtl(Duration.ofSeconds(15))),
                 Map.entry("rookieTutors",           config.entryTtl(Duration.ofSeconds(15))),
                 Map.entry("tutorSchedule",          config.entryTtl(Duration.ofMinutes(1))),
                 Map.entry("tutorScheduleException", config.entryTtl(Duration.ofMinutes(1))),
                 // 인기 튜터 리뷰 첫 페이지(page=0) 캐시
-                // TTL 10분: 새 리뷰 작성/삭제 시 ReviewCacheEvictListener 가 AFTER_COMMIT 에 즉시 evict
                 Map.entry("tutorReviews",           config.entryTtl(Duration.ofMinutes(10)))
         );
 

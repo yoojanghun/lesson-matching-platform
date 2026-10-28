@@ -1,4 +1,4 @@
-﻿package com.lessonmatchingplatform.lesson_matching_platform.global.config;
+package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -99,7 +99,7 @@ public class RedisConfig implements CachingConfigurer {
                 );
 
         Map<String, RedisCacheConfiguration> configurationMap = Map.ofEntries(
-                Map.entry("tutorDetail",            config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
+                Map.entry("tutorDetail",            config.entryTtl(Duration.ofSeconds(15))),  // TutorProfileCacheTest: 15초  // 운영: 30분 | 테스트 시: ofSeconds(15)
                 Map.entry("mainHome",               config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
                 Map.entry("trendingTutors",         config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
                 Map.entry("rookieTutors",           config.entryTtl(Duration.ofMinutes(20))),  // 운영: 20분 | 테스트 시: ofSeconds(15)

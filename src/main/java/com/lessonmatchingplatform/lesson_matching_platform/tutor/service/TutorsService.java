@@ -58,6 +58,11 @@ public class TutorsService {
         log.warn("🔥 [CACHE MISS] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
                 tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
 
+        try {
+            // DB 쿼리/연산 지연 재현 (Cache Stampede 테스트 동안 만료 시 스레드 경합을 관찰하기 위한 장치: sleep 150ms 조건)
+            Thread.sleep(150);
+        } catch (InterruptedException ignored) {}
+
         TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
 

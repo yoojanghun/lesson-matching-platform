@@ -18,6 +18,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorLessonP
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.response.MainHomeResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -38,6 +41,10 @@ public class MainPageService {
     private final CategoryTutorRepository categoryTutorRepository;
     private final SubjectTutorRepository subjectTutorRepository;
     private final TutorLessonPriceRepository tutorLessonPriceRepository;
+
+    // Cache Stampede 모니터링용 동시 진입자 카운터
+    private final AtomicInteger trendingConcurrent = new AtomicInteger(0);
+    private final AtomicInteger rookieConcurrent   = new AtomicInteger(0);
 
     @Transactional(readOnly = true)
     public MainHomeResponse getMainHomeData(Long categoryId) {
@@ -69,13 +76,22 @@ public class MainPageService {
             throw new IllegalArgumentException("존재하지 않는 카테고리 ID입니다. categoryId: " + categoryId);
         }
 
-        List<TutorAccount> trendingTutors = tutorsRepository.findTop8ByCategoryIdOrderByMatchingCountDesc(categoryId);
+        int current = trendingConcurrent.incrementAndGet();
+        long start = System.currentTimeMillis();
+        try {
+            List<TutorAccount> trendingTutors = tutorsRepository.findTop8ByCategoryIdOrderByMatchingCountDesc(categoryId);
+            long dbTime = System.currentTimeMillis() - start;
 
-        if (trendingTutors.isEmpty()) {
-            return List.of();
+            log.warn("[CACHE MISS:trending] categoryId={} | concurrent={} | dbTime={}ms | thread={}",
+                    categoryId, current, dbTime, Thread.currentThread().getName());
+
+            if (trendingTutors.isEmpty()) {
+                return List.of();
+            }
+            return mapTutorCardDetails(trendingTutors);
+        } finally {
+            trendingConcurrent.decrementAndGet();
         }
-
-        return mapTutorCardDetails(trendingTutors);
     }
 
     // 카테고리별로 가장 최신에 등록한 선생님 조회
@@ -86,13 +102,22 @@ public class MainPageService {
             throw new IllegalArgumentException("존재하지 않는 카테고리 ID입니다. categoryId: " + categoryId);
         }
 
-        List<TutorAccount> rookieTutors = tutorsRepository.findTop8RookieTutorsByCategoryId(categoryId);
+        int current = rookieConcurrent.incrementAndGet();
+        long start = System.currentTimeMillis();
+        try {
+            List<TutorAccount> rookieTutors = tutorsRepository.findTop8RookieTutorsByCategoryId(categoryId);
+            long dbTime = System.currentTimeMillis() - start;
 
-        if (rookieTutors.isEmpty()) {
-            return List.of();
+            log.warn("[CACHE MISS:rookie] categoryId={} | concurrent={} | dbTime={}ms | thread={}",
+                    categoryId, current, dbTime, Thread.currentThread().getName());
+
+            if (rookieTutors.isEmpty()) {
+                return List.of();
+            }
+            return mapTutorCardDetails(rookieTutors);
+        } finally {
+            rookieConcurrent.decrementAndGet();
         }
-
-        return mapTutorCardDetails(rookieTutors);
     }
 
     private List<TutorCardDto> mapTutorCardDetails(List<TutorAccount> tutorAccounts) {

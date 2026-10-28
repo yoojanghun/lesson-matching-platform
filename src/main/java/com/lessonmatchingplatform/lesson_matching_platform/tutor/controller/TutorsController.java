@@ -88,9 +88,20 @@ public class TutorsController {
     public ResponseEntity<Slice<ReviewResponse>> getReviews(
             @PathVariable Long tutorId,
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        String cacheStatus = "NO_CACHE";
+        if (pageable.getPageNumber() == 0 && pageable.getPageSize() == 5) {
+            Cache cache = cacheManager.getCache("tutorReviews");
+            boolean isCacheHit = cache != null && cache.get(tutorId) != null;
+            cacheStatus = isCacheHit ? "HIT" : "MISS";
+        }
+
         Slice<ReviewResponse> reviewResponseSlice = tutorsService.findReviewsByTutorId(tutorId, pageable);
 
-        return ResponseEntity.ok(reviewResponseSlice);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Cache", cacheStatus);
+
+        return ResponseEntity.ok().headers(headers).body(reviewResponseSlice);
     }
 
     // Elasticsearch가 제대로 동작하지 않을 때 사용하는 백업용

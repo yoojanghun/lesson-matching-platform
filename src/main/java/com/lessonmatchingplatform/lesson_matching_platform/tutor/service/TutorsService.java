@@ -13,6 +13,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.category.domain.Categ
 import com.lessonmatchingplatform.lesson_matching_platform.category.domain.SubjectTutor;
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.CategoryTutorRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.category.repository.SubjectTutorRepository;
+import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.CachedReviewSliceDto;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.repository.ReviewRepository;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorCardDto;
@@ -50,7 +51,8 @@ public class TutorsService {
     private final java.util.concurrent.atomic.AtomicInteger dbQueryCount = new java.util.concurrent.atomic.AtomicInteger();
 
     // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redis 캐싱 적용
-    @Cacheable(value = "tutorDetail", key = "#tutorId", unless = "#result == null")
+    // 프로필 조회는 null이 아닌 예외(EntityNotFoundException)를 던지므로 unless 제거하여 추후 sync=true와 호환 보장
+    @Cacheable(value = "tutorDetail", key = "#tutorId")
     @Transactional(readOnly = true)
     public TutorProfileResponse getTutorProfile(Long tutorId) {
         log.warn("🔥 [CACHE MISS] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
@@ -67,8 +69,32 @@ public class TutorsService {
         return categoryTutorRepository.findProfileResponseById(tutorId);
     }
 
+    /**
+     * 튜터 리뷰 첫 페이지 캐시 조회 (pageNumber == 0 && pageSize == 5 만 캐싱)
+     *
+     * [캐싱 전략]
+     * - condition: pageNumber == 0 && pageSize == 5 (기본 페이징만 캐싱, 키 임의 증식 방지)
+     * - key: #tutorId (tutorReviews::tutorId 형태로 단순화)
+     * - unless 없음: 리뷰 0건인 튜터도 빈 목록으로 캐싱하여 무분별한 DB 콜드 미스 방지 및 sync=true와 안전하게 호환
+     * - 반환 타입: CachedReviewSliceDto (SliceImpl의 GenericJackson2JsonRedisSerializer 역직렬화 오류 방지)
+     */
+    @Cacheable(
+            value     = "tutorReviews",
+            key       = "#tutorId",
+            condition = "#pageable.pageNumber == 0 && #pageable.pageSize == 5"
+    )
+    @Transactional(readOnly = true)
+    public CachedReviewSliceDto findCachedFirstPageReviews(Long tutorId, Pageable pageable) {
+        log.warn("[CACHE MISS:review] DB 리뷰 조회 발생 | tutorId={}", tutorId);
+        Slice<ReviewResponse> slice = reviewRepository.findReviewsByTutorId(tutorId, pageable);
+        return CachedReviewSliceDto.from(slice);
+    }
+
     @Transactional(readOnly = true)
     public Slice<ReviewResponse> findReviewsByTutorId(Long tutorId, Pageable pageable) {
+        if (pageable.getPageNumber() == 0 && pageable.getPageSize() == 5) {
+            return findCachedFirstPageReviews(tutorId, pageable).toSlice(pageable);
+        }
         return reviewRepository.findReviewsByTutorId(tutorId, pageable);
     }
 

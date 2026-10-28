@@ -1,4 +1,4 @@
-package com.lessonmatchingplatform.lesson_matching_platform.global.config;
+﻿package com.lessonmatchingplatform.lesson_matching_platform.global.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -99,11 +99,10 @@ public class RedisConfig implements CachingConfigurer {
                 );
 
         Map<String, RedisCacheConfiguration> configurationMap = Map.ofEntries(
-                Map.entry("tutorDetail",            config.entryTtl(Duration.ofSeconds(15))),  // Cache Stampede 검증: 15초마다 만료
-                // ── 메인 페이지 Cache Stampede 테스트(MainPageCacheStampedeTest)용 설정 ──
-                Map.entry("mainHome",               config.entryTtl(Duration.ofSeconds(15))),  // /api/main/home 통합 캐시
-                Map.entry("trendingTutors",         config.entryTtl(Duration.ofSeconds(15))),
-                Map.entry("rookieTutors",           config.entryTtl(Duration.ofSeconds(15))),
+                Map.entry("tutorDetail",            config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
+                Map.entry("mainHome",               config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
+                Map.entry("trendingTutors",         config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
+                Map.entry("rookieTutors",           config.entryTtl(Duration.ofMinutes(20))),  // 운영: 20분 | 테스트 시: ofSeconds(15)
                 Map.entry("tutorSchedule",          config.entryTtl(Duration.ofMinutes(1))),
                 Map.entry("tutorScheduleException", config.entryTtl(Duration.ofMinutes(1))),
                 // 인기 튜터 리뷰 첫 페이지(page=0) 캐시

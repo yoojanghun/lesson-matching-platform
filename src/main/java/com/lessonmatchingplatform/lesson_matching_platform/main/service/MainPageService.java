@@ -69,7 +69,8 @@ public class MainPageService {
         );
     }
 
-    @Cacheable(value = "trendingTutors", key = "#categoryId != null ? #categoryId : 'ALL'")
+    // sync = true 적용: 캐시 만료 시 단 1개의 스레드만 DB 조회를 수행하고, 나머지 스레드는 대기 후 캐시된 결과를 공유
+    @Cacheable(value = "trendingTutors", key = "#categoryId != null ? #categoryId : 'ALL'", sync = true)
     @Transactional(readOnly = true)
     public List<TutorCardDto> getTrendingTutorsByCategory(Long categoryId) {
         if (categoryId != null && categoryId > 0 && !categoryRepository.existsById(categoryId)) {
@@ -95,7 +96,8 @@ public class MainPageService {
     }
 
     // 카테고리별로 가장 최신에 등록한 선생님 조회
-    @Cacheable(value = "rookieTutors", key = "#categoryId != null ? #categoryId : 'ALL'")
+    // sync = true 적용: Stampede 방어
+    @Cacheable(value = "rookieTutors", key = "#categoryId != null ? #categoryId : 'ALL'", sync = true)
     @Transactional(readOnly = true)
     public List<TutorCardDto> getRookieTutorsByCategory(Long categoryId) {
         if (categoryId != null && categoryId > 0 && !categoryRepository.existsById(categoryId)) {

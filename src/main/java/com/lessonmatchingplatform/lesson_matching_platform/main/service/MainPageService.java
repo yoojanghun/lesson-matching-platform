@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -151,5 +153,20 @@ public class MainPageService {
                         tutorLessonPriceMap.getOrDefault(tutorAccount.getTutorId(), TutorLessonPriceRangeDto.from(List.of()))
                 ))
                 .toList();
+    }
+
+    /**
+     * 스케줄러 선갱신 전용 메서드 - @Cacheable 없음
+     *
+     * 스케줄러(MainPageCacheRefreshScheduler)에서 직접 DB를 조회한 뒤
+     * CacheManager에 put()으로 캐시를 주입할 때 사용합니다.
+     * AOP 프록시를 경유하지 않으므로 @Cacheable/@CachePut 대신
+     * 순수 DB 조회 결과만 반환합니다.
+     */
+    @Transactional(readOnly = true)
+    public MainHomeResponse buildMainHomeData(Long categoryId) {
+        List<TutorCardDto> trending = getTrendingTutorsByCategory(categoryId);
+        List<TutorCardDto> rookie   = getRookieTutorsByCategory(categoryId);
+        return MainHomeResponse.of(trending, rookie);
     }
 }

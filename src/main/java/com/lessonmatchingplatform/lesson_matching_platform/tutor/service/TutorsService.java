@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,7 +49,8 @@ public class TutorsService {
     private final SubjectTutorRepository subjectTutorRepository;
     private final TutorLessonPriceRepository tutorLessonPriceRepository;
 
-    private final java.util.concurrent.atomic.AtomicInteger dbQueryCount = new java.util.concurrent.atomic.AtomicInteger();
+    private final AtomicInteger dbQueryCount = new java.util.concurrent.atomic.AtomicInteger();
+    private final AtomicInteger dbReviewQueryCount = new java.util.concurrent.atomic.AtomicInteger();
 
     // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redis 캐싱 적용
     // 프로필 조회는 null이 아닌 예외(EntityNotFoundException)를 던지므로 unless 제거하여 추후 sync=true와 호환 보장
@@ -85,7 +87,8 @@ public class TutorsService {
     )
     @Transactional(readOnly = true)
     public CachedReviewSliceDto findCachedFirstPageReviews(Long tutorId, Pageable pageable) {
-        log.warn("[CACHE MISS:review] DB 리뷰 조회 발생 | tutorId={}", tutorId);
+        log.warn("🔥 [CACHE MISS:review] DB 리뷰 직접 조회 발생! tutorId={} | thread={} | 누적리뷰DB조회수={}",
+                tutorId, Thread.currentThread().getName(), dbReviewQueryCount.incrementAndGet());
         Slice<ReviewResponse> slice = reviewRepository.findReviewsByTutorId(tutorId, pageable);
         return CachedReviewSliceDto.from(slice);
     }

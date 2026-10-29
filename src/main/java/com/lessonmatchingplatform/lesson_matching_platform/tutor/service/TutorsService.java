@@ -53,8 +53,8 @@ public class TutorsService {
     private final AtomicInteger dbReviewQueryCount = new java.util.concurrent.atomic.AtomicInteger();
 
     // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redis 캐싱 적용
-    // 프로필 조회는 null이 아닌 예외(EntityNotFoundException)를 던지므로 unless 제거하여 추후 sync=true와 호환 보장
-    @Cacheable(value = "tutorDetail", key = "#tutorId")
+    // [Cache Stampede 방어] sync = true 적용으로 만료 순간 단 1개의 스레드만 DB를 조회하고 나머지는 대기 후 캐시 반환
+    @Cacheable(value = "tutorDetail", key = "#tutorId", sync = true)
     @Transactional(readOnly = true)
     public TutorProfileResponse getTutorProfile(Long tutorId) {
         log.warn("🔥 [CACHE MISS] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",

@@ -82,11 +82,19 @@ public class DistributedCacheLockHelper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T> T safeGet(Cache cache, Object key, Class<T> type) {
         try {
-            return cache.get(key, type);
+            Cache.ValueWrapper wrapper = cache.get(key);
+            if (wrapper != null && wrapper.get() != null) {
+                Object value = wrapper.get();
+                if (type.isInstance(value)) {
+                    return (T) value;
+                }
+            }
+            return null;
         } catch (Exception e) {
-            log.warn("[CacheLock] 캐시 읽기 실패: {}", e.getMessage());
+            log.warn("[CacheLock] 캐시 읽기 실패: key={}, error={}", key, e.getMessage());
             return null;
         }
     }

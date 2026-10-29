@@ -39,13 +39,6 @@ import org.junit.runner.RunWith
  *       - Mean Test Time (평균 응답시간)
  *       - SLOW 로그 건수 (SLOW_THRESHOLD_MS 초과 시 WARN 기록)
  *       - TPS 및 응답시간 그래프의 15초 주기 스파이크(톱니바퀴) 여부
- *
- *  [결과 기록 표]
- *  | 방식          | 주기당 MISS (2회차 이후) | concurrent 최댓값 (서버로그) | 평균 응답(ms) | 에러 |
- *  |---------------|------------------------|---------------------------|--------------|------|
- *  | 방어 없음     |                        |                           |              |      |
- *  | sync=true     |                        |                           |              |      |
- *  | 스케줄러 선갱신 |                        |                           |              |      |
  * ===============================================================================
  */
 @RunWith(GrinderRunner)
@@ -53,7 +46,7 @@ class MainPageCacheStampedeTest {
 
     // ─── 설정값 ────────────────────────────────────────────────────────────────
 
-    static final String BASE_URL = "http://13.124.17.19:8080"
+    static final String BASE_URL = "http://3.36.100.66:8080"
     static final int SLOW_THRESHOLD_MS = 50
 
     // ─── nGrinder 내부 객체 ────────────────────────────────────────────────────
@@ -63,7 +56,8 @@ class MainPageCacheStampedeTest {
 
     @BeforeProcess
     static void beforeProcess() {
-        HTTPPluginControl.getConnectionDefaults().timeout = 5000
+        // 첫 콜드 스타트 DB 집계 쿼리 및 네트워크 지연을 감안하여 타임아웃 10초로 설정
+        HTTPPluginControl.getConnectionDefaults().timeout = 10000
 
         homeTest = new GTest(1, "GET /api/main/home [Dual Cache Stampede]")
         request  = new HTTPRequest()
@@ -109,7 +103,10 @@ class MainPageCacheStampedeTest {
             grinder.statistics.forLastTest.setLong("userLong1", elapsed)
 
         } catch (Exception e) {
-            grinder.logger.error("[ERROR:home] " + e.message)
+            // nGrinder 종료 시그널(Thread has been shut down)은 에러로 남기지 않음
+            if (!e.message?.contains("shut down") && !e.message?.contains("interrupted")) {
+                grinder.logger.error("[ERROR:home] " + e.message)
+            }
         }
     }
 }

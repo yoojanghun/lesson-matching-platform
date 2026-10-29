@@ -57,7 +57,7 @@ public class TutorsService {
     @Cacheable(value = "tutorDetail", key = "#tutorId", sync = true)
     @Transactional(readOnly = true)
     public TutorProfileResponse getTutorProfile(Long tutorId) {
-        log.warn("🔥 [CACHE MISS] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
+        log.warn("🔥 [CACHE MISS][sync-v2] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
                 tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
 
         try {

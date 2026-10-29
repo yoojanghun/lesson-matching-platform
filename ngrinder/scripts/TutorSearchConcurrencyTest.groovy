@@ -119,9 +119,10 @@ class TutorSearchConcurrencyTest {
      *    Deep Pagination은 ES 데이터가 500개+ 이상일 때 의미 있음
      */
     static final boolean ENABLE_DEEP_PAGINATION = true
-    // 1,017명 튜터 기준 / size(8) = 최대 127페이지 존재
-    // 1페이지(page=0), 10페이지(page=9), 50페이지(page=49), 100페이지(page=99) Deep Pagination 부하 검증 가능
-    static final int MAX_MEANINGFUL_PAGE = 100   // ★ 1000+명 튜터 데이터셋 기준
+    // 11,017명 튜터 기준 / size(8) = 최대 1,377페이지 존재
+    // ES max_result_window=10,000 기준: page 1250(1250*8=10,000)이 임계치
+    // Deep Pagination 테스트: page 1000 ~ 1350 (from: 8,000 ~ 10,800) 구간 집중 부하
+    static final int MAX_MEANINGFUL_PAGE = 1350
 
     // ─────────────────────────────────────────────────────────────────────
     // GTest 통계 수집 단위
@@ -222,19 +223,19 @@ class TutorSearchConcurrencyTest {
         // locationIds, categoryIds: @ModelAttribute로 List<Long> 바인딩됨
         // → ?locationIds=1&locationIds=2 형식으로 전송 (★ location 문자열이 아님!)
         // data-perf.sql에 location 데이터가 없으면 필터 비활성화 → 파라미터 생략
-        // Long locationId = LOCATION_ID_OPTIONS[new Random().nextInt(LOCATION_ID_OPTIONS.size())]
+        Long locationId = LOCATION_ID_OPTIONS[new Random().nextInt(LOCATION_ID_OPTIONS.size())]
         Long categoryId = CATEGORY_ID_OPTIONS[new Random().nextInt(CATEGORY_ID_OPTIONS.size())]
 
-        // Deep Pagination 일부 적용
+        // Deep Pagination 적용 (전체 요청 중 약 20%를 깊은 페이지로 전송)
         int page = 0
-        if (ENABLE_DEEP_PAGINATION && new Random().nextInt(100) < 10) {
-            // 10%의 요청을 깊은 페이지로
-            // ★ MAX_MEANINGFUL_PAGE 초과 시 빈 결과만 반환 → ES 부하 없음
-            // 대량 데이터 준비 후 page = MAX_MEANINGFUL_PAGE + new Random().nextInt(20) 으로 조정
-            page = MAX_MEANINGFUL_PAGE
+        if (ENABLE_DEEP_PAGINATION && new Random().nextInt(100) < 20) {
+            // 20% 확률로 Deep Page: page 1000 ~ 1350 (from: 8,000 ~ 10,800)
+            // 1,250페이지(from: 10,000)를 넘어가면 ES max_result_window 한계 에러 발생
+            page = 1000 + new Random().nextInt(351)
             deepPageCount++
         } else {
-            page = new Random().nextInt(MAX_MEANINGFUL_PAGE + 1)  // 0 ~ MAX_MEANINGFUL_PAGE
+            // 80% 확률로 일반 사용자 탐색 (0 ~ 50페이지)
+            page = new Random().nextInt(51)
         }
 
         int size = 8
@@ -243,7 +244,7 @@ class TutorSearchConcurrencyTest {
         StringBuilder urlBuilder = new StringBuilder("${BASE_URL}/api/tutors/search?")
         if (keyword) urlBuilder.append("keyword=${URLEncoder.encode(keyword, 'UTF-8')}&")
         urlBuilder.append("categoryIds=${categoryId}&")   // Long ID 필터 (실제 바인딩됨)
-        // urlBuilder.append("locationIds=${locationId}&")  // ★ location 데이터 있으면 활성화
+        urlBuilder.append("locationIds=${locationId}&")  // ★ location 데이터 있으면 활성화
         if (priceRange.min != null) urlBuilder.append("minPrice=${priceRange.min}&")
         if (priceRange.max != null) urlBuilder.append("maxPrice=${priceRange.max}&")
         urlBuilder.append("sort=${sort}&page=${page}&size=${size}")
@@ -375,11 +376,17 @@ class TutorSearchConcurrencyTest {
                 profileSuccessCount++
                 if (isCacheHit) cacheHitCount++
 
-                grinder.logger.info(
-                    "✅ 프로필 조회 성공 | tutorId=${tutorId} | " +
-                    "cache=${cacheStatus} | elapsed=${elapsed}ms" +
-                    (elapsed > 500 ? " ⚠ DB 부하 의심 (캐시 미스?)" : "")
-                )
+                // nGrinder는 WARN 이상만 0.log에 남기므로 warn으로 기록
+                // 캐시 미스(DB 조회)이거나 500ms 이상 지연되면 경고 표시
+                if (!isCacheHit || elapsed > 300) {
+                    grinder.logger.warn(
+                        "⚡ [캐시 미스/지연] tutorId=${tutorId} | cache=${cacheStatus} | elapsed=${elapsed}ms"
+                    )
+                } else if (profileSuccessCount % 50 == 0) {
+                    grinder.logger.warn(
+                        "✅ [프로필 조회] thread=${grinder.threadNumber} | tutorId=${tutorId} | cache=${cacheStatus} | elapsed=${elapsed}ms"
+                    )
+                }
             } else {
                 errorCount++
                 grinder.logger.error("⚠ 프로필 조회 실패 | status=${res.statusCode}")

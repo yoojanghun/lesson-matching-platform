@@ -21,6 +21,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorLessonP
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.TutorsRepository;
 import org.springframework.cache.annotation.Cacheable;
+import com.lessonmatchingplatform.lesson_matching_platform.global.cache.DistributedCacheLockHelper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -48,27 +50,22 @@ public class TutorsService {
     private final CategoryTutorRepository categoryTutorRepository;
     private final SubjectTutorRepository subjectTutorRepository;
     private final TutorLessonPriceRepository tutorLessonPriceRepository;
+    private final TutorProfileLoader tutorProfileLoader;
+    private final DistributedCacheLockHelper cacheLockHelper;
 
-    private final AtomicInteger dbQueryCount = new java.util.concurrent.atomic.AtomicInteger();
-    private final AtomicInteger dbReviewQueryCount = new java.util.concurrent.atomic.AtomicInteger();
+    private final AtomicInteger dbReviewQueryCount = new AtomicInteger();
 
-    // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redis 캐싱 적용
-    // [Cache Stampede 방어] sync = true 적용으로 만료 순간 단 1개의 스레드만 DB를 조회하고 나머지는 대기 후 캐시 반환
-    @Cacheable(value = "tutorDetail", key = "#tutorId", sync = true)
-    @Transactional(readOnly = true)
+    // 공개 강사 상세 프로필 조회 (리뷰 제외) - Redisson 분산 락 적용
+    // [Cache Stampede 방어: Redisson 분산 락 + Double-Checked Locking]
+    // 트랜잭션 밖에서 락과 캐시를 확인하여 불필요한 Hikari 커넥션 점유 및 대기 타임아웃 방지
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public TutorProfileResponse getTutorProfile(Long tutorId) {
-        log.warn("🔥 [CACHE MISS][sync-v2] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
-                tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
-
-        try {
-            // DB 쿼리/연산 지연 재현 (Cache Stampede 테스트 동안 만료 시 스레드 경합을 관찰하기 위한 장치: sleep 150ms 조건)
-            Thread.sleep(150);
-        } catch (InterruptedException ignored) {}
-
-        TutorAccount tutorAccount = tutorsRepository.findProfileById(tutorId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 강사를 찾을 수 없습니다. id=" + tutorId));
-
-        return categoryTutorRepository.findProfileResponseById(tutorId);
+        return cacheLockHelper.getOrLoad(
+                "tutorDetail",
+                tutorId,
+                TutorProfileResponse.class,
+                () -> tutorProfileLoader.loadProfile(tutorId)
+        );
     }
 
     /**

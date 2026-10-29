@@ -20,6 +20,7 @@ import com.lessonmatchingplatform.lesson_matching_platform.tutor.repository.Tuto
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import com.lessonmatchingplatform.lesson_matching_platform.global.cache.DistributedCacheLockHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,26 +42,36 @@ public class MainPageService {
     private final CategoryTutorRepository categoryTutorRepository;
     private final SubjectTutorRepository subjectTutorRepository;
     private final TutorLessonPriceRepository tutorLessonPriceRepository;
+    private final DistributedCacheLockHelper cacheLockHelper;
 
     // Stampede 동시 진입자 수 모니터링 카운터
     private final AtomicInteger homeConcurrent = new AtomicInteger(0);
 
     /**
-     * 메인 홈 통합 데이터 조회 - sync = true 적용
+     * 메인 홈 통합 데이터 조회 - Redisson 분산 락 적용
      *
-     * [Cache Stampede 완전 방어]
-     * CompletableFuture 비동기 풀에 작업을 넘기지 않고,
-     * 메인 홈 전체 응답에 대해 sync = true 락을 적용합니다.
-     * 캐시 만료 순간 오직 단 1개의 스레드만 DB를 조회하여 완성본을 채우고,
-     * 나머지 99~199개 스레드는 로컬 락에서 대기 후 캐시 결과를 공유받아 즉시 반환합니다.
+     * [Cache Stampede 분산 락 방어: Redisson + Double-Checked Locking]
+     * 캐시 히트 시 락 없이 즉시 반환하며, 캐시 만료 순간 오직 단 1개의 스레드만
+     * Redisson 분산 락을 획득하여 DB를 조회하고 캐시에 저장합니다.
+     * 대기하던 다른 스레드들은 락 획득 후 2차 확인(Double-Check)에서 캐시를 읽어 즉시 반환합니다.
      */
-    @Cacheable(value = "mainHome", key = "#categoryId != null ? #categoryId : 'ALL'", sync = true)
-    @Transactional(readOnly = true)
     public MainHomeResponse getMainHomeData(Long categoryId) {
         if (categoryId != null && categoryId > 0 && !categoryRepository.existsById(categoryId)) {
             throw new IllegalArgumentException("존재하지 않는 카테고리 ID입니다. categoryId: " + categoryId);
         }
 
+        Object cacheKey = categoryId != null ? categoryId : "ALL";
+
+        return cacheLockHelper.getOrLoad(
+                "mainHome",
+                cacheKey,
+                MainHomeResponse.class,
+                () -> loadMainHomeData(categoryId)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public MainHomeResponse loadMainHomeData(Long categoryId) {
         int current = homeConcurrent.incrementAndGet();
         long start = System.currentTimeMillis();
         try {
@@ -68,7 +79,7 @@ public class MainPageService {
             List<TutorCardDto> rookie   = getRookieTutorsByCategory(categoryId);
 
             long dbTime = System.currentTimeMillis() - start;
-            log.warn("[CACHE MISS:mainHome] categoryId={} | concurrent={} | dbTime={}ms | thread={}",
+            log.warn("[CACHE MISS:mainHome][redisson-lock] categoryId={} | concurrent={} | dbTime={}ms | thread={}",
                     categoryId, current, dbTime, Thread.currentThread().getName());
 
             return MainHomeResponse.of(trending, rookie);

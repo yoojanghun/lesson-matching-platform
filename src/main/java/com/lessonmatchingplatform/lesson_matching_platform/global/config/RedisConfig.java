@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -110,9 +109,7 @@ public class RedisConfig implements CachingConfigurer {
                 Map.entry("tutorReviews",           config.entryTtl(Duration.ofMinutes(10)))
         );
 
-        RedisCacheWriter writer = RedisCacheWriter.lockingRedisCacheWriter(connectionFactory);
-
-        return RedisCacheManager.builder(writer)
+        return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(config)
                 .withInitialCacheConfigurations(configurationMap)
                 .enableStatistics()

@@ -46,7 +46,7 @@ public class MainPageCacheRefreshScheduler {
      * fixedRate = 60_000 (1분) ← 운영값 (Redis TTL 30분보다 짧아 만료 전 선갱신 보장)
      * 테스트 시: fixedRate = 5_000 (5초), Redis TTL = 15초
      */
-    // @Scheduled(fixedRate = 60_000) // 테스트를 위해 일시 비활성화 (Redisson Lock 단독 검증)
+    @Scheduled(fixedRate = 60_000)
     public void refreshMainHomeCache() {
         Cache cache = cacheManager.getCache("mainHome");
         if (cache == null) {

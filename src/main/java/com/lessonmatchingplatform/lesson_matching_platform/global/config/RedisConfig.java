@@ -99,8 +99,9 @@ public class RedisConfig implements CachingConfigurer {
                 );
 
         Map<String, RedisCacheConfiguration> configurationMap = Map.ofEntries(
-                Map.entry("tutorDetail",            config.entryTtl(Duration.ofSeconds(15))),  // TutorProfileCacheTest: 15초  // 운영: 30분 | 테스트 시: ofSeconds(15)
-                Map.entry("mainHome",               config.entryTtl(Duration.ofSeconds(15))),  // MainPageCacheStampedeTest: 15초 (운영: 30분)
+                Map.entry("tutorDetail",            config.entryTtl(Duration.ofMinutes(30))), // 운영: 30분
+                Map.entry("mainHome",               config.entryTtl(Duration.ofMinutes(30))), // 운영: 30분
+
                 Map.entry("trendingTutors",         config.entryTtl(Duration.ofMinutes(30))),  // 운영: 30분 | 테스트 시: ofSeconds(15)
                 Map.entry("rookieTutors",           config.entryTtl(Duration.ofMinutes(20))),  // 운영: 20분 | 테스트 시: ofSeconds(15)
                 Map.entry("tutorSchedule",          config.entryTtl(Duration.ofMinutes(1))),

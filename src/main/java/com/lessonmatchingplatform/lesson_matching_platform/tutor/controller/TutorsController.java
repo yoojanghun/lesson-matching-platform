@@ -1,5 +1,6 @@
 package com.lessonmatchingplatform.lesson_matching_platform.tutor.controller;
 
+import com.lessonmatchingplatform.lesson_matching_platform.global.cache.CacheContext;
 import com.lessonmatchingplatform.lesson_matching_platform.lesson.dto.response.ReviewResponse;
 import com.lessonmatchingplatform.lesson_matching_platform.main.dto.TutorCardDto;
 import com.lessonmatchingplatform.lesson_matching_platform.tutor.dto.request.TutorSearchCondition;
@@ -44,12 +45,11 @@ public class TutorsController {
     public ResponseEntity<TutorProfileResponse> getTutorProfile(
             @PathVariable Long tutorId) {
 
-        // @Cacheable 호출 전에 캐시 존재 여부를 사전 확인하여 HIT/MISS 판단
-        Cache cache = cacheManager.getCache("tutorDetail");
-        boolean isCacheHit = cache != null && cache.get(tutorId) != null;
-        String cacheStatus = isCacheHit ? "HIT" : "MISS";
-
         TutorProfileResponse response = tutorsService.getTutorProfile(tutorId);
+        String cacheStatus = CacheContext.getAndClearStatus();
+        if (cacheStatus == null) {
+            cacheStatus = "MISS";
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Cache", cacheStatus);  // HIT 또는 MISS

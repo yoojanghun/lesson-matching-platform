@@ -30,8 +30,14 @@ public class TutorProfileLoader {
 
     @Transactional(readOnly = true)
     public TutorProfileResponse loadProfile(Long tutorId) {
-        log.warn("🔥 [CACHE MISS][redisson-lock] DB 직접 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
-                tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
+        boolean isAsync = Thread.currentThread().getName().startsWith("cache-refresh");
+        if (isAsync) {
+            log.info("🔄 [CACHE REFRESH] 백그라운드 DB 갱신 발생! tutorId={} | thread={} | 누적DB조회수={}",
+                    tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
+        } else {
+            log.warn("🔥 [CACHE MISS] 동기 DB 조회 발생! tutorId={} | thread={} | 누적DB조회수={}",
+                    tutorId, Thread.currentThread().getName(), dbQueryCount.incrementAndGet());
+        }
 
         try {
             // DB 쿼리/연산 지연 재현 (Cache Stampede 테스트 동안 만료 시 스레드 경합을 관찰하기 위한 장치: sleep 150ms 조건)

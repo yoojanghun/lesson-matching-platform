@@ -125,7 +125,8 @@ class TutorProfileCacheTest {
     // ─── 집계 카운터 ───────────────────────────────────────────────────────────
 
     /** 프로세스 단위 HIT/MISS 카운터 (멀티 프로세스 합산 아님) */
-    static final java.util.concurrent.atomic.AtomicLong HIT_COUNT  = new java.util.concurrent.atomic.AtomicLong()
+    static final java.util.concurrent.atomic.AtomicLong HIT_COUNT   = new java.util.concurrent.atomic.AtomicLong()
+    static final java.util.concurrent.atomic.AtomicLong STALE_COUNT = new java.util.concurrent.atomic.AtomicLong()
     static final java.util.concurrent.atomic.AtomicLong MISS_COUNT = new java.util.concurrent.atomic.AtomicLong()
 
     // ─── [Issue 2] X-Cache null 경고 1회 한정 ─────────────────────────────────
@@ -243,6 +244,8 @@ class TutorProfileCacheTest {
                     }
                 } else if ("HIT".equalsIgnoreCase(xCache.trim())) {
                     HIT_COUNT.incrementAndGet()
+                } else if ("STALE".equalsIgnoreCase(xCache.trim())) {
+                    STALE_COUNT.incrementAndGet()
                 } else {
                     MISS_COUNT.incrementAndGet()
                     // [Issue 1 수정] HOT(1~10) 의 중복 MISS = Stampede 판정 대상
@@ -269,13 +272,16 @@ class TutorProfileCacheTest {
 
                 // [STATS] warn 레벨, 프로세스 단위임을 명시
                 // ※ total % 1000 == 0 은 멀티 스레드 동시 통과 가능 → 참고용
-                long total = HIT_COUNT.get() + MISS_COUNT.get()
+                long total = HIT_COUNT.get() + STALE_COUNT.get() + MISS_COUNT.get()
                 if (total > 0 && total % 1000 == 0) {
-                    long hitPct = HIT_COUNT.get() * 100 / total
+                    long hitPct   = HIT_COUNT.get() * 100 / total
+                    long stalePct = STALE_COUNT.get() * 100 / total
+                    long missPct  = MISS_COUNT.get() * 100 / total
                     grinder.logger.warn(
                         "[STATS:process] total=" + total +
                         " | HIT=" + HIT_COUNT.get() + "(" + hitPct + "%)" +
-                        " | MISS=" + MISS_COUNT.get() +
+                        " | STALE=" + STALE_COUNT.get() + "(" + stalePct + "%)" +
+                        " | MISS=" + MISS_COUNT.get() + "(" + missPct + "%)" +
                         " | ※ 프로세스 단위 (멀티 프로세스 합산 아님)"
                     )
                 }

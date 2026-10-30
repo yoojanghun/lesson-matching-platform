@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,10 +61,12 @@ public class TutorsService {
     // 트랜잭션 밖에서 락과 캐시를 확인하여 불필요한 Hikari 커넥션 점유 및 대기 타임아웃 방지
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public TutorProfileResponse getTutorProfile(Long tutorId) {
-        return cacheLockHelper.getOrLoad(
+        return cacheLockHelper.getOrLoadWithSoftTtl(
                 "tutorDetail",
                 tutorId,
                 TutorProfileResponse.class,
+                Duration.ofSeconds(15), // Soft TTL: 15초
+                Duration.ofSeconds(60), // Hard TTL: 60초
                 () -> tutorProfileLoader.loadProfile(tutorId)
         );
     }

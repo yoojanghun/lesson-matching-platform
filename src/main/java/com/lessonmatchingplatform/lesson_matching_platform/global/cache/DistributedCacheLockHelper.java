@@ -13,6 +13,8 @@ import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Supplier;
 
 /**
@@ -39,12 +41,12 @@ public class DistributedCacheLockHelper {
     // 백그라운드 갱신 작업의 JVM 내 중복 실행 차단용 Set
     private final Set<String> refreshingKeys = ConcurrentHashMap.newKeySet();
 
-    // 백그라운드 캐시 갱신 전용 스레드풀 (큐 및 스레드 수 제한)
+    // 백그라운드 캐시 갱신 전용 스레드풀 (대기 큐 30개로 축소하여 대기시간 상한 ≈ 1.3초로 제한)
     private final ExecutorService refreshExecutor = new ThreadPoolExecutor(
-            2,
+            4,
             8,
             60L, TimeUnit.SECONDS,
-            new ArrayBlockingQueue<>(200),
+            new ArrayBlockingQueue<>(30),
             new ThreadFactory() {
                 private final AtomicInteger count = new AtomicInteger(1);
                 @Override
@@ -56,6 +58,10 @@ public class DistributedCacheLockHelper {
             },
             new ThreadPoolExecutor.AbortPolicy()
     );
+
+    // 갱신 스레드풀 포화 거절 로그 샘플링용 (10초에 1회 요약 출력)
+    private final LongAdder rejectedCount = new LongAdder();
+    private final AtomicLong lastRejectLog = new AtomicLong();
 
     /**
      * 논리 TTL (Soft TTL) 및 최대 물리 보장 수명 (Hard TTL) 적용 조회 (Stale-While-Revalidate)
@@ -182,8 +188,10 @@ public class DistributedCacheLockHelper {
             return;
         }
 
+        long queuedAt = System.currentTimeMillis();
         try {
             refreshExecutor.execute(() -> {
+                long queueWaitMs = System.currentTimeMillis() - queuedAt;
                 RLock lock = redissonClient.getLock("lock:" + lockKeyId);
                 boolean locked = false;
                 try {
@@ -205,8 +213,8 @@ public class DistributedCacheLockHelper {
                         long softExpireAt = System.currentTimeMillis() + softTtl.toMillis();
                         long hardExpireAt = System.currentTimeMillis() + hardTtl.toMillis();
                         safePut(cache, key, new CachedValue<>(freshData, softExpireAt, hardExpireAt));
-                        log.info("[CacheLock] 백그라운드 갱신 저장 완료 | key={} | elapsed={}ms | thread={}",
-                                lockKeyId, System.currentTimeMillis() - start, Thread.currentThread().getName());
+                        log.info("[CacheLock] 백그라운드 갱신 저장 완료 | key={} | queueWait={}ms | dbTime={}ms | thread={}",
+                                lockKeyId, queueWaitMs, System.currentTimeMillis() - start, Thread.currentThread().getName());
                     }
                 } catch (Exception e) {
                     log.warn("[CacheLock] 백그라운드 갱신 실패, 5초 쿨다운 적용 | key={}, error={}", lockKeyId, e.getMessage());
@@ -226,7 +234,12 @@ public class DistributedCacheLockHelper {
             });
         } catch (RejectedExecutionException e) {
             refreshingKeys.remove(lockKeyId);
-            log.warn("[CacheLock] 갱신 스레드풀 포화로 작업 스킵 | key={}", lockKeyId);
+            rejectedCount.increment();
+            long now = System.currentTimeMillis();
+            long last = lastRejectLog.get();
+            if (now - last > 10_000L && lastRejectLog.compareAndSet(last, now)) {
+                log.warn("[CacheLock] 갱신 풀 포화: 최근 10초 거절 {}건 (옛 값 서빙 유지)", rejectedCount.sumThenReset());
+            }
         }
     }
 

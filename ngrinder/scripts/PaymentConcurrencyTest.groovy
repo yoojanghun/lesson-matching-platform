@@ -70,7 +70,15 @@ class PaymentConcurrencyTest {
      * - CLAIM_PHASE: 이체 완료 신고 동시성 (학생들이 동시에 이체 신고)
      * - CONFIRM_PHASE: 입금 확인 동시성 (튜터들이 동시에 확인/취소)
      */
-    static final String TEST_PHASE = "CONFIRM_PHASE"  // ← 테스트 단계 선택
+    static final String TEST_PHASE = "PREPARE_PHASE"  // ← 테스트 단계 선택
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ★ 결제 준비 벤치마크 모드 설정
+    //  - false : 비관적 락 (SELECT FOR UPDATE) → Case A
+    //  - true  : 조건부 원자적 UPDATE (CAS 패턴) → Case B
+    // ─────────────────────────────────────────────────────────────────────
+
+    static final boolean USE_ATOMIC = false  // ← false=비관적락, true=CAS
 
     // ─────────────────────────────────────────────────────────────────────
     // 학생 계정 풀 (matchingId + reservationIds 매핑)
@@ -324,7 +332,11 @@ class PaymentConcurrencyTest {
             reservationId: currentReservationIds
         ])
 
-        String url = "${BASE_URL}/api/payments/prepare"
+        // USE_ATOMIC 플래그에 따라 비관적 락(Case A) / 조건부 UPDATE(Case B) 선택
+
+        // USE_ATOMIC 플래그에 따라 비관적 락(Case A) / 조건부 UPDATE(Case B) 선택
+
+        String url = "${BASE_URL}/api/payments/prepare" + (USE_ATOMIC ? "?useAtomic=true" : "")
         long start = System.currentTimeMillis()
 
         try {

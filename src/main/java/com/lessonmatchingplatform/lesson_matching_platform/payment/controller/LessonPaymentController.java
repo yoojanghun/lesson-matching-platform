@@ -36,10 +36,19 @@ public class LessonPaymentController {
     @PostMapping("/prepare")
     public ResponseEntity<PaymentPrepareResponse> preparePayment(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
+            @RequestParam(value = "useAtomic", required = false, defaultValue = "false") boolean useAtomic,
             @RequestBody @Valid PaymentPrepareRequest request
     ) {
-        PaymentPrepareResponse response = lessonPaymentService.preparePayment(
-                boardPrincipal.id(), request);
+        PaymentPrepareResponse response;
+        if (useAtomic) {
+            // [대안 방식] 조건부 원자적 UPDATE (CAS 패턴: 락 없이 쿼리 1회로 원자적 연결)
+            response = lessonPaymentService.preparePaymentWithConditionalUpdate(
+                    boardPrincipal.id(), request);
+        } else {
+            // [기존 방식] 비관적 락 (SELECT ... FOR UPDATE 로 행 잠금 후 검증)
+            response = lessonPaymentService.preparePayment(
+                    boardPrincipal.id(), request);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

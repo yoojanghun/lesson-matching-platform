@@ -125,3 +125,6 @@ management:
       application: ${spring.application.name}
     cache:
       instrument-cache: true
+logging:
+  level:
+    com.zaxxer.hikari: DEBUG

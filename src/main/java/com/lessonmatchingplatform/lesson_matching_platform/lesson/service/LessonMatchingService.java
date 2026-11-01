@@ -66,6 +66,33 @@ public class LessonMatchingService {
         return savedMatching.getMatchingId();
     }
 
+    // [대조군] 학생 행 비관적 락(PESSIMISTIC_WRITE)을 이용한 매칭 요청 처리
+    // - 학생 행에 SELECT ... FOR UPDATE를 걸어 DB 커넥션을 쥔 채 트랜잭션이 직렬화됨
+    // - 동시 연타 시 HikariCP 커넥션 풀(기본 10개)이 100% 고갈되는 현상을 재현
+    public Long lessonMatchingWithStudentLock(Long studentId, Long tutorId, LessonMatchingRequest request) {
+        // 1. 학생 행에 SELECT FOR UPDATE 를 걸어 직렬화 시도 (DB 커넥션 점유 시작)
+        StudentAccount student = studentRepository.findByIdWithLock(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("학생 계정이 없습니다."));
+
+        // 2. 튜터 프록시 조회
+        TutorAccount tutor = tutorsRepository.getReferenceById(tutorId);
+
+        // 3. 기존 중복 검사 및 매칭 생성 로직 수행
+        if (matchingRepository.existsActiveMatching(studentId, tutorId)) {
+            throw new IllegalStateException("이미 진행중이거나 승인된 매칭 요청이 있습니다");
+        }
+
+        // 실제 트랜잭션 DB 점유 시간 체감 및 경합 시뮬레이션을 위한 미세 지연 (50ms)
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        Matching matching = Matching.of(student, tutor, request.requestMsg(), MatchingStatus.PENDING);
+        return matchingRepository.save(matching).getMatchingId();
+    }
+
     // Student가 Tutor에게 보냈던 matching의 status 취소
     public Long cancelMatching(Long studentId, Long matchingId) {
         Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(matchingId, studentId)

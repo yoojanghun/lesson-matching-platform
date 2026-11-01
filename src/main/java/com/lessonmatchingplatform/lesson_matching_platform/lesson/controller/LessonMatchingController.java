@@ -37,10 +37,19 @@ public class LessonMatchingController {
     public ResponseEntity<Long> lessonMatching(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long tutorId,
+            @RequestParam(required = false, defaultValue = "false") Boolean usePessimistic,
             @RequestBody @Valid LessonMatchingRequest request
     ) {
         Long studentId = boardPrincipal.id();
-        Long matchingId = matchingLockFacade.lessonMatchingWithLock(studentId, tutorId, request);
+        Long matchingId;
+
+        if (Boolean.TRUE.equals(usePessimistic)) {
+            // [대조군] 학생 행 비관적 락 (DB 커넥션 쥐고 경합 -> HikariCP 커넥션 풀 고갈 유발)
+            matchingId = lessonMatchingService.lessonMatchingWithStudentLock(studentId, tutorId, request);
+        } else {
+            // [실험군] Redisson 분산 락 (Redis Fast-Fail -> DB 커넥션 1개만 사용)
+            matchingId = matchingLockFacade.lessonMatchingWithLock(studentId, tutorId, request);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(matchingId);
     }

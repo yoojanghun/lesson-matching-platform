@@ -23,10 +23,11 @@ public class MatchingLockFacade {
         RLock lock = redissonClient.getLock(lockKey);
 
         try {
-            // 3초 대기, 5초 점유 후 자동 해제
-            boolean acquired = lock.tryLock(3, 5, TimeUnit.SECONDS);
+            // waitTime 0초: 락을 선점한 1개 요청 외 나머지 요청은 Redis 메모리 수준에서 즉시 튕겨냄 (Fast-Fail)
+            // leaseTime 5초: 작업 처리 중 장애 발생 시 5초 후 자동 해제
+            boolean acquired = lock.tryLock(0, 5, TimeUnit.SECONDS);
             if (!acquired) {
-                log.warn("매칭 락 획득 실패 - lockKey: {}", lockKey);
+                log.warn("매칭 락 획득 실패 (Fast-Fail) - lockKey: {}", lockKey);
                 throw new IllegalStateException("현재 매칭 요청을 처리 중입니다. 잠시 후 다시 시도해 주세요.");
             }
 

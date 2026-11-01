@@ -69,6 +69,23 @@ class MatchingConcurrencyTest {
     static final long TOKEN_TTL_MS = 15 * 60 * 1000L  // 15분
 
     // ─────────────────────────────────────────────────────────────────────
+    // ★ 동시성 락 모드 설정 (대조군 vs 실험군 스위칭)
+    // ─────────────────────────────────────────────────────────────────────
+    /**
+     * 비관적 락(대조군) vs Redisson 분산 락(실험군)
+     *  - true : 비관적 락 (?usePessimistic=true) -> 100개 요청이 DB 커넥션을 쥐고 줄서기 (HikariCP 100% 고갈 재현)
+     *  - false: Redisson 분산 락 -> Redis 메모리 수준에서 1건만 통과, 99건 즉시 409 Fast-Fail (HikariCP 1개만 사용)
+     */
+    static final boolean USE_PESSIMISTIC_LOCK = true
+
+    /**
+     * 단일 학생 연타 모드
+     *  - true : student1@test.com 1명이 동시에 50~100회 연타 (본 시나리오)
+     *  - false: student1~50 다수 학생이 튜터 1명에게 동시 신청
+     */
+    static final boolean SINGLE_STUDENT_BURST = true
+
+    // ─────────────────────────────────────────────────────────────────────
     // 학생 계정 풀 (vUser 수 이상 준비할 것)
     // → data.sql 또는 테스트 DB에 실제로 존재하는 계정이어야 함
     // ─────────────────────────────────────────────────────────────────────
@@ -154,8 +171,13 @@ class MatchingConcurrencyTest {
     // ─────────────────────────────────────────────────────────────────────
 
     void login() {
-        int idx  = (int)(grinder.threadNumber % STUDENT_USERS.size())
-        Map user = STUDENT_USERS[idx]
+        Map user
+        if (SINGLE_STUDENT_BURST) {
+            user = [username: "student1@test.com", password: "testaccount123"]
+        } else {
+            int idx  = (int)(grinder.threadNumber % STUDENT_USERS.size())
+            user = STUDENT_USERS[idx]
+        }
 
         String body = JsonOutput.toJson([
             username: user.username,
@@ -214,6 +236,9 @@ class MatchingConcurrencyTest {
         String msg  = REQUEST_MESSAGES[new Random().nextInt(REQUEST_MESSAGES.size())]
         String body = JsonOutput.toJson([requestMsg: msg])
         String url  = "${BASE_URL}/api/matchings/tutors/${POPULAR_TUTOR_ID}"
+        if (USE_PESSIMISTIC_LOCK) {
+            url += "?usePessimistic=true"
+        }
 
         long start = System.currentTimeMillis()
 

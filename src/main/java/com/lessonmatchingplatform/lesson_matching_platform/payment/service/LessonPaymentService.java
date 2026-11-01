@@ -96,67 +96,6 @@ public class LessonPaymentService {
         return PaymentPrepareResponse.of(payment, orderName);
     }
 
-    // [대안 방식] 조건부 원자적 UPDATE를 이용한 결제 준비 (비관적 락 대비 벤치마크용)
-    @Transactional
-    public PaymentPrepareResponse preparePaymentWithConditionalUpdate(Long studentId, PaymentPrepareRequest request) {
-        // 1. 매칭 및 튜터 기본 검증
-        Matching matching = matchingRepository.findByMatchingIdAndStudentAccount_StudentId(request.matchingId(), studentId)
-                .orElseThrow(() -> new EntityNotFoundException("해당되는 레슨 매칭이 없습니다."));
-
-        if (matching.getStatus() != MatchingStatus.ACCEPTED) {
-            throw new IllegalStateException("결제가 불가능한 매칭 상태입니다.");
-        }
-
-        Integer pricePerLesson = matching.getPricePerLesson();
-        if (pricePerLesson == null || pricePerLesson <= 0) {
-            throw new IllegalStateException("선생님이 아직 레슨비를 설정하지 않은 매칭건입니다.");
-        }
-
-        TutorAccount tutor = matching.getTutorAccount();
-        if (!tutor.hasBankAccount()) {
-            throw new IllegalStateException("선생님이 아직 계좌 정보를 등록하지 않았습니다.");
-        }
-
-        // 2. 락 없이(일반 SELECT) 예약 목록 조회 및 금액 계산
-        List<Reservation> reservations = reservationRepository.findAllById(request.reservationId());
-
-        if (reservations.size() != request.reservationId().size()) {
-            throw new IllegalArgumentException("존재하지 않는 예약이 포함되어 있습니다.");
-        }
-
-        Integer totalAmount = reservations.stream()
-                .mapToInt(Reservation::getAppliedPrice)
-                .sum();
-
-        // 3. 결제 엔티티 먼저 생성 및 저장
-        Payment payment = Payment.of(
-                matching,
-                generateOrderId(),
-                totalAmount,
-                reservations.size(),
-                tutor.getBankName(),
-                tutor.getBankAccountNumber(),
-                tutor.getBankAccountHolder()
-        );
-        paymentRepository.save(payment);
-
-        // 4. [핵심] 락 없이 단 1회의 원자적 조건부 UPDATE로 예약에 결제 연결 시도!
-        int updatedCount = reservationRepository.assignPaymentIfAvailable(
-                payment,
-                request.reservationId(),
-                request.matchingId(),
-                ReservationStatus.COMPLETED
-        );
-
-        // 갱신된 행 수가 요청한 예약 개수와 다르면? → 이미 다른 요청이 낚아챔! 롤백 유도
-        if (updatedCount != request.reservationId().size()) {
-            throw new IllegalStateException("결제할 수 없는 예약이 포함되어 있거나, 이미 결제 진행 중인 레슨입니다.");
-        }
-
-        String orderName = String.format("%d회차 레슨", reservations.size());
-        return PaymentPrepareResponse.of(payment, orderName);
-    }
-
     // 학생이 이체 완료 신고
     @Transactional
     public PaymentStatusResponse claimTransfer(Long studentId, TransferClaimRequest request) {

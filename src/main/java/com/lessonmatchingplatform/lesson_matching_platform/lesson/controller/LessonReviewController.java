@@ -19,16 +19,31 @@ public class LessonReviewController {
     private final ReviewService reviewService;
 
     // 한 선생님의 레슨 페이지에 리뷰 추가
+    // 동시성 벤치마크를 위해 strategy 파라미터 지원 (none | pessimistic | atomic)
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/{tutorId}/reviews")
     public ResponseEntity<ReviewResponse> postReview(
             @AuthenticationPrincipal BoardPrincipal boardPrincipal,
             @PathVariable Long tutorId,
+            @RequestParam(value = "strategy", required = false, defaultValue = "none") String strategy,
+            @RequestParam(value = "useAtomic", required = false, defaultValue = "false") boolean useAtomic,
+            @RequestParam(value = "usePessimistic", required = false, defaultValue = "false") boolean usePessimistic,
             @RequestBody ReviewRequest request
     ) {
         Long id = boardPrincipal.id();
 
-        ReviewResponse reviewResponse = reviewService.postReview(id, request, tutorId);
+        ReviewResponse reviewResponse;
+        if (useAtomic || "atomic".equalsIgnoreCase(strategy)) {
+            // [Case B] 조건부 / 원자적 UPDATE (Atomic SQL)
+            reviewResponse = reviewService.postReviewWithAtomicUpdate(id, request, tutorId);
+        } else if (usePessimistic || "pessimistic".equalsIgnoreCase(strategy)) {
+            // [Case A] 비관적 락 (SELECT FOR UPDATE)
+            reviewResponse = reviewService.postReviewWithPessimisticLock(id, request, tutorId);
+        } else {
+            // [Baseline] 동시성 제어 없음 (Lost Update 발생 확인용)
+            reviewResponse = reviewService.postReview(id, request, tutorId);
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(reviewResponse);
     }
 

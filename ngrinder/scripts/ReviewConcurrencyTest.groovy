@@ -1,4 +1,4 @@
-import static net.grinder.script.Grinder.grinder
+﻿import static net.grinder.script.Grinder.grinder
 import net.grinder.script.GTest
 import net.grinder.scriptengine.groovy.junit.GrinderRunner
 import net.grinder.scriptengine.groovy.junit.annotation.BeforeThread
@@ -69,6 +69,14 @@ class ReviewConcurrencyTest {
 
     static final String BASE_URL    = "http://host.docker.internal:8080"
     static final long TOKEN_TTL_MS  = 15 * 60 * 1000L  // 15분
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ★ 평점 동시성 제어 벤치마크 모드 설정
+    //  - "NONE"        : 락 없음 (Lost Update 발생 재현용 Baseline)
+    //  - "PESSIMISTIC" : 비관적 락 (SELECT FOR UPDATE) → Case A
+    //  - "ATOMIC"      : 조건부/원자적 UPDATE (Atomic SQL) → Case B
+    // ─────────────────────────────────────────────────────────────────────
+    static final String STRATEGY = "PESSIMISTIC"  // ← "NONE", "PESSIMISTIC", "ATOMIC" 선택
 
     /**
      * 인기 튜터 ID (리뷰 집중 대상)
@@ -297,7 +305,7 @@ class ReviewConcurrencyTest {
             content: template.content
         ])
 
-        String url = "${BASE_URL}/api/tutors/${tutorId}/reviews"
+        String url = "${BASE_URL}/api/tutors/${tutorId}/reviews?strategy=${STRATEGY.toLowerCase()}"
         long start = System.currentTimeMillis()
 
         try {

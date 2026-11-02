@@ -35,6 +35,9 @@ public class ReviewService {
      */
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * [기본 방식 - 동시성 제어 없음 (Lost Update 발생 확인용)]
+     */
     public ReviewResponse postReview(Long id, ReviewRequest request, Long tutorId) {
         if(matchingRepository.hasAlreadyReviewedTutor(tutorId, id)) {
             throw new IllegalStateException("이미 리뷰를 작성한 수업입니다.");
@@ -52,15 +55,79 @@ public class ReviewService {
         tutorAccount.updateRating(request.rating());
 
         LessonReview lessonReview = LessonReview.of(matching, request.content(), request.rating(), request.isAnonymous());
-
         ReviewResponse response = ReviewResponse.from(reviewRepository.save(lessonReview));
 
-        // ES 도큐먼트(totalScore) 동기화: 기존 로직 유지
+        // ES 도큐먼트(totalScore) 동기화
         tutorSyncEventPublisher.publishSaveEvent(tutorId);
 
-        // 캐시 무효화 이벤트 발행 (AFTER_COMMIT 에서 처리)
-        // 무효화 대상: tutorReviews::tutorId:5 (리뷰 첫 페이지),
-        //             tutorDetail::tutorId    (프로필 averageRating·reviewCount)
+        // 캐시 무효화 이벤트 발행
+        eventPublisher.publishEvent(ReviewCacheEvictEvent.of(tutorId));
+
+        return response;
+    }
+
+    /**
+     * [벤치마크 Case A: 비관적 락 (SELECT FOR UPDATE)]
+     * TutorAccount 행에 배타적 락(X-Lock)을 걸어 평점 갱신 트랜잭션을 직렬화.
+     */
+    public ReviewResponse postReviewWithPessimisticLock(Long id, ReviewRequest request, Long tutorId) {
+        if(matchingRepository.hasAlreadyReviewedTutor(tutorId, id)) {
+            throw new IllegalStateException("이미 리뷰를 작성한 수업입니다.");
+        }
+
+        Matching matching = matchingRepository.findByStudentAccount_StudentIdAndTutorAccount_TutorIdAndStatus(
+                        id,
+                        tutorId,
+                        MatchingStatus.ACCEPTED
+                ).orElseThrow(() -> new EntityNotFoundException("해당 강사에 대해 리뷰를 작성할 수 있는 승인된 매칭이 없습니다."));
+
+        // 비관적 락(FOR UPDATE)으로 튜터 행 잠금
+        TutorAccount tutorAccount = tutorsRepository.findByIdWithLock(tutorId)
+                .orElseThrow(() -> new EntityNotFoundException("강사를 찾을 수 없습니다."));
+
+        tutorAccount.updateRating(request.rating());
+
+        LessonReview lessonReview = LessonReview.of(matching, request.content(), request.rating(), request.isAnonymous());
+        ReviewResponse response = ReviewResponse.from(reviewRepository.save(lessonReview));
+
+        // ES 도큐먼트(totalScore) 동기화
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
+
+        // 캐시 무효화 이벤트 발행
+        eventPublisher.publishEvent(ReviewCacheEvictEvent.of(tutorId));
+
+        return response;
+    }
+
+    /**
+     * [벤치마크 Case B: 조건부/원자적 UPDATE (Atomic SQL Update)]
+     * 락 없이 단 1회의 원자적 UPDATE 쿼리로 reviewCount와 averageRating을 갱신.
+     */
+    public ReviewResponse postReviewWithAtomicUpdate(Long id, ReviewRequest request, Long tutorId) {
+        if(matchingRepository.hasAlreadyReviewedTutor(tutorId, id)) {
+            throw new IllegalStateException("이미 리뷰를 작성한 수업입니다.");
+        }
+
+        Matching matching = matchingRepository.findByStudentAccount_StudentIdAndTutorAccount_TutorIdAndStatus(
+                        id,
+                        tutorId,
+                        MatchingStatus.ACCEPTED
+                ).orElseThrow(() -> new EntityNotFoundException("해당 강사에 대해 리뷰를 작성할 수 있는 승인된 매칭이 없습니다."));
+
+        // 1. 단일 원자적 SQL UPDATE로 평점 및 리뷰 수 갱신 (락 대기/엔티티 dirty checking 생략)
+        int updated = tutorsRepository.updateRatingAtomically(tutorId, request.rating());
+        if (updated == 0) {
+            throw new EntityNotFoundException("강사를 찾을 수 없습니다.");
+        }
+
+        // 2. 리뷰 엔티티 저장
+        LessonReview lessonReview = LessonReview.of(matching, request.content(), request.rating(), request.isAnonymous());
+        ReviewResponse response = ReviewResponse.from(reviewRepository.save(lessonReview));
+
+        // ES 도큐먼트(totalScore) 동기화
+        tutorSyncEventPublisher.publishSaveEvent(tutorId);
+
+        // 캐시 무효화 이벤트 발행
         eventPublisher.publishEvent(ReviewCacheEvictEvent.of(tutorId));
 
         return response;

@@ -13,10 +13,15 @@ import java.util.Objects;
 
 @ToString(callSuper = true)
 @Getter
-@Table(indexes = {
+@Table(
+    indexes = {
         @Index(columnList = "student_id"),
         @Index(columnList = "tutor_id")
-})
+    },
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_matching_active", columnNames = {"active_key"})
+    }
+)
 @Entity
 public class Matching extends AuditingFields {
 
@@ -41,6 +46,20 @@ public class Matching extends AuditingFields {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private MatchingStatus status;
+
+    /**
+     * [2차 최종 방어선: DB 레벨 조건부 유니크 제약]
+     * MySQL 생성 컬럼 (Generated Column STORED)
+     * status 가 PENDING 또는 ACCEPTED 일 때만 CONCAT(student_id, ':', tutor_id) 키 생성,
+     * 그 외 비활성 상태(CANCELLED 등)는 NULL이 되어 다중 NULL 허용 특성에 따라 유니크 제약 회피.
+     */
+    @Column(
+        name = "active_key",
+        columnDefinition = "VARCHAR(64) GENERATED ALWAYS AS (CASE WHEN status IN ('PENDING','ACCEPTED') THEN CONCAT(student_id, ':', tutor_id) END) STORED",
+        insertable = false,
+        updatable = false
+    )
+    private String activeKey;
 
     @OneToOne(mappedBy = "matching", cascade = CascadeType.ALL)
     private LessonReview lessonReview;

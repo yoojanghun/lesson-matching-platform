@@ -109,6 +109,13 @@ langchain4j:
 #      api-key: ${OPENAI_API_KEY:temp_openai_api_key}
 #      model-name: text-embedding-3-small
 
+# ── 동시성 제어 피처 플래그 ──────────────────────────────────────────────────
+# true  → 비관적 락(SELECT ... FOR UPDATE) 활성화  → Double Booking 방지
+# false → 비관적 락 없음 (대조군)                  → Race Condition 재현
+feature:
+  lock:
+    enabled: ${FEATURE_LOCK_ENABLED:true}
+
 # Spring Boot Actuator & Metrics (Prometheus / Grafana)
 management:
   endpoints:

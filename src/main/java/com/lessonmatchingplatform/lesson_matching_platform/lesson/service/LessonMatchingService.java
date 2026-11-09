@@ -36,6 +36,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 
 @RequiredArgsConstructor
 @Transactional
@@ -50,6 +51,10 @@ public class LessonMatchingService {
     private final ReservationRepository reservationRepository;
     private final ScheduleQueryService scheduleQueryService;
     private final MeterRegistry meterRegistry;
+
+    // ── 피처 플래그: 비관적 락 on/off (application.yml or 환경변수 FEATURE_LOCK_ENABLED) ──
+    @Value("${feature.lock.enabled:true}")
+    private boolean pessimisticLockEnabled;
 
     // Student가 레슨 등록
     public Long lessonMatching(Long studentId, Long tutorId, LessonMatchingRequest request) {
@@ -206,9 +211,17 @@ public class LessonMatchingService {
             throw new IllegalStateException("요청한 시간이 튜터의 휴무/불가 시간과 겹칩니다.");
         }
 
-        // 비관적 락(Pessimistic Lock on Tutor Row) 획득: 튜터 행에 X-Lock을 걸어 해당 튜터의 예약 생성을 직렬화
-        TutorAccount tutorAccount = tutorsRepository.findByIdWithLock(tutorId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 tutorId의 튜터가 존재하지 않습니다."));
+        // 피처 플래그에 따른 비관적 락(Pessimistic Lock) 적용 여부 분기
+        TutorAccount tutorAccount;
+        if (pessimisticLockEnabled) {
+            // [실험군] 비관적 락(SELECT ... FOR UPDATE): 튜터 행에 X-Lock을 걸어 해당 튜터의 예약 생성을 직렬화 -> Double Booking 방지
+            tutorAccount = tutorsRepository.findByIdWithLock(tutorId)
+                    .orElseThrow(() -> new EntityNotFoundException("해당 tutorId의 튜터가 존재하지 않습니다."));
+        } else {
+            // [대조군] 비관적 락 미적용: 일반 SELECT 조회 -> 동시 요청 시 중복 검사(existsOverlappingReservation) 통과 후 Double Booking 발생
+            tutorAccount = tutorsRepository.findById(tutorId)
+                    .orElseThrow(() -> new EntityNotFoundException("해당 tutorId의 튜터가 존재하지 않습니다."));
+        }
 
         boolean isAlreadyReserved = reservationRepository.existsOverlappingReservation(tutorId, requestDate, requestStartTime, requestEndTime);
         if (isAlreadyReserved) {

@@ -37,6 +37,13 @@ VALUES
 (7, 'COMPOSITION_JAZZ', 3, NOW(), 'SYSTEM');
 
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ── matching 테이블 active_key 컬럼 및 유니크 인덱스 자동 생성 (JPA validate 통과용) ──
+ALTER TABLE matching 
+ADD COLUMN IF NOT EXISTS active_key VARCHAR(64) GENERATED ALWAYS AS (
+    CASE WHEN status IN ('PENDING', 'ACCEPTED') THEN CONCAT(student_id, ':', tutor_id) END
+) STORED;
+
 TRUNCATE TABLE payment;
 TRUNCATE TABLE reservation;
 TRUNCATE TABLE lesson_review;
@@ -847,8 +854,8 @@ VALUES
 (54,  21, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
 (55,  22, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
 (56,  23, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
-(57,  24, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
-(58,  25, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
+(57,  24, 2, '레슨 신청합니다.', 'CANCELLED', 35000, NOW(), 'SYSTEM'),
+(58,  25, 2, '레슨 신청합니다.', 'CANCELLED', 35000, NOW(), 'SYSTEM'),
 (59,  26, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
 (60,  27, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
 (61,  28, 2, '레슨 신청합니다.', 'PENDING', 35000, NOW(), 'SYSTEM'),
@@ -901,8 +908,8 @@ VALUES
 (107, 24, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
 (108, 25, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
 (109, 26, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
-(110, 27, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
-(111, 28, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
+(110, 27, 3, '레슨 신청합니다.', 'CANCELLED', 40000, NOW(), 'SYSTEM'),
+(111, 28, 3, '레슨 신청합니다.', 'CANCELLED', 40000, NOW(), 'SYSTEM'),
 (112, 29, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
 (113, 30, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
 (114, 31, 3, '레슨 신청합니다.', 'PENDING', 40000, NOW(), 'SYSTEM'),
@@ -955,9 +962,9 @@ VALUES
 (160, 27, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
 (161, 28, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
 (162, 29, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
-(163, 30, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(163, 30, 4, '레슨 신청합니다.', 'CANCELLED', 25000, NOW(), 'SYSTEM'),
 (164, 31, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
-(165, 32, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
+(165, 32, 4, '레슨 신청합니다.', 'CANCELLED', 25000, NOW(), 'SYSTEM'),
 (166, 33, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
 (167, 34, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
 (168, 35, 4, '레슨 신청합니다.', 'PENDING', 25000, NOW(), 'SYSTEM'),
@@ -1009,8 +1016,8 @@ VALUES
 (213, 30, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
 (214, 31, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
 (215, 32, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(216, 33, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
-(217, 34, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
+(216, 33, 5, '레슨 신청합니다.', 'CANCELLED', 30000, NOW(), 'SYSTEM'),
+(217, 34, 5, '레슨 신청합니다.', 'CANCELLED', 30000, NOW(), 'SYSTEM'),
 (218, 35, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
 (219, 36, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),
 (220, 37, 5, '레슨 신청합니다.', 'PENDING', 30000, NOW(), 'SYSTEM'),

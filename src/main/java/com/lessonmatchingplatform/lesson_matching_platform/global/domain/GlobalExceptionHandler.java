@@ -1,6 +1,7 @@
 package com.lessonmatchingplatform.lesson_matching_platform.global.domain;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -44,8 +45,15 @@ public class GlobalExceptionHandler {
     // 비즈니스 로직 실패 시 (409 Conflict)
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<CustomErrorResponse> handleIllegalStateException(IllegalStateException e) {
-        // 상황에 따라 400(Bad Request) 혹은 409(Conflict)로 내려주면 적절
         CustomErrorResponse response = new CustomErrorResponse(e.getMessage(), HttpStatus.CONFLICT.value());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    // [2차 방어선] DB 제약조건 위반 시 (409 Conflict)
+    // 분산 락을 뚫거나 우회하여 동시 INSERT 시 생성 컬럼 조건부 유니크 제약(uk_matching_active)에 의해 차단
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<CustomErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        CustomErrorResponse response = new CustomErrorResponse("이미 처리 중이거나 완료된 매칭 요청이 존재합니다.", HttpStatus.CONFLICT.value());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 

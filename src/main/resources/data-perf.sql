@@ -37,13 +37,6 @@ VALUES
 (7, 'COMPOSITION_JAZZ', 3, NOW(), 'SYSTEM');
 
 SET FOREIGN_KEY_CHECKS = 0;
-
--- ── matching 테이블 active_key 컬럼 및 유니크 인덱스 자동 생성 (JPA validate 통과용) ──
-ALTER TABLE matching 
-ADD COLUMN IF NOT EXISTS active_key VARCHAR(64) GENERATED ALWAYS AS (
-    CASE WHEN status IN ('PENDING', 'ACCEPTED') THEN CONCAT(student_id, ':', tutor_id) END
-) STORED;
-
 TRUNCATE TABLE payment;
 TRUNCATE TABLE reservation;
 TRUNCATE TABLE lesson_review;

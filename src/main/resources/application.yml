@@ -114,7 +114,7 @@ langchain4j:
 # false → 비관적 락 없음 (대조군)                  → Race Condition 재현
 feature:
   lock:
-    enabled: ${FEATURE_LOCK_ENABLED:true}
+    enabled: ${FEATURE_LOCK_ENABLED:false}
 
 # Spring Boot Actuator & Metrics (Prometheus / Grafana)
 management:

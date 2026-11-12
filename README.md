@@ -1,6 +1,60 @@
 # 레슨 매칭 플랫폼
 
-학생과 튜터 간의 레슨 매칭, 일정 조율 및 결제 기능 등을 제공하는 중개 플랫폼
+> 학생과 튜터 간의 레슨 매칭, 일정 조율 및 결제 기능 등을 제공하는 중개 플랫폼
+
+---
+
+## 🖼️ 서비스 주요 화면
+
+<table width="100%">
+  <tr>
+    <td width="50%" align="center"><b>메인 홈 (인기 / 루키 튜터 추천)</b></td>
+    <td width="50%" align="center"><b>튜터 검색 및 필터링 화면</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/images/main.png" width="100%"></td>
+    <td><img src="./docs/images/search.png" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%" align="center"><b>튜터 프로필 및 상세 정보</b></td>
+    <td width="50%" align="center"><b>매칭 관리 및 신청 목록</b></td>
+  </tr>
+  <tr>
+    <td><img src="./docs/images/tutor-proflie.png" width="100%"></td>
+    <td><img src="./docs/images/matching-list.png" width="100%"></td>
+  </tr>
+</table>
+
+---
+
+## 🏗️ 시스템 아키텍처
+
+<p align="center">
+  <img src="./docs/images/system-architecture.png" width="100%" alt="시스템 아키텍처">
+</p>
+
+- **다중 스토리지 역할 분리**:
+  - **MySQL (RDB)**: 회원, 레슨 매칭, 일정 예약, 결제 등 ACID 트랜잭션 및 강한 일관성이 보장되어야 하는 핵심 비즈니스 데이터 관리.
+  - **Redis (In-Memory)**: 글로벌 메인 홈/튜터 프로필 캐싱(Cache Stampede 방어) 및 Redisson 분산 락, WebSocket 세션 라우팅을 위한 Pub/Sub 허브로 활용.
+  - **MongoDB (NoSQL & Vector DB)**: 대량 쓰기가 발생하는 1:1 실시간 대화 내역 저장 및 학생 자연어 요구사항 매칭을 위한 튜터 임베딩 벡터 저장소.
+  - **Elasticsearch**: 튜터의 과목, 활동 지역, 자기소개 등 복합 텍스트 필터링 및 고속 역색인 검색 담당.
+- **비동기 이벤트 & 메시징 파이프라인**:
+  - **RabbitMQ**: 매칭 승인 및 결제 완료 후 SMS 외부 알림 발송을 `@TransactionalEventListener(AFTER_COMMIT)`과 결합하여 메인 트랜잭션의 지연 및 장애 격리.
+  - **WebSocket / STOMP**: Redis Pub/Sub와 연동된 실시간 1:1 채팅 통신.
+
+---
+
+## 🗄️ ERD
+
+<p align="center">
+  <img src="./docs/images/ERD.png" width="100%" alt="ERD 다이어그램">
+</p>
+
+- **핵심 도메인 엔티티**:
+  - **Account**: 회원 공통 계정(`user_account`), 학생 프로필(`student_account`), 튜터 프로필(`tutor_account`)
+  - **Category / Subject**: 강의 카테고리(`category`) 및 과목(`subject`) 연계 매핑 테이블
+  - **Lesson Matching & Reservation**: 1:1 신청 매칭(`matching`), 스케줄 슬롯 선점 예약(`reservation`), 취소 사유 및 수강 후기(`lesson_review`)
+  - **Payment**: 주문 결제 이력(`payment`), 결제 상태 추적
 
 ---
 
